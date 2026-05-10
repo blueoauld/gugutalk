@@ -5,7 +5,7 @@ struct CustomTextField<Field: Hashable>: View {
     let placeholder: String
     @Binding var text: String
     let field: Field
-    var focusedField: FocusState<Field?>.Binding
+    var focusedField: FocusState<Field>.Binding
     var keyboardType: UIKeyboardType = .default
 
     var body: some View {

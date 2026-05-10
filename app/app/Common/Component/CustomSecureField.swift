@@ -5,7 +5,7 @@ struct CustomSecureField<Field: Hashable>: View {
     let placeholder: String
     @Binding var text: String
     let field: Field
-    var focusedField: FocusState<Field?>.Binding
+    var focusedField: FocusState<Field>.Binding
 
     var body: some View {
         SecureField(placeholder, text: $text)
