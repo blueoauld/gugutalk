@@ -7,8 +7,9 @@ struct LoginView: View {
         case password
     }
     
-    @Environment(AppRouter.self) private var router
-    
+    @Environment(AuthenticationRouter.self) private var router
+    @Environment(SessionStore.self) private var session
+
     @FocusState private var focusedField: Field?
     
     @State private var vm = LoginViewModel()
@@ -48,7 +49,7 @@ struct LoginView: View {
         }
         .safeAreaBar(edge: .bottom) {
             SubmitButton(title: "로그인", disabled: !vm.enabled) {
-                
+                session.isLoggedIn = true
             }
         }
         .navigationTitle("로그인")

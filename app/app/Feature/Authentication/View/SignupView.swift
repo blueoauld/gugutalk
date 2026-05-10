@@ -10,7 +10,7 @@ struct SignupView: View {
         case birthYear
     }
     
-    @Environment(AppRouter.self) private var router
+    @Environment(AuthenticationRouter.self) private var router
     
     @FocusState private var focusedField: Field?
     

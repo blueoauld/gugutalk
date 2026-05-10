@@ -3,12 +3,12 @@ import SwiftUI
 @main
 struct MainApp: App {
 
-    @State private var router = AppRouter()
+    @State private var session = SessionStore()
 
     var body: some Scene {
         WindowGroup {
             RootView()
-                .environment(router)
+                .environment(session)
         }
     }
 }

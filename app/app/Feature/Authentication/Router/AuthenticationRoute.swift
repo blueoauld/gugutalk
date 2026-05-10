@@ -1,4 +1,4 @@
-enum AppRoute: Hashable {
+enum AuthenticationRoute: Hashable {
 
     case login
     case signup
