@@ -1,11 +1,11 @@
 import SwiftUI
 
 @Observable
-final class LocationRouter {
+final class AppRouter {
 
     var path = NavigationPath()
     
-    func push(_ route: LocationRoute) {
+    func push(_ route: AppRoute) {
         path.append(route)
     }
     

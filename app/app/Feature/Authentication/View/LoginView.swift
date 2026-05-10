@@ -52,5 +52,7 @@ struct LoginView: View {
                 session.isLoggedIn = true
             }
         }
+        .navigationTitle("로그인")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -7,8 +7,8 @@ struct MainTabView: View {
         case location
     }
 
-    @State private var recentRouter = RecentRouter()
-    @State private var locationRouter = LocationRouter()
+    @State private var recentRouter = AppRouter()
+    @State private var locationRouter = AppRouter()
 
     @State private var selectedTab: Tab = .recent
 

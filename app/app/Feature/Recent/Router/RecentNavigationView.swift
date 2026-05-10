@@ -1,18 +1,13 @@
 import SwiftUI
 
 struct RecentNavigationView: View {
-
-    @Bindable var router: RecentRouter
-
+    
+    @Bindable var router: AppRouter
+    
     var body: some View {
-        NavigationStack(path: Bindable(router).path) {
+        NavigationStack(path: $router.path) {
             RecentView()
-                .navigationDestination(for: RecentRoute.self) { route in
-                    switch route {
-                    case .member(let memberId):
-                        MemberView(memberId: memberId)
-                    }
-                }
+                .appDestination()
         }
         .environment(router)
     }

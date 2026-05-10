@@ -2,17 +2,12 @@ import SwiftUI
 
 struct LocationNavigationView: View {
 
-    @Bindable var router: LocationRouter
+    @Bindable var router: AppRouter
 
     var body: some View {
-        NavigationStack(path: Bindable(router).path) {
+        NavigationStack(path: $router.path) {
             LocationView()
-                .navigationDestination(for: LocationRoute.self) { route in
-                    switch route {
-                    case .member(let memberId):
-                        MemberView(memberId: memberId)
-                    }
-                }
+                .appDestination()
         }
         .environment(router)
     }

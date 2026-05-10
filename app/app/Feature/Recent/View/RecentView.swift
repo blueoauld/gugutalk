@@ -2,7 +2,7 @@ import SwiftUI
 
 struct RecentView: View {
 
-    @Environment(RecentRouter.self) private var router
+    @Environment(AppRouter.self) private var router
 
     var body: some View {
         VStack {
