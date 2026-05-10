@@ -2,17 +2,21 @@ import SwiftUI
 
 struct RootView: View {
 
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
+    @Environment(AppRouter.self) private var router
 
-#Preview {
-    RootView()
+    var body: some View {
+        NavigationStack(path: Bindable(router).path) {
+            LoginView()
+                .navigationDestination(for: AppRoute.self) { route in
+                    switch route {
+                    case .login:
+                        LoginView()
+                    case .signup:
+                        SignupView()
+                    case .setup:
+                        SetupView()
+                    }
+                }
+        }
+    }
 }
