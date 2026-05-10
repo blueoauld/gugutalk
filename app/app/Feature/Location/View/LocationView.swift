@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct LocationView: View {
-
+    
     @Environment(LocationRouter.self) private var router
-
+    
     var body: some View {
         VStack {
             Button {
@@ -12,5 +12,7 @@ struct LocationView: View {
                 Text("테스트")
             }
         }
+        .navigationTitle("위치")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
