@@ -10,6 +10,10 @@ struct AppDestination: ViewModifier {
                     RecentView()
                 case .location:
                     LocationView()
+                case .chat:
+                    ChatView()
+                case .setting:
+                    SettingView()
                 case .member(let memberId):
                     MemberView(memberId: memberId)
                 }
