@@ -7,7 +7,9 @@ struct SetupView: View {
         case birthYear
         case bio
     }
-    
+
+    @Environment(SessionStore.self) private var session
+
     @FocusState private var focusedField: Field?
     
     @State private var vm = SetupViewModel()
@@ -48,7 +50,8 @@ struct SetupView: View {
         }
         .safeAreaBar(edge: .bottom) {
             SubmitButton(title: "들어가기", disabled: !vm.enabled) {
-                
+                focusedField = nil
+                session.isLoggedIn = true
             }
         }
         .navigationTitle("프로필")

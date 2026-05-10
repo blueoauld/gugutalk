@@ -36,6 +36,7 @@ struct LoginView: View {
                 .padding(.bottom)
 
                 Button {
+                    focusedField = nil
                     router.push(.signup)
                 } label: {
                     Text("회원가입")
@@ -49,6 +50,7 @@ struct LoginView: View {
         }
         .safeAreaBar(edge: .bottom) {
             SubmitButton(title: "로그인", disabled: !vm.enabled) {
+                focusedField = nil
                 session.isLoggedIn = true
             }
         }

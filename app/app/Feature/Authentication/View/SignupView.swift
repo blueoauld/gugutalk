@@ -70,6 +70,7 @@ struct SignupView: View {
         }
         .safeAreaBar(edge: .bottom) {
             SubmitButton(title: "회원가입", disabled: !vm.enabled) {
+                focusedField = nil
                 router.push(.setup)
             }
         }
