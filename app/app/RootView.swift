@@ -6,10 +6,13 @@ struct RootView: View {
 
     var body: some View {
 
-        if session.isLoggedIn {
-            MainView()
-        } else {
-            AuthenticationNavigationView()
+        Group {
+            if session.isLoggedIn {
+                MainTabView()
+            } else {
+                AuthenticationNavigationView()
+            }
         }
+        .animation(.default, value: session.isLoggedIn)
     }
 }

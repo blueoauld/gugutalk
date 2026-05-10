@@ -7,7 +7,6 @@ struct RecentNavigationView: View {
     var body: some View {
 
         NavigationStack(path: Bindable(router).path) {
-
             RecentView()
                 .navigationTitle("최근")
                 .navigationBarTitleDisplayMode(.inline)

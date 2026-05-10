@@ -1,19 +1,19 @@
 import SwiftUI
 
 struct LoginView: View {
-    
+
     enum Field {
         case phone
         case password
     }
-    
+
     @Environment(AuthenticationRouter.self) private var router
     @Environment(SessionStore.self) private var session
 
     @FocusState private var focusedField: Field?
-    
+
     @State private var vm = LoginViewModel()
-    
+
     var body: some View {
         ScrollView {
             VStack {
@@ -25,7 +25,7 @@ struct LoginView: View {
                         focusedField: $focusedField,
                         keyboardType: .phonePad
                     )
-                    
+
                     CustomSecureField(
                         placeholder: "비밀번호",
                         text: $vm.password,
@@ -34,7 +34,7 @@ struct LoginView: View {
                     )
                 }
                 .padding(.bottom)
-                
+
                 Button {
                     router.push(.signup)
                 } label: {
@@ -52,7 +52,5 @@ struct LoginView: View {
                 session.isLoggedIn = true
             }
         }
-        .navigationTitle("로그인")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

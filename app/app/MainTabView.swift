@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct MainView: View {
+struct MainTabView: View {
 
     var body: some View {
         TabView {

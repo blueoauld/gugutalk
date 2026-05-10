@@ -5,9 +5,7 @@ struct LocationNavigationView: View {
     @State private var router = LocationRouter()
 
     var body: some View {
-
         NavigationStack(path: Bindable(router).path) {
-
             LocationView()
                 .navigationTitle("위치")
                 .navigationBarTitleDisplayMode(.inline)

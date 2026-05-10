@@ -12,7 +12,5 @@ struct RecentView: View {
                 Text("테스트")
             }
         }
-        .navigationTitle("최근")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

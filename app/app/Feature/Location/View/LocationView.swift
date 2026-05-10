@@ -12,7 +12,5 @@ struct LocationView: View {
                 Text("테스트")
             }
         }
-        .navigationTitle("위치")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
