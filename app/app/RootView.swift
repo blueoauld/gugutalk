@@ -8,7 +8,7 @@ struct RootView: View {
 
         Group {
             if session.isLoggedIn {
-                MainTabView()
+                RootTabView()
             } else {
                 AuthenticationNavigationView()
             }
