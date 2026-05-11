@@ -9,6 +9,7 @@ struct MemberListRow: View {
     let age: Int
     let likes: Int
     let unlikes: Int
+    let reviews: Int
     let region: Region
 
     @State private var showMessage = false
@@ -26,51 +27,68 @@ struct MemberListRow: View {
             VStack(alignment: .leading) {
                 HStack {
                     Text(nickname)
-                        .font(.headline)
+                        .font(.subheadline.bold())
 
                     Spacer()
 
                     Text(updatedAt)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
 
                 Text(comment)
-                    .font(.subheadline)
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
 
                 HStack {
-                    Text((gender.rawValue))
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Text(gender.rawValue)
 
-                    Text("·")
+                            Text("·")
 
-                    Text("\(age)살")
+                            Text("\(age)살")
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
 
-                    Text("·")
+                        HStack {
+                            HStack(spacing: 3) {
+                                Image(systemName: "heart.fill")
+                                    .foregroundStyle(.red)
 
-                    HStack(spacing: 5) {
-                        Image(systemName: "heart.fill")
-                            .foregroundStyle(.red)
+                                Text("\(likes)")
+                            }
 
-                        Text("\(likes)")
-                    }
+                            Text("·")
 
-                    Text("·")
+                            HStack(spacing: 3) {
+                                Image(systemName: "heart.slash.fill")
+                                    .foregroundStyle(.blue)
 
-                    HStack(spacing: 5) {
-                        Image(systemName: "heart.slash.fill")
-                            .foregroundStyle(.blue)
+                                Text("\(unlikes)")
+                            }
 
-                        Text("\(unlikes)")
+                            Text("·")
+
+                            HStack(spacing: 3) {
+                                Image(systemName: "star.fill")
+                                    .foregroundStyle(.yellow)
+
+                                Text("\(reviews)")
+                            }
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                     }
 
                     Spacer()
 
                     Text(region.rawValue)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
             }
         }
         .listRowSeparator(.hidden)

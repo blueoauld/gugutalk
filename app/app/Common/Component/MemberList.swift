@@ -13,6 +13,7 @@ struct MemberList: View {
                     age: 20,
                     likes: it,
                     unlikes: 1000 - it,
+                    reviews: it,
                     region: Region.seoul
                 )
             }

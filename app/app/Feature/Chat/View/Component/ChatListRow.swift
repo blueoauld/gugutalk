@@ -21,18 +21,18 @@ struct ChatListRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(nickname)
-                        .font(.headline)
+                        .font(.subheadline.bold())
 
                     Spacer()
 
                     Text(updatedAt)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
 
                 HStack(alignment: .center) {
                     Text(message)
-                        .font(.subheadline)
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
 
