@@ -58,7 +58,7 @@ struct ChatListRow: View {
             } label: {
                 Image(systemName: colorScheme == .dark ? "eyes" : "eyes.inverse")
             }
-            .tint(.indigo)
+            .tint(.gray)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button {
