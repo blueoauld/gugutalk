@@ -38,6 +38,7 @@ struct MemberListRow: View {
                 Text(comment)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                    .lineLimit(1)
 
                 HStack {
                     Text((gender.rawValue))

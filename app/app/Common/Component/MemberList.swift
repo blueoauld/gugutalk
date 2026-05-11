@@ -4,15 +4,15 @@ struct MemberList: View {
 
     var body: some View {
         List {
-            ForEach(0..<100, id: \.self) { _ in
+            ForEach(1...1000, id: \.self) { it in
                 MemberListRow(
-                    nickname: "홍길동",
+                    nickname: "홍길동 \(it)",
                     updatedAt: "방금전",
-                    comment: "코멘트",
+                    comment: String(repeating: "코멘트 ", count: it % 15 + 1),
                     gender: Gender.male,
                     age: 20,
-                    likes: 100,
-                    unlikes: 200,
+                    likes: it,
+                    unlikes: 1000 - it,
                     region: Region.seoul
                 )
             }
