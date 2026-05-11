@@ -4,6 +4,7 @@ enum AppRoute: Hashable {
     case location
     case chat
     case setting
+    case memberSearch
     case member(Int64)
     
     var hideTabBar: Bool {

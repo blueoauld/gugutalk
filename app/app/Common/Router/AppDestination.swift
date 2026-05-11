@@ -14,6 +14,8 @@ struct AppDestination: ViewModifier {
                     ChatView()
                 case .setting:
                     SettingView()
+                case .memberSearch:
+                    MemberSearchView()
                 case .member(let memberId):
                     MemberView(memberId: memberId)
                 }

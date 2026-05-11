@@ -14,6 +14,7 @@ struct RootTabView: View {
     @State private var locationRouter = AppRouter()
     @State private var chatRouter = AppRouter()
     @State private var settingRouter = AppRouter()
+    @State private var memberSearchRouter = AppRouter()
 
     @State private var selectedTab: TabType = .recent
     @State private var hideTabBar = false
@@ -57,7 +58,8 @@ struct RootTabView: View {
             }
 
             Tab("검색", systemImage: "magnifyingglass", value: TabType.search, role: .search) {
-                EmptyView()
+                MemberSearchNavigationView(router: memberSearchRouter)
+                    .toolbarVisibility(hideTabBar ? .hidden : .visible, for: .tabBar)
             }
         }
         .tabViewStyle(.automatic)
