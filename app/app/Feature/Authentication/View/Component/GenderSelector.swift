@@ -12,7 +12,7 @@ struct GenderSelector: View {
                 } label: {
                     Text(it.rawValue)
                         .font(.default.bold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(

@@ -21,7 +21,7 @@ struct ChatView: View {
                 } label: {
                     Image(systemName: "magnifyingglass")
                         .font(.default)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                 }
             }
 
@@ -31,7 +31,7 @@ struct ChatView: View {
                 } label: {
                     Image(systemName: isMute ? "bell.slash" : "bell")
                         .font(.default)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .sensoryFeedback(.selection, trigger: isMute)

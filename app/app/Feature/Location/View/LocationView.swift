@@ -23,7 +23,7 @@ struct LocationView: View {
                 } label: {
                     Image(systemName: "square.and.pencil")
                         .font(.default)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                 }
             }
         }

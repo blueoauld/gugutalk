@@ -19,7 +19,7 @@ struct MemberListRow: View {
             Image(systemName: "person.fill")
                 .font(.title)
                 .padding()
-                .foregroundColor(Color(.systemGray4))
+                .foregroundStyle(Color(.systemGray4))
                 .background(Color(.systemGray6))
                 .clipShape(Circle())
 
@@ -32,12 +32,12 @@ struct MemberListRow: View {
 
                     Text(updatedAt)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
 
                 Text(comment)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
 
                 HStack {
@@ -51,7 +51,7 @@ struct MemberListRow: View {
 
                     HStack(spacing: 5) {
                         Image(systemName: "heart.fill")
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
 
                         Text("\(likes)")
                     }
@@ -60,7 +60,7 @@ struct MemberListRow: View {
 
                     HStack(spacing: 5) {
                         Image(systemName: "heart.slash.fill")
-                            .foregroundColor(.blue)
+                            .foregroundStyle(.blue)
 
                         Text("\(unlikes)")
                     }
@@ -70,7 +70,7 @@ struct MemberListRow: View {
                     Text(region.rawValue)
                 }
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
             }
         }
         .listRowSeparator(.hidden)

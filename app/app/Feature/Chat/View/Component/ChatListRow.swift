@@ -14,7 +14,7 @@ struct ChatListRow: View {
             Image(systemName: "person.fill")
                 .font(.title)
                 .padding()
-                .foregroundColor(Color(.systemGray4))
+                .foregroundStyle(Color(.systemGray4))
                 .background(Color(.systemGray6))
                 .clipShape(Circle())
 
@@ -27,13 +27,13 @@ struct ChatListRow: View {
 
                     Text(updatedAt)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
 
                 HStack(alignment: .center) {
                     Text(message)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(2)
 
                     Spacer()
@@ -42,7 +42,7 @@ struct ChatListRow: View {
                         let label = unreads > 99 ? "+99" : "\(unreads)"
                         Text(label)
                             .font(.caption2.bold())
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                             .padding(.horizontal, unreads < 10 ? 0 : 6)
                             .padding(.vertical, 3)
                             .frame(minWidth: 20, minHeight: 20)

@@ -10,7 +10,7 @@ struct VerificationCodeSendButton: View {
         Button(action: action) {
             Text("전송")
                 .font(.default.bold())
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(.horizontal, 20)
                 .frame(height: 50)
                 .background(
