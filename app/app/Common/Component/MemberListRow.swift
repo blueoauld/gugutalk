@@ -24,7 +24,7 @@ struct MemberListRow: View {
                 .background(Color(.systemGray6))
                 .clipShape(Circle())
 
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 1) {
                 HStack {
                     Text(nickname)
                         .font(.subheadline.bold())
@@ -87,7 +87,10 @@ struct MemberListRow: View {
 
                     Text(region.rawValue)
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color(.systemGray6), in: Capsule())
                 }
             }
         }
