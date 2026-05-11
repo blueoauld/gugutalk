@@ -18,7 +18,7 @@ struct MemberListRow: View {
     var body: some View {
         HStack {
             Image(systemName: "person.fill")
-                .font(.title)
+                .font(.largeTitle)
                 .padding()
                 .foregroundStyle(Color(.systemGray4))
                 .background(Color(.systemGray6))
@@ -42,7 +42,7 @@ struct MemberListRow: View {
                     .lineLimit(1)
 
                 HStack {
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 1) {
                         HStack {
                             Text(gender.rawValue)
 
