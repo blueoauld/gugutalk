@@ -4,7 +4,7 @@ struct ChatListRow: View {
 
     let nickname: String
     let updatedAt: String
-    let comment: String
+    let message: String
     let unreads: Int
 
     @Environment(\.colorScheme) private var colorScheme
@@ -31,7 +31,7 @@ struct ChatListRow: View {
                 }
 
                 HStack(alignment: .center) {
-                    Text(comment)
+                    Text(message)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(2)
@@ -58,7 +58,7 @@ struct ChatListRow: View {
             } label: {
                 Image(systemName: colorScheme == .dark ? "eyes" : "eyes.inverse")
             }
-            .tint(.blue)
+            .tint(.indigo)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button {
