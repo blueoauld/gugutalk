@@ -1,13 +1,16 @@
 package com.blueoauld.server.authentication.application
 
 import com.blueoauld.server.authentication.application.request.SendVerificationCodeRequest
+import com.blueoauld.server.authentication.application.request.SignupRequest
 import com.blueoauld.server.authentication.entity.VerificationCode
 import com.blueoauld.server.authentication.repository.VerificationCodeRepository
 import com.blueoauld.server.common.util.IpExtractor
 import com.blueoauld.server.common.util.RandomNumberGenerator
+import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.repository.MemberRepository
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -22,7 +25,8 @@ class AuthenticationService(
 
     private val memberRepository: MemberRepository,
     private val verificationCodeRepository: VerificationCodeRepository,
-    private val stringRedisTemplate: StringRedisTemplate
+    private val stringRedisTemplate: StringRedisTemplate,
+    private val passwordEncoder: PasswordEncoder,
 ) {
 
     @Transactional
@@ -34,15 +38,7 @@ class AuthenticationService(
             throw IllegalArgumentException("인증번호 요청 횟수를 초과했습니다.")
         }
 
-        val codeKey = AUTHENTICATION_PHONE_CODE_KEY + request.phone
         val digitCode = RandomNumberGenerator.generateSixDigitCode()
-
-        stringRedisTemplate.opsForValue().set(codeKey, digitCode, 3, TimeUnit.MINUTES)
-        stringRedisTemplate.opsForValue().increment(countKey)
-
-        if (count == 0) {
-            stringRedisTemplate.expire(countKey, getSecondsUntilMidnight(), TimeUnit.SECONDS)
-        }
 
         val verificationCode = VerificationCode(
             phone = request.phone,
@@ -51,6 +47,40 @@ class AuthenticationService(
             code = digitCode,
         )
         verificationCodeRepository.save(verificationCode)
+
+        val codeKey = AUTHENTICATION_PHONE_CODE_KEY + request.phone
+
+        stringRedisTemplate.opsForValue().set(codeKey, digitCode, 3, TimeUnit.MINUTES)
+        stringRedisTemplate.opsForValue().increment(countKey)
+
+        if (count == 0) {
+            stringRedisTemplate.expire(countKey, getSecondsUntilMidnight(), TimeUnit.SECONDS)
+        }
+    }
+
+    @Transactional
+    fun signup(request: SignupRequest) {
+        val codeKey = AUTHENTICATION_PHONE_CODE_KEY + request.phone
+
+        if (stringRedisTemplate.opsForValue().get(codeKey) != request.verificationCode) {
+            throw IllegalArgumentException("인증 번호를 다시 한번 확인해주시길 바랍니다.")
+        }
+        if (memberRepository.existsByPhone(request.phone)) {
+            throw IllegalArgumentException("이미 가입된 휴대폰 번호입니다.")
+        }
+        if (request.password != request.confirmPassword) {
+            throw IllegalArgumentException("비밀번호가 일치하지 않습니다.")
+        }
+
+        val member = Member(
+            phone = request.phone,
+            password = passwordEncoder.encode(request.password)!!,
+            deviceId = request.deviceId,
+            gender = request.gender
+        )
+
+        memberRepository.save(member)
+        stringRedisTemplate.delete(codeKey)
     }
 
     private fun getSecondsUntilMidnight(): Long {
