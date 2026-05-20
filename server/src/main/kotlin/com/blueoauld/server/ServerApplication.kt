@@ -1,4 +1,4 @@
-package com.twobetta.server
+package com.blueoauld.server
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

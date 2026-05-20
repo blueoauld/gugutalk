@@ -1,4 +1,4 @@
-package com.twobetta.server
+package com.blueoauld.server
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
