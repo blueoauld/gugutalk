@@ -12,3 +12,7 @@ spring:
         format_sql: true
     show-sql: true
     open-in-view: false
+  data:
+    redis:
+      host: localhost
+      password:
