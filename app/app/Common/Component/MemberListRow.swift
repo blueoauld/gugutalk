@@ -12,9 +12,6 @@ struct MemberListRow: View {
     let reviews: Int
     let region: Region
 
-    @State private var showMessage = false
-    @State private var message = ""
-
     var body: some View {
         HStack {
             Image(systemName: "person.fill")
@@ -93,23 +90,6 @@ struct MemberListRow: View {
                         .background(Color(.systemGray6), in: Capsule())
                 }
             }
-        }
-        .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button {
-                showMessage = true
-            } label: {
-                Image(systemName: "envelope.fill")
-            }
-            .tint(.blue)
-        }
-        .alert("쪽지", isPresented: $showMessage) {
-            TextField("내용", text: $message)
-
-            Button("전송") {
-            }
-            Button("취소", role: .cancel) { }
         }
     }
 }
