@@ -70,12 +70,11 @@ final class TokenStorage {
     }
 
     func clearAll() {
-        cachedDeviceId = nil
         cachedMemberId = nil
         cachedAccessToken = nil
         cachedRefreshToken = nil
 
-        [deviceIdKey, memberIdKey, accessTokenKey, refreshTokenKey].forEach {
+        [memberIdKey, accessTokenKey, refreshTokenKey].forEach {
             keychain.delete($0)
         }
     }

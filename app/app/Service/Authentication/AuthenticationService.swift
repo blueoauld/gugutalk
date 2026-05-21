@@ -55,4 +55,19 @@ final class AuthenticationService {
             encoding: JSONEncoding.default
         )
     }
+
+    func logout(
+        accessToken: String,
+        refreshToken: String,
+    ) async throws {
+        try await PrivateNetworkManager.shared.requestVoid(
+            "/authentications/logout",
+            method: .delete,
+            parameters: [
+                "accessToken": accessToken,
+                "refreshToken": refreshToken
+            ],
+            encoding: JSONEncoding.default
+        )
+    }
 }

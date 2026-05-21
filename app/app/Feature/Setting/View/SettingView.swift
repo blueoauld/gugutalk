@@ -3,6 +3,9 @@ import SwiftUI
 struct SettingView: View {
 
     @Environment(AppRouter.self) private var router
+    @Environment(SessionStore.self) private var session
+
+    @State private var vm = SettingViewModel()
 
     @State private var showMenu = false
 
@@ -57,7 +60,12 @@ struct SettingView: View {
                 }
                 .confirmationDialog("메뉴", isPresented: $showMenu) {
                     Button("로그아웃") {
+                        Task {
+                            TokenStorage.shared.clearAll()
+                            session.isLoggedIn = false
 
+                            await vm.logout()
+                        }
                     }
 
                     Button("탈퇴", role: .destructive) {
