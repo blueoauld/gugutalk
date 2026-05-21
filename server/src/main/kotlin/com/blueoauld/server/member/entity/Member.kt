@@ -28,7 +28,7 @@ class Member(
     @Column(name = "profile_url")
     val profileUrl: String? = null,
 
-    @Column(name = "nickname", unique = true, nullable = false)
+    @Column(name = "nickname", length = 10, unique = true, nullable = false)
     var nickname: String = "닉네임_${UUID.randomUUID().toString().replace("-", "").take(6)}",
 
     @Enumerated(EnumType.STRING)
@@ -42,10 +42,10 @@ class Member(
     @Column(name = "birth_year", nullable = false)
     var birthYear: Int = 2000,
 
-    @Column(name = "comment", nullable = false)
+    @Column(name = "comment", length = 50, nullable = false)
     val comment: String = "안녕하세요.",
 
-    @Column(name = "bio", nullable = false)
+    @Column(name = "bio", length = 500, nullable = false)
     var bio: String = "",
 
     @Column(name = "created_at", nullable = false)
