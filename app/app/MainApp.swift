@@ -15,6 +15,7 @@ struct MainApp: App {
         WindowGroup {
             RootView()
                 .environment(session)
+                .toastHost()
         }
     }
 }
