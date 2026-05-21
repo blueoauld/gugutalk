@@ -50,8 +50,12 @@ struct LoginView: View {
         }
         .safeAreaBar(edge: .bottom) {
             SubmitButton(title: "로그인", disabled: !vm.enabled) {
-                focusedField = nil
-                session.isLoggedIn = true
+                Task {
+                    if await vm.login() {
+                        focusedField = nil
+                        session.isLoggedIn = true
+                    }
+                }
             }
         }
         .navigationTitle("로그인")

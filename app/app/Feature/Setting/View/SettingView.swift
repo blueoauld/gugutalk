@@ -22,6 +22,8 @@ struct SettingView: View {
                         .labelStyle(.settings(color: .red))
                     Label("싫어요 목록", systemImage: "heart.slash.fill")
                         .labelStyle(.settings(color: .blue))
+                    Label("리뷰 목록", systemImage: "star.fill")
+                        .labelStyle(.settings(color: .yellow))
                     Label("비밀 사진 목록", systemImage: "lock.fill")
                         .labelStyle(.settings(color: .green))
                     Label("차단 목록", systemImage: "nosign")
@@ -39,7 +41,7 @@ struct SettingView: View {
                     Label("문의하기", systemImage: "ellipsis.message.fill")
                         .labelStyle(.settings(color: .green))
                     Label("버그제보", systemImage: "lightbulb.fill")
-                        .labelStyle(.settings(color: .yellow))
+                        .labelStyle(.settings(color: .mint))
                     Label("서비스 이용약관", systemImage: "doc.text.fill")
                         .labelStyle(.settings(color: .orange))
                     Label("개인정보 취급방침", systemImage: "hand.raised.fill")
@@ -61,7 +63,6 @@ struct SettingView: View {
                 .confirmationDialog("메뉴", isPresented: $showMenu) {
                     Button("로그아웃") {
                         Task {
-                            TokenStorage.shared.clearAll()
                             session.isLoggedIn = false
 
                             await vm.logout()

@@ -22,6 +22,7 @@ final class SettingViewModel {
             try await authenticationService.logout(accessToken: accessToken, refreshToken: refreshToken)
 
             ToastManager.shared.show("정상적으로 로그아웃되었습니다.", style: .info)
+            TokenStorage.shared.clearAll()
         } catch let error as APIError {
             ToastManager.shared.show(error.message, style: .error)
         } catch {

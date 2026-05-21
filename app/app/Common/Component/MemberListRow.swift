@@ -41,7 +41,7 @@ struct MemberListRow: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 1) {
                         HStack {
-                            Text(gender.rawValue)
+                            Text(gender.label)
 
                             Text("·")
 
@@ -82,7 +82,7 @@ struct MemberListRow: View {
 
                     Spacer()
 
-                    Text(region.rawValue)
+                    Text(region.label)
                         .font(.caption2)
                         .foregroundStyle(.primary)
                         .padding(.horizontal, 8)

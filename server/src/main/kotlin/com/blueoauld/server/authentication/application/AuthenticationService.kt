@@ -123,13 +123,15 @@ class AuthenticationService(
         )
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     fun login(request: LoginRequest): LoginResponse {
         val member = (memberRepository.findByPhone(request.phone) ?: throw CustomException(MEMBER_05))
 
         if (!passwordEncoder.matches(request.password, member.password)) {
             throw CustomException(MEMBER_05)
         }
+
+        member.updateDeviceId(request.deviceId)
 
         val accessToken = tokenProvider.createAccessToken(member.id, member.nickname)
         val refreshToken = tokenProvider.createRefreshToken(member.id)

@@ -56,6 +56,24 @@ final class AuthenticationService {
         )
     }
 
+    func login(
+        phone: String,
+        password: String,
+        deviceId: String,
+    ) async throws -> LoginResponse {
+        try await PublicNetworkManager.shared.request(
+            "/authentications/login",
+            method: .post,
+            parameters: [
+                "phone": phone,
+                "password": password,
+                "deviceId": deviceId,
+            ],
+            encoding: JSONEncoding.default,
+            as: LoginResponse.self
+        )
+    }
+
     func logout(
         accessToken: String,
         refreshToken: String,

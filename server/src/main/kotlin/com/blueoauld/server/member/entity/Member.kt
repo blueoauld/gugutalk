@@ -23,7 +23,7 @@ class Member(
     val password: String,
 
     @Column(name = "device_id", nullable = false)
-    val deviceId: String,
+    var deviceId: String,
 
     @Column(name = "profile_url")
     val profileUrl: String? = null,
@@ -60,5 +60,9 @@ class Member(
         this.birthYear = birthYear
         this.region = region
         this.bio = bio
+    }
+
+    fun updateDeviceId(deviceId: String) {
+        this.deviceId = deviceId
     }
 }

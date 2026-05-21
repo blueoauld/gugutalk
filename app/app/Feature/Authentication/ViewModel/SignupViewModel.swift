@@ -16,7 +16,7 @@ final class SignupViewModel {
     var isSendCode = false
     
     var enabled: Bool {
-        phone.hasPrefix("010") && phone.count == 11 && !verificationCode.isEmpty && !password.isEmpty && password == confirmPassword
+        phone.hasPrefix("010") && phone.count == 11 && verificationCode.count == 6 && !password.isEmpty && password == confirmPassword
     }
     
     var sendCodeEnabled: Bool {

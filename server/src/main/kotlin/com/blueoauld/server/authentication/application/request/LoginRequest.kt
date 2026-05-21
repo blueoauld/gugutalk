@@ -14,4 +14,7 @@ data class LoginRequest(
 
     @field:NotBlank(message = "비밀번호는 필수입니다.")
     val password: String,
+
+    @field:NotBlank(message = "디바이스 ID는 필수입니다.")
+    val deviceId: String,
 )
