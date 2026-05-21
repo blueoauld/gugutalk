@@ -29,7 +29,7 @@ class Member(
     val profileUrl: String? = null,
 
     @Column(name = "nickname", unique = true, nullable = false)
-    val nickname: String = "닉네임_${UUID.randomUUID().toString().replace("-", "").take(6)}",
+    var nickname: String = "닉네임_${UUID.randomUUID().toString().replace("-", "").take(6)}",
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
@@ -37,20 +37,28 @@ class Member(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "region", nullable = false)
-    val region: Region = Region.OVERSEAS,
+    var region: Region = Region.OVERSEAS,
 
     @Column(name = "birth_year", nullable = false)
-    val birthYear: Int = 2000,
+    var birthYear: Int = 2000,
 
     @Column(name = "comment", nullable = false)
     val comment: String = "안녕하세요.",
 
     @Column(name = "bio", nullable = false)
-    val bio: String = "",
+    var bio: String = "",
 
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
     @Column(name = "updated_at", nullable = false)
     val updatedAt: Instant = Instant.now(),
-)
+) {
+
+    fun setup(nickname: String, birthYear: Int, region: Region, bio: String) {
+        this.nickname = nickname
+        this.birthYear = birthYear
+        this.region = region
+        this.bio = bio
+    }
+}

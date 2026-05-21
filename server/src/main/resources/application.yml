@@ -16,3 +16,7 @@ spring:
     redis:
       host: localhost
       password:
+jwt:
+  secret: a-string-secret-at-least-256-bits-long
+  access-token-expire-seconds: 3600 # 1시간
+  refresh-token-expire-seconds: 1209600 # 14일
