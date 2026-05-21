@@ -7,6 +7,8 @@ import com.blueoauld.server.authentication.application.response.SignupResponse
 import com.blueoauld.server.authentication.entity.VerificationCode
 import com.blueoauld.server.authentication.repository.VerificationCodeRepository
 import com.blueoauld.server.common.authentication.application.TokenProvider
+import com.blueoauld.server.common.exception.CustomException
+import com.blueoauld.server.common.exception.type.ErrorCode.*
 import com.blueoauld.server.common.util.IpExtractor
 import com.blueoauld.server.common.util.RandomNumberGenerator
 import com.blueoauld.server.member.entity.Member
@@ -44,7 +46,7 @@ class AuthenticationService(
         val count = stringRedisTemplate.opsForValue().get(countKey)?.toInt() ?: 0
 
         if (count >= 3) {
-            throw IllegalArgumentException("인증번호 요청 횟수를 초과했습니다.")
+            throw CustomException(VERIFICATION_CODE_01)
         }
 
         val digitCode = RandomNumberGenerator.generateSixDigitCode()
@@ -72,13 +74,13 @@ class AuthenticationService(
         val codeKey = AUTHENTICATION_PHONE_CODE_KEY + request.phone
 
         if (stringRedisTemplate.opsForValue().get(codeKey) != request.verificationCode) {
-            throw IllegalArgumentException("인증 번호를 다시 한번 확인해주시길 바랍니다.")
+            throw CustomException(VERIFICATION_CODE_02)
         }
         if (memberRepository.existsByPhone(request.phone)) {
-            throw IllegalArgumentException("이미 가입된 휴대폰 번호입니다.")
+            throw CustomException(MEMBER_02)
         }
         if (request.password != request.confirmPassword) {
-            throw IllegalArgumentException("비밀번호가 일치하지 않습니다.")
+            throw CustomException(MEMBER_04)
         }
 
         val member = Member(
@@ -105,10 +107,10 @@ class AuthenticationService(
     @Transactional
     fun setup(memberId: Long, request: SetupRequest) {
         val member = (memberRepository.findByIdOrNull(memberId)
-            ?: throw IllegalArgumentException("존재하지 않는 회원입니다."))
+            ?: throw CustomException(MEMBER_01))
 
         if (memberRepository.existsByNickname(request.nickname)) {
-            throw IllegalArgumentException("이미 사용중인 닉네임입니다.")
+            throw CustomException(MEMBER_03)
         }
 
         member.setup(
