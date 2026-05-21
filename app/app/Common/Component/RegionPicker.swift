@@ -10,7 +10,7 @@ struct RegionPicker: View {
         Button {
             showSheet = true
         } label: {
-            Text(region?.rawValue ?? "지역")
+            Text(region?.label ?? "지역")
                 .foregroundStyle(region == nil ? Color(.systemGray2) : .primary)
                 .padding(.horizontal, 14)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -24,7 +24,7 @@ struct RegionPicker: View {
         .sensoryFeedback(.selection, trigger: region)
         .sheet(isPresented: $showSheet) {
             List(Region.allCases, id: \.self) { it in
-                Button(it.rawValue) {
+                Button(it.label) {
                     region = it
                     showSheet = false
                 }

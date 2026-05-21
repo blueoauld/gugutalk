@@ -50,8 +50,12 @@ struct SetupView: View {
         }
         .safeAreaBar(edge: .bottom) {
             SubmitButton(title: "들어가기", disabled: !vm.enabled) {
-                focusedField = nil
-                session.isLoggedIn = true
+                Task {
+                    if await vm.setup() {
+                        focusedField = nil
+                        session.isLoggedIn = true
+                    }
+                }
             }
         }
         .navigationTitle("프로필")

@@ -36,4 +36,23 @@ final class AuthenticationService {
             as: SignupResponse.self
         )
     }
+
+    func setup(
+        nickname: String,
+        birthYear: String,
+        region: Region,
+        bio: String,
+    ) async throws {
+        try await PrivateNetworkManager.shared.requestVoid(
+            "/authentications/setup",
+            method: .put,
+            parameters: [
+                "nickname": nickname,
+                "birthYear": Int(birthYear),
+                "region": region.rawValue,
+                "bio": bio,
+            ],
+            encoding: JSONEncoding.default
+        )
+    }
 }
