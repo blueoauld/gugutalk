@@ -1,9 +1,11 @@
 package com.blueoauld.server.authentication.presentation
 
 import com.blueoauld.server.authentication.application.AuthenticationService
+import com.blueoauld.server.authentication.application.request.LoginRequest
 import com.blueoauld.server.authentication.application.request.SendVerificationCodeRequest
 import com.blueoauld.server.authentication.application.request.SetupRequest
 import com.blueoauld.server.authentication.application.request.SignupRequest
+import com.blueoauld.server.authentication.application.response.LoginResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
 import com.blueoauld.server.common.authentication.annotation.Login
 import jakarta.servlet.http.HttpServletRequest
@@ -41,5 +43,13 @@ class AuthenticationController(
     ): ResponseEntity<Unit> {
         authenticationService.setup(memberId, request)
         return ResponseEntity.ok().build()
+    }
+
+    @PostMapping("/authentications/login")
+    fun login(
+        @RequestBody request: LoginRequest,
+    ): ResponseEntity<LoginResponse> {
+        val response = authenticationService.login(request)
+        return ResponseEntity.ok(response)
     }
 }

@@ -1,8 +1,10 @@
 package com.blueoauld.server.authentication.application
 
+import com.blueoauld.server.authentication.application.request.LoginRequest
 import com.blueoauld.server.authentication.application.request.SendVerificationCodeRequest
 import com.blueoauld.server.authentication.application.request.SetupRequest
 import com.blueoauld.server.authentication.application.request.SignupRequest
+import com.blueoauld.server.authentication.application.response.LoginResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
 import com.blueoauld.server.authentication.entity.VerificationCode
 import com.blueoauld.server.authentication.repository.VerificationCodeRepository
@@ -119,6 +121,25 @@ class AuthenticationService(
             region = request.region,
             bio = request.bio
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun login(request: LoginRequest): LoginResponse {
+        val member = (memberRepository.findByPhone(request.phone) ?: throw CustomException(MEMBER_05))
+
+        if (!passwordEncoder.matches(request.password, member.password)) {
+            throw CustomException(MEMBER_05)
+        }
+
+        val accessToken = tokenProvider.createAccessToken(member.id, member.nickname)
+        val refreshToken = tokenProvider.createRefreshToken(member.id)
+
+        val refreshTokenKey = AUTHENTICATION_REFRESH_TOKEN_KEY + refreshToken
+
+        stringRedisTemplate.opsForValue().set(
+            refreshTokenKey, member.id.toString(), refreshTokenExpireSeconds, TimeUnit.SECONDS
+        )
+        return LoginResponse(accessToken, refreshToken)
     }
 
     private fun getSecondsUntilMidnight(): Long {

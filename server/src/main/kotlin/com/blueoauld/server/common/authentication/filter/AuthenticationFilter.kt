@@ -20,6 +20,7 @@ class AuthenticationFilter(
     private val whitelist = listOf(
         HttpMethod.POST to "/api/authentications/verification-code",
         HttpMethod.POST to "/api/authentications/signup",
+        HttpMethod.POST to "/api/authentications/login",
     )
 
     override fun doFilterInternal(

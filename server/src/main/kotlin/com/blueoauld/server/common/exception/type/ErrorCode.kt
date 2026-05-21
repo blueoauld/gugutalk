@@ -15,6 +15,7 @@ enum class ErrorCode(
     MEMBER_02(HttpStatus.BAD_REQUEST, "이미 사용중인 휴대폰 번호입니다."),
     MEMBER_03(HttpStatus.BAD_REQUEST, "이미 사용중인 닉네임입니다."),
     MEMBER_04(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    MEMBER_05(HttpStatus.BAD_REQUEST, "휴대폰 또는 비밀번호가 일치하지 않습니다."),
 
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),
