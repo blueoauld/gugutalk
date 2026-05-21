@@ -1,23 +1,23 @@
 import SwiftUI
 
 struct SignupView: View {
-    
+
     enum Field {
         case phone
         case verificationCode
         case password
-        case passwordConfirm
+        case confirmPassword
         case birthYear
     }
-    
+
     @Environment(AuthenticationRouter.self) private var router
-    
+
     @FocusState private var focusedField: Field?
-    
+
     @State private var vm = SignupViewModel()
-    
+
     @State private var showAlert = false
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -30,14 +30,14 @@ struct SignupView: View {
                             focusedField: $focusedField,
                             keyboardType: .phonePad
                         )
-                        
+
                         VerificationCodeSendButton(title: "전송", disabled: !vm.sendCodeEnabled) {
                             Task {
                                 await vm.sendVerificationCode()
                             }
                         }
                     }
-                    
+
                     CustomTextField(
                         placeholder: "인증번호",
                         text: $vm.verificationCode,
@@ -46,7 +46,7 @@ struct SignupView: View {
                         keyboardType: .numberPad
                     )
                 }
-                
+
                 VStack {
                     CustomSecureField(
                         placeholder: "비밀번호",
@@ -54,15 +54,15 @@ struct SignupView: View {
                         field: Field.password,
                         focusedField: $focusedField
                     )
-                    
+
                     CustomSecureField(
                         placeholder: "비밀번호 확인",
-                        text: $vm.passwordConfirm,
-                        field: Field.passwordConfirm,
+                        text: $vm.confirmPassword,
+                        field: Field.confirmPassword,
                         focusedField: $focusedField
                     )
                 }
-                
+
                 GenderSelector(gender: $vm.gender)
             }
             .padding()
@@ -72,8 +72,12 @@ struct SignupView: View {
         }
         .safeAreaBar(edge: .bottom) {
             SubmitButton(title: "회원가입", disabled: !vm.enabled) {
-                focusedField = nil
-                router.push(.setup)
+                Task {
+                    if await vm.signup() {
+                        focusedField = nil
+                        router.push(.setup)
+                    }
+                }
             }
         }
         .task {

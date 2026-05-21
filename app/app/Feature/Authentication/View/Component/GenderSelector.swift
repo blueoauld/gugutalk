@@ -10,7 +10,7 @@ struct GenderSelector: View {
                 Button {
                     gender = it
                 } label: {
-                    Text(it.rawValue)
+                    Text(it.label)
                         .font(.default.bold())
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)

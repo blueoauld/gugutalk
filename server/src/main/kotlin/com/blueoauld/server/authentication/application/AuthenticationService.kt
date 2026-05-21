@@ -103,7 +103,7 @@ class AuthenticationService(
         )
         stringRedisTemplate.delete(codeKey)
 
-        return SignupResponse(accessToken, refreshToken)
+        return SignupResponse(member.id, accessToken, refreshToken)
     }
 
     @Transactional
@@ -139,7 +139,7 @@ class AuthenticationService(
         stringRedisTemplate.opsForValue().set(
             refreshTokenKey, member.id.toString(), refreshTokenExpireSeconds, TimeUnit.SECONDS
         )
-        return LoginResponse(accessToken, refreshToken)
+        return LoginResponse(member.id, accessToken, refreshToken)
     }
 
     private fun getSecondsUntilMidnight(): Long {
