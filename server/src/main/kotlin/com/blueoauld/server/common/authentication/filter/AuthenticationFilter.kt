@@ -1,9 +1,11 @@
 package com.blueoauld.server.common.authentication.filter
 
+import com.blueoauld.server.authentication.application.AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY
 import com.blueoauld.server.common.authentication.application.TokenProvider
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
@@ -14,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 class AuthenticationFilter(
 
     private val tokenProvider: TokenProvider,
+    private val stringRedisTemplate: StringRedisTemplate,
 ) : OncePerRequestFilter() {
 
     private val antPathMatcher = AntPathMatcher()
@@ -37,6 +40,12 @@ class AuthenticationFilter(
         val memberId = accessToken?.let { tokenProvider.parseAndValidate(it) }
 
         if (accessToken == null || memberId == null) {
+            exception(response)
+            return
+        }
+
+        val accessTokenBlacklistKey = AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY + accessToken
+        if (stringRedisTemplate.hasKey(accessTokenBlacklistKey)) {
             exception(response)
             return
         }

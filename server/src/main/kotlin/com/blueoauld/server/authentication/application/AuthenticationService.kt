@@ -1,9 +1,6 @@
 package com.blueoauld.server.authentication.application
 
-import com.blueoauld.server.authentication.application.request.LoginRequest
-import com.blueoauld.server.authentication.application.request.SendVerificationCodeRequest
-import com.blueoauld.server.authentication.application.request.SetupRequest
-import com.blueoauld.server.authentication.application.request.SignupRequest
+import com.blueoauld.server.authentication.application.request.*
 import com.blueoauld.server.authentication.application.response.LoginResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
 import com.blueoauld.server.authentication.entity.VerificationCode
@@ -30,9 +27,12 @@ private const val AUTHENTICATION_PHONE_CODE_KEY = "authentication:phone:code:"
 private const val AUTHENTICATION_DEVICE_ID_COUNT_KEY = "authentication:device_id:count:"
 private const val AUTHENTICATION_REFRESH_TOKEN_KEY = "authentication:refresh_token:"
 
+const val AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY = "authentication:access_token:blacklist:"
+
 @Service
 class AuthenticationService(
 
+    @Value($$"${jwt.access-token-expire-seconds}") private val accessTokenExpireSeconds: Long,
     @Value($$"${jwt.refresh-token-expire-seconds}") private val refreshTokenExpireSeconds: Long,
 
     private val memberRepository: MemberRepository,
@@ -140,6 +140,26 @@ class AuthenticationService(
             refreshTokenKey, member.id.toString(), refreshTokenExpireSeconds, TimeUnit.SECONDS
         )
         return LoginResponse(member.id, accessToken, refreshToken)
+    }
+
+    @Transactional(readOnly = true)
+    fun logout(memberId: Long, request: LogoutRequest) {
+        if (!memberRepository.existsById(memberId)) {
+            throw CustomException(MEMBER_01)
+        }
+
+        val refreshTokenKey = AUTHENTICATION_REFRESH_TOKEN_KEY + request.refreshToken
+        val value = stringRedisTemplate.opsForValue().get(refreshTokenKey)
+
+        if (value == null || value != memberId.toString()) {
+            throw CustomException(UNAUTHORIZED_02)
+        }
+
+        val accessTokenBlacklistKey = AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY + request.accessToken
+        stringRedisTemplate.opsForValue().set(
+            accessTokenBlacklistKey, memberId.toString(), accessTokenExpireSeconds, TimeUnit.SECONDS
+        )
+        stringRedisTemplate.delete(refreshTokenKey)
     }
 
     private fun getSecondsUntilMidnight(): Long {

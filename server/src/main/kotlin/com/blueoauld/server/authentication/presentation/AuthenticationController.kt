@@ -1,10 +1,7 @@
 package com.blueoauld.server.authentication.presentation
 
 import com.blueoauld.server.authentication.application.AuthenticationService
-import com.blueoauld.server.authentication.application.request.LoginRequest
-import com.blueoauld.server.authentication.application.request.SendVerificationCodeRequest
-import com.blueoauld.server.authentication.application.request.SetupRequest
-import com.blueoauld.server.authentication.application.request.SignupRequest
+import com.blueoauld.server.authentication.application.request.*
 import com.blueoauld.server.authentication.application.response.LoginResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
 import com.blueoauld.server.common.authentication.annotation.Login
@@ -52,5 +49,14 @@ class AuthenticationController(
     ): ResponseEntity<LoginResponse> {
         val response = authenticationService.login(request)
         return ResponseEntity.ok(response)
+    }
+
+    @DeleteMapping("/authentications/logout", version = "1")
+    fun logout(
+        @Login memberId: Long,
+        @Valid @RequestBody request: LogoutRequest,
+    ): ResponseEntity<Unit> {
+        authenticationService.logout(memberId, request)
+        return ResponseEntity.ok().build()
     }
 }
