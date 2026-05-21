@@ -9,6 +9,7 @@ import com.blueoauld.server.authentication.application.response.LoginResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
 import com.blueoauld.server.common.authentication.annotation.Login
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -21,7 +22,7 @@ class AuthenticationController(
 
     @PostMapping("/authentications/verification-code", version = "1")
     fun sendVerificationCode(
-        @RequestBody request: SendVerificationCodeRequest,
+        @Valid @RequestBody request: SendVerificationCodeRequest,
         servletRequest: HttpServletRequest,
     ): ResponseEntity<Unit> {
         authenticationService.sendVerificationCode(request, servletRequest)
@@ -30,7 +31,7 @@ class AuthenticationController(
 
     @PostMapping("/authentications/signup", version = "1")
     fun signup(
-        @RequestBody request: SignupRequest,
+        @Valid @RequestBody request: SignupRequest,
     ): ResponseEntity<SignupResponse> {
         val response = authenticationService.signup(request)
         return ResponseEntity.ok(response)
@@ -39,7 +40,7 @@ class AuthenticationController(
     @PutMapping("/authentications/setup", version = "1")
     fun setup(
         @Login memberId: Long,
-        @RequestBody request: SetupRequest,
+        @Valid @RequestBody request: SetupRequest,
     ): ResponseEntity<Unit> {
         authenticationService.setup(memberId, request)
         return ResponseEntity.ok().build()
@@ -47,7 +48,7 @@ class AuthenticationController(
 
     @PostMapping("/authentications/login", version = "1")
     fun login(
-        @RequestBody request: LoginRequest,
+        @Valid @RequestBody request: LoginRequest,
     ): ResponseEntity<LoginResponse> {
         val response = authenticationService.login(request)
         return ResponseEntity.ok(response)
