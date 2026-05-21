@@ -7,7 +7,7 @@ struct RootView: View {
     var body: some View {
 
         Group {
-            if session.isLoggedIn {
+            if !session.isLoggedIn {
                 RootTabView()
             } else {
                 AuthenticationNavigationView()

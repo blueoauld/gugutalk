@@ -32,7 +32,9 @@ struct SignupView: View {
                         )
                         
                         VerificationCodeSendButton(title: "전송", disabled: !vm.sendCodeEnabled) {
-                            vm.isSendCode = true
+                            Task {
+                                await vm.sendVerificationCode()
+                            }
                         }
                     }
                     
