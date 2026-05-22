@@ -3,10 +3,13 @@ package com.blueoauld.server.activity.presentation
 import com.blueoauld.server.activity.application.ReviewService
 import com.blueoauld.server.activity.application.request.ReviewCreateRequest
 import com.blueoauld.server.activity.application.response.ReviewCreateResponse
+import com.blueoauld.server.activity.application.response.ReviewRowResponse
 import com.blueoauld.server.common.authentication.annotation.Login
+import com.blueoauld.server.common.dto.response.CursorResponse
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 
 @RequestMapping("/api")
 @RestController
@@ -32,5 +35,16 @@ class ReviewController(
     ): ResponseEntity<Unit> {
         reviewService.delete(memberId, reviewId)
         return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/reviews", version = "1")
+    fun gets(
+        @Login memberId: Long,
+        @RequestParam(required = false) cursorId: Long?,
+        @RequestParam(required = false) cursorDateAt: Instant?,
+        @RequestParam(defaultValue = "20") size: Int,
+    ): ResponseEntity<CursorResponse<ReviewRowResponse>> {
+        val response = reviewService.gets(memberId, cursorId, cursorDateAt, size)
+        return ResponseEntity.ok(response)
     }
 }
