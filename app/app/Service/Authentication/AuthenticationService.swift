@@ -21,7 +21,7 @@ final class AuthenticationService {
         confirmPassword: String,
         gender: Gender
     ) async throws -> SignupResponse {
-        try await PublicNetworkManager.shared.request(
+        return try await PublicNetworkManager.shared.request(
             "/authentications/signup",
             method: .post,
             parameters: [
@@ -43,7 +43,7 @@ final class AuthenticationService {
         region: Region,
         bio: String,
     ) async throws {
-        try await PrivateNetworkManager.shared.requestVoid(
+        return try await PrivateNetworkManager.shared.requestVoid(
             "/authentications/setup",
             method: .put,
             parameters: [
@@ -61,7 +61,7 @@ final class AuthenticationService {
         password: String,
         deviceId: String,
     ) async throws -> LoginResponse {
-        try await PublicNetworkManager.shared.request(
+        return try await PublicNetworkManager.shared.request(
             "/authentications/login",
             method: .post,
             parameters: [

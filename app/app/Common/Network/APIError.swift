@@ -14,7 +14,9 @@ enum APIError: Error {
             return "로그인이 필요합니다."
         case .server(_, let message, _):
             return message
-        case .decoding, .unknown:
+        case .decoding:
+            return "데이터를 불러오지 못했습니다."
+        case .unknown:
             return "알 수 없는 오류가 발생했습니다."
         }
     }

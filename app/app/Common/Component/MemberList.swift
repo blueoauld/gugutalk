@@ -1,26 +1,29 @@
 import SwiftUI
 
 struct MemberList: View {
-    
+
+    let members: [MemberRowResponse]
+    let hasNext: Bool
+    var onNext: () async -> Void
     var onRefresh: () async -> Void
-    
+
     @State private var showMessage = false
     @State private var message = ""
-    
+
     var body: some View {
         List {
-            ForEach(1...1000, id: \.self) { it in
-                NavigationLink(value: AppRoute.member(Int64(it))) {
+            ForEach(members) { it in
+                NavigationLink(value: AppRoute.member(it.memberId)) {
                     MemberListRow(
-                        nickname: "홍길동 \(it)",
-                        updatedAt: "방금전",
-                        comment: String(repeating: "코멘트 ", count: it % 15 + 1),
-                        gender: Gender.male,
-                        age: 20,
-                        likes: it,
-                        unlikes: 1000 - it,
-                        reviews: it,
-                        region: Region.seoul
+                        nickname: it.nickname,
+                        updatedAt: it.updatedAt,
+                        comment: it.comment,
+                        gender: it.gender,
+                        age: it.age,
+                        likes: it.likes,
+                        unlikes: it.unlikes,
+                        reviews: it.reviews,
+                        region: it.region
                     )
                 }
                 .buttonStyle(.plain)
@@ -33,6 +36,18 @@ struct MemberList: View {
                         Image(systemName: "envelope.fill")
                     }
                     .tint(.blue)
+                }
+            }
+
+            if hasNext {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                .listRowSeparator(.hidden)
+                .task {
+                    await onNext()
                 }
             }
         }

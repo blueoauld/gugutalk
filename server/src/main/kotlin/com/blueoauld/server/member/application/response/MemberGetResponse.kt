@@ -14,11 +14,9 @@ data class MemberGetResponse(
     val bio: String,
     val isChat: Boolean,
     val updatedAt: Instant,
-
     val likes: Int,
     val unlikes: Int,
     val reviews: Int,
-
     val isLike: Boolean,
     val isUnlike: Boolean,
     val isPrivateImageGrant: Boolean,

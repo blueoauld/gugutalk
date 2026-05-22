@@ -28,6 +28,8 @@ class DummyData(
                         password = passwordEncoder.encode("1234")!!,
                         deviceId = UUID.randomUUID().toString(),
                         gender = if (it % 2 == 0) Gender.MALE else Gender.FEMALE,
+                        comment = "안녕하세요. $it",
+                        bio = "반갑습니다. $it"
                     )
                 }
 

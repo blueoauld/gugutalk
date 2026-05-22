@@ -13,7 +13,7 @@ struct LocationView: View {
         VStack {
             GenderPicker(selectedGender: $gender)
 
-            MemberList(onRefresh: vm.bump)
+//            MemberList(onRefresh: vm.bump)
         }
         .navigationTitle("위치")
         .navigationBarTitleDisplayMode(.inline)

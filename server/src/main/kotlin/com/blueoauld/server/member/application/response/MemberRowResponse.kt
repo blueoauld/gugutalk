@@ -16,7 +16,6 @@ data class MemberRowResponse(
     val region: Region,
     val comment: String,
     val updatedAt: Instant,
-
     val likes: Long,
     val unlikes: Long,
     val reviews: Long,

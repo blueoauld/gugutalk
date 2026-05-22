@@ -49,7 +49,7 @@ class Member(
     var bio: String = "",
 
     @Column(name = "is_chat", nullable = false)
-    var isChat: Boolean = false,
+    var isChat: Boolean = true,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),

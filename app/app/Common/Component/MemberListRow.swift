@@ -7,9 +7,9 @@ struct MemberListRow: View {
     let comment: String
     let gender: Gender
     let age: Int
-    let likes: Int
-    let unlikes: Int
-    let reviews: Int
+    let likes: Int64
+    let unlikes: Int64
+    let reviews: Int64
     let region: Region
 
     var body: some View {
@@ -28,9 +28,11 @@ struct MemberListRow: View {
 
                     Spacer()
 
-                    Text(updatedAt)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                    if let date = updatedAt.toISO8601Date() {
+                        Text(date.formatted(.relative(presentation: .named)))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 Text(comment)
