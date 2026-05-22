@@ -2,6 +2,8 @@ import SwiftUI
 
 struct MemberList: View {
     
+    var onRefresh: () async -> Void
+    
     @State private var showMessage = false
     @State private var message = ""
     
@@ -37,7 +39,7 @@ struct MemberList: View {
         .listStyle(.plain)
         .navigationLinkIndicatorVisibility(.hidden)
         .refreshable {
-            try? await Task.sleep(for: .seconds(1))
+            await onRefresh()
         }
         .alert("쪽지", isPresented: $showMessage) {
             TextField("내용", text: $message)
