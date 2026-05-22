@@ -16,19 +16,17 @@ final class RecentViewModel {
     private let memberService = MemberService.shared
 
     var state: RecentViewState = .idle
-    var isPaging = false
-    var isLoading = false
-    var hasLoad = false
-    var hasNext = false
-
     var members: [MemberRowResponse] = []
     var gender = "ALL"
     var comment = ""
 
-    private var cursorId: Int64? = nil
-    private var cursorDateAt: String? = nil
+    private(set) var isPaging = false
+    private(set) var isLoading = false
+    private var hasLoad = false
+    private var cursor = CursorRequest()
+    var hasNext: Bool { cursor.hasNext }
 
-    func gets() async {
+    func load() async {
         guard !hasLoad else { return }
 
         state = .loading
@@ -36,7 +34,7 @@ final class RecentViewModel {
         hasLoad = true
     }
 
-    func getsNext() async {
+    func loadNext() async {
         guard !isPaging, hasNext else { return }
 
         isPaging = true
@@ -45,30 +43,26 @@ final class RecentViewModel {
         do {
             let response = try await memberService.gets(
                 gender: gender,
-                cursorId: cursorId,
-                cursorDateAt: cursorDateAt,
+                cursorId: cursor.cursorId,
+                cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
 
+            cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members.append(contentsOf: response.payload)
-            cursorId = response.nextId
-            cursorDateAt = response.nextDateAt
-            hasNext = response.hasNext
-
-            state = members.isEmpty ? .empty : .data
         } catch let error as APIError {
-            state = .error(error.message)
+            ToastManager.shared.show(error.message, style: .error)
         } catch {
-            state = .error(error.localizedDescription)
+            ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
 
-    func refresh() async {
+    func reload() async {
         guard !isLoading else { return }
 
         isLoading = true
         defer { isLoading = false }
-        
+
         await fetch()
     }
 
@@ -100,24 +94,19 @@ final class RecentViewModel {
     }
 
     private func fetch() async {
+        cursor.reset()
         members = []
-        cursorId = nil
-        cursorDateAt = nil
-        hasNext = false
 
         do {
             let response = try await memberService.gets(
                 gender: gender,
-                cursorId: cursorId,
-                cursorDateAt: cursorDateAt,
+                cursorId: cursor.cursorId,
+                cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
 
+            cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members = response.payload
-            cursorId = response.nextId
-            cursorDateAt = response.nextDateAt
-            hasNext = response.hasNext
-
             state = members.isEmpty ? .empty : .data
         } catch let error as APIError {
             state = .error(error.message)
