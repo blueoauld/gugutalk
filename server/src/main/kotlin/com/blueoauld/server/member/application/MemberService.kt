@@ -9,6 +9,7 @@ import com.blueoauld.server.member.repository.MemberRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Year
 
 @Service
 class MemberService(
@@ -43,7 +44,7 @@ class MemberService(
             memberId = target.id,
             nickname = target.nickname,
             gender = target.gender,
-            age = target.birthYear,
+            age = Year.now().value - target.birthYear,
             region = target.region,
             bio = target.bio,
             isChat = target.isChat,
