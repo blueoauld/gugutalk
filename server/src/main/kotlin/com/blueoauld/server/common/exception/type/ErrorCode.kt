@@ -27,6 +27,9 @@ enum class ErrorCode(
     ACTIVITY_06(HttpStatus.BAD_REQUEST, "차단한 적이 없습니다."),
     ACTIVITY_07(HttpStatus.BAD_REQUEST, "이미 비밀 사진을 공개하셨습니다."),
     ACTIVITY_08(HttpStatus.BAD_REQUEST, "비밀 사진을 공개한 적이 없습니다."),
+    ACTIVITY_09(HttpStatus.BAD_REQUEST, "본인에게 리뷰를 작성할 수 없습니다."),
+    ACTIVITY_10(HttpStatus.BAD_REQUEST, "존재하지 않는 리뷰입니다."),
+    ACTIVITY_11(HttpStatus.BAD_REQUEST, "접근할 수 없는 리뷰입니다."),
 
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),
