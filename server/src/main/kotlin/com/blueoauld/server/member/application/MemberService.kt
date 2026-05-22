@@ -20,4 +20,11 @@ class MemberService(
 
         member.updateComment(request.content)
     }
+
+    @Transactional
+    fun bump(memberId: Long) {
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+
+        member.bump()
+    }
 }

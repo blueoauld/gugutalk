@@ -70,4 +70,8 @@ class Member(
         this.comment = comment
         this.updatedAt = Instant.now()
     }
+
+    fun bump() {
+        this.updatedAt = Instant.now()
+    }
 }

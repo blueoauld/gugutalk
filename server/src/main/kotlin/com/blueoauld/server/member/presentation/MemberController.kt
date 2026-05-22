@@ -25,4 +25,12 @@ class MemberController(
         memberService.updateComment(memberId, request)
         return ResponseEntity.ok().build()
     }
+
+    @PatchMapping("/members/bump", version = "1")
+    fun bump(
+        @Login memberId: Long
+    ): ResponseEntity<Unit> {
+        memberService.bump(memberId)
+        return ResponseEntity.ok().build()
+    }
 }
