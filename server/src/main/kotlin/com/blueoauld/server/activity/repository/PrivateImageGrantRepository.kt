@@ -1,0 +1,6 @@
+package com.blueoauld.server.activity.repository
+
+import com.blueoauld.server.activity.entity.PrivateImageGrant
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface PrivateImageGrantRepository : JpaRepository<PrivateImageGrant, Long>
