@@ -42,15 +42,13 @@ struct MemberActionBar: View {
                         .foregroundStyle(member.isUnlike ? .blue : .gray)
                 }
                 .sensoryFeedback(.selection, trigger: member.isUnlike)
-                
-                Button {
-                    
-                } label: {
+
+                NavigationLink(value: AppRoute.review(memberId)) {
                     Image(systemName: "star.fill")
                         .font(.title2)
                         .foregroundStyle(.yellow)
                 }
-                
+
                 Button {
                     showMessage = true
                 } label: {
@@ -97,7 +95,7 @@ struct MemberActionBar: View {
             }
             Button("취소", role: .cancel) { }
         } message: {
-            Text(member.isBlock ? "차단을 해제하시겠습니까?" : "대화 내역이 모두 삭제되며\n서로의 목록에서도 표시되지 않습니다.")
+            Text(member.isBlock ? "차단을 해제하시겠습니까?" : "대화 내역이 모두 삭제되며 서로의 목록에서도 표시되지 않습니다.")
         }
     }
 }

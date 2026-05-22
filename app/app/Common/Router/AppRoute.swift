@@ -6,10 +6,12 @@ enum AppRoute: Hashable {
     case setting
     case memberSearch
     case member(Int64)
-    
+    case review(Int64)
+
     var hideTabBar: Bool {
         switch self {
         case .member: return true
+        case .review: return true
         default: return false
         }
     }

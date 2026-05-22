@@ -7,8 +7,6 @@ struct ChatListRow: View {
     let message: String
     let unreads: Int
 
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
         HStack {
             Image(systemName: "person.fill")
@@ -51,21 +49,7 @@ struct ChatListRow: View {
                 }
             }
         }
-        .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
-        .swipeActions(edge: .leading, allowsFullSwipe: false) {
-            Button {
-            } label: {
-                Image(systemName: colorScheme == .dark ? "eyes" : "eyes.inverse")
-            }
-            .tint(.gray)
-        }
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button {
-            } label: {
-                Image(systemName: "trash.fill")
-            }
-            .tint(.red)
-        }
+        .padding(.vertical, 4)
+        .padding(.horizontal)
     }
 }
