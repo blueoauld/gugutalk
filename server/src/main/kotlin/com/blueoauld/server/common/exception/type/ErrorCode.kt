@@ -21,6 +21,8 @@ enum class ErrorCode(
 
     ACTIVITY_01(HttpStatus.BAD_REQUEST, "이미 좋아요를 누르셨습니다."),
     ACTIVITY_02(HttpStatus.BAD_REQUEST, "좋아요를 누른 적이 없습니다."),
+    ACTIVITY_03(HttpStatus.BAD_REQUEST, "이미 싫어요를 누르셨습니다."),
+    ACTIVITY_04(HttpStatus.BAD_REQUEST, "싫어요를 누른 적이 없습니다."),
 
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),
