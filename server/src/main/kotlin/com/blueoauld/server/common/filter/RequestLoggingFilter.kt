@@ -26,15 +26,11 @@ class RequestLoggingFilter : OncePerRequestFilter() {
         try {
             filterChain.doFilter(request, response)
         } finally {
-            val status = response.status
+            val elapsed = System.currentTimeMillis() - startTime
+            val ip = IpExtractor.extract(request)
 
-            if (status in 200..299) {
-                val elapsed = System.currentTimeMillis() - startTime
-                val ip = IpExtractor.extract(request)
-
-                log.info {
-                    "METHOD = ${request.method}, URI = ${request.requestURI}, IP = $ip, STATUS = $status, MS = $elapsed"
-                }
+            log.info {
+                "METHOD = ${request.method}, URI = ${request.requestURI}, IP = $ip, STATUS = ${response.status}, MS = $elapsed"
             }
         }
     }

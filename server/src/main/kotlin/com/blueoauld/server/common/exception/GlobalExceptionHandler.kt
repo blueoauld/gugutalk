@@ -1,6 +1,6 @@
 package com.blueoauld.server.common.exception
 
-import com.blueoauld.server.common.exception.type.ErrorCode
+import com.blueoauld.server.common.exception.type.ErrorCode.*
 import com.blueoauld.server.common.util.IpExtractor
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
@@ -24,7 +24,8 @@ class GlobalExceptionHandler {
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         val code = e.errorCode
-        printWarning(servletRequest, e.message)
+
+        print(servletRequest, e.message)
         return ResponseEntity.status(code.status).body(ErrorResponse.of(code))
     }
 
@@ -34,11 +35,10 @@ class GlobalExceptionHandler {
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         val firstError = e.bindingResult.fieldErrors.firstOrNull()
-        val message = firstError?.defaultMessage ?: ErrorCode.INVALID_INPUT.message
+        val message = firstError?.defaultMessage ?: INVALID_INPUT.message
 
-        printWarning(servletRequest, e.message)
-        return ResponseEntity.status(ErrorCode.INVALID_INPUT.status)
-            .body(ErrorResponse.of(ErrorCode.INVALID_INPUT, message))
+        print(servletRequest, e.message)
+        return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT, message))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
@@ -46,9 +46,8 @@ class GlobalExceptionHandler {
         e: HttpMessageNotReadableException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        printWarning(servletRequest, e.message)
-        return ResponseEntity.status(ErrorCode.INVALID_INPUT.status)
-            .body(ErrorResponse.of(ErrorCode.INVALID_INPUT))
+        print(servletRequest, e.message)
+        return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT))
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
@@ -56,9 +55,8 @@ class GlobalExceptionHandler {
         e: HttpRequestMethodNotSupportedException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        printWarning(servletRequest, e.message)
-        return ResponseEntity.status(ErrorCode.METHOD_NOT_ALLOWED.status)
-            .body(ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED))
+        print(servletRequest, e.message)
+        return ResponseEntity.status(METHOD_NOT_ALLOWED.status).body(ErrorResponse.of(METHOD_NOT_ALLOWED))
     }
 
     @ExceptionHandler(NoResourceFoundException::class)
@@ -66,9 +64,8 @@ class GlobalExceptionHandler {
         e: NoResourceFoundException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        printWarning(servletRequest, e.message)
-        return ResponseEntity.status(ErrorCode.RESOURCE_NOT_FOUND.status)
-            .body(ErrorResponse.of(ErrorCode.RESOURCE_NOT_FOUND))
+        print(servletRequest, e.message)
+        return ResponseEntity.status(RESOURCE_NOT_FOUND.status).body(ErrorResponse.of(RESOURCE_NOT_FOUND))
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
@@ -76,9 +73,8 @@ class GlobalExceptionHandler {
         e: IllegalArgumentException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        printWarning(servletRequest, e.message)
-        return ResponseEntity.status(ErrorCode.INVALID_INPUT.status)
-            .body(ErrorResponse.of(ErrorCode.INVALID_INPUT))
+        print(servletRequest, e.message)
+        return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT))
     }
 
     @ExceptionHandler(ResponseStatusException::class)
@@ -86,7 +82,7 @@ class GlobalExceptionHandler {
         e: ResponseStatusException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        printWarning(servletRequest, e.message)
+        print(servletRequest, e.message)
         return ResponseEntity.status(e.statusCode)
             .body(ErrorResponse(code = "HTTP_ERROR", message = e.reason ?: "요청을 처리할 수 없습니다."))
     }
@@ -94,17 +90,25 @@ class GlobalExceptionHandler {
     @ExceptionHandler(Exception::class)
     fun handleException(
         e: Exception,
+        servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        log.error(e) { e.message }
-        return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.status)
-            .body(ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR))
+        print(e, servletRequest)
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR.status).body(ErrorResponse.of(INTERNAL_SERVER_ERROR))
     }
 
-    private fun printWarning(servletRequest: HttpServletRequest, message: String?) {
+    private fun print(servletRequest: HttpServletRequest, message: String?) {
         val ip = IpExtractor.extract(servletRequest)
 
         log.warn {
             "METHOD = ${servletRequest.method}, URI = ${servletRequest.requestURI}, IP = $ip, 메시지 = $message"
+        }
+    }
+
+    private fun print(e: Exception, servletRequest: HttpServletRequest) {
+        val ip = IpExtractor.extract(servletRequest)
+
+        log.error(e) {
+            "METHOD = ${servletRequest.method}, URI = ${servletRequest.requestURI}, IP = $ip"
         }
     }
 }
