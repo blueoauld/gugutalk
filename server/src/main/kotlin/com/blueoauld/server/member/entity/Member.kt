@@ -43,7 +43,7 @@ class Member(
     var birthYear: Int = 2000,
 
     @Column(name = "comment", length = 50, nullable = false)
-    val comment: String = "안녕하세요.",
+    var comment: String = "안녕하세요.",
 
     @Column(name = "bio", length = 500, nullable = false)
     var bio: String = "",
@@ -52,7 +52,7 @@ class Member(
     val createdAt: Instant = Instant.now(),
 
     @Column(name = "updated_at", nullable = false)
-    val updatedAt: Instant = Instant.now(),
+    var updatedAt: Instant = Instant.now(),
 ) {
 
     fun setup(nickname: String, birthYear: Int, region: Region, bio: String) {
@@ -64,5 +64,10 @@ class Member(
 
     fun updateDeviceId(deviceId: String) {
         this.deviceId = deviceId
+    }
+
+    fun updateComment(comment: String) {
+        this.comment = comment
+        this.updatedAt = Instant.now()
     }
 }
