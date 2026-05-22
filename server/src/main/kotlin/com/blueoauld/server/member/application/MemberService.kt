@@ -1,14 +1,17 @@
 package com.blueoauld.server.member.application
 
 import com.blueoauld.server.activity.repository.*
+import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.MEMBER_01
 import com.blueoauld.server.member.application.request.UpdateCommentRequest
 import com.blueoauld.server.member.application.response.MemberGetResponse
+import com.blueoauld.server.member.application.response.MemberRowResponse
 import com.blueoauld.server.member.repository.MemberRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 import java.time.Year
 
 @Service
@@ -57,6 +60,36 @@ class MemberService(
             isPrivateImageGrant = privateImageGrantRepository.existsByFromIdAndToId(memberId, targetId),
             hasPrivateImageGrant = privateImageGrantRepository.existsByFromIdAndToId(targetId, memberId),
             isBlock = blockRepository.existsByFromIdAndToId(memberId, targetId),
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun gets(
+        memberId: Long,
+        gender: String,
+        cursorId: Long?,
+        cursorDateAt: Instant?,
+        size: Int
+    ): CursorResponse<MemberRowResponse> {
+        val result = memberRepository.findAllByCursor(
+            memberId = memberId,
+            gender = gender,
+            cursorId = cursorId,
+            cursorDateAt = cursorDateAt,
+            size = size + 1
+        ).map {
+            MemberRowResponse.from(it)
+        }
+
+        val hasNext = result.size > size
+        val items = if (hasNext) result.dropLast(1) else result
+        val last = items.lastOrNull()
+
+        return CursorResponse(
+            payload = items,
+            nextId = last?.memberId,
+            nextDateAt = last?.updatedAt,
+            hasNext = hasNext
         )
     }
 }

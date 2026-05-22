@@ -1,12 +1,15 @@
 package com.blueoauld.server.member.presentation
 
 import com.blueoauld.server.common.authentication.annotation.Login
+import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.member.application.MemberService
 import com.blueoauld.server.member.application.request.UpdateCommentRequest
 import com.blueoauld.server.member.application.response.MemberGetResponse
+import com.blueoauld.server.member.application.response.MemberRowResponse
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 
 @RequestMapping("/api")
 @RestController
@@ -38,6 +41,18 @@ class MemberController(
         @PathVariable targetId: Long
     ): ResponseEntity<MemberGetResponse> {
         val response = memberService.get(memberId, targetId)
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/members", version = "1")
+    fun gets(
+        @Login memberId: Long,
+        @RequestParam(defaultValue = "ALL") gender: String,
+        @RequestParam(required = false) cursorId: Long?,
+        @RequestParam(required = false) cursorDateAt: Instant?,
+        @RequestParam(defaultValue = "20") size: Int,
+    ): ResponseEntity<CursorResponse<MemberRowResponse>> {
+        val response = memberService.gets(memberId, gender, cursorId, cursorDateAt, size)
         return ResponseEntity.ok(response)
     }
 }
