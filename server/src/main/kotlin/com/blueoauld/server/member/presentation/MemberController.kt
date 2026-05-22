@@ -3,12 +3,10 @@ package com.blueoauld.server.member.presentation
 import com.blueoauld.server.common.authentication.annotation.Login
 import com.blueoauld.server.member.application.MemberService
 import com.blueoauld.server.member.application.request.UpdateCommentRequest
+import com.blueoauld.server.member.application.response.MemberGetResponse
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RequestMapping("/api")
 @RestController
@@ -32,5 +30,14 @@ class MemberController(
     ): ResponseEntity<Unit> {
         memberService.bump(memberId)
         return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/members/{targetId}", version = "1")
+    fun get(
+        @Login memberId: Long,
+        @PathVariable targetId: Long
+    ): ResponseEntity<MemberGetResponse> {
+        val response = memberService.get(memberId, targetId)
+        return ResponseEntity.ok(response)
     }
 }

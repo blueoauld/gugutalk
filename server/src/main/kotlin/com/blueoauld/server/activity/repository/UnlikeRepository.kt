@@ -8,4 +8,6 @@ interface UnlikeRepository : JpaRepository<Unlike, Long> {
     fun existsByFromIdAndToId(fromId: Long, toId: Long): Boolean
 
     fun deleteByFromIdAndToId(fromId: Long, toId: Long): Int
+
+    fun countByToId(toId: Long): Int
 }

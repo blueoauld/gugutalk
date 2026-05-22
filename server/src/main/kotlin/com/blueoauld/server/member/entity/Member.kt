@@ -48,6 +48,9 @@ class Member(
     @Column(name = "bio", length = 500, nullable = false)
     var bio: String = "",
 
+    @Column(name = "is_chat", nullable = false)
+    var isChat: Boolean = false,
+
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 

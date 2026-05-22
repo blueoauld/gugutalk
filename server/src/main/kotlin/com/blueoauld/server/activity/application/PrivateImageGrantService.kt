@@ -1,6 +1,5 @@
 package com.blueoauld.server.activity.application
 
-import com.blueoauld.server.activity.application.response.ActivityStatusResponse
 import com.blueoauld.server.activity.entity.PrivateImageGrant
 import com.blueoauld.server.activity.repository.PrivateImageGrantRepository
 import com.blueoauld.server.common.exception.CustomException
@@ -14,15 +13,6 @@ class PrivateImageGrantService(
 
     private val privateImageGrantRepository: PrivateImageGrantRepository
 ) {
-
-    @Transactional(readOnly = true)
-    fun get(memberId: Long, targetId: Long): ActivityStatusResponse {
-        if (privateImageGrantRepository.existsByFromIdAndToId(memberId, targetId)) {
-            return ActivityStatusResponse(status = false)
-        }
-
-        return ActivityStatusResponse(status = true)
-    }
 
     @Transactional
     fun create(memberId: Long, targetId: Long) {
