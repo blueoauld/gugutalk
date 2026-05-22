@@ -38,7 +38,7 @@ struct ReviewView: View {
 
                     } label: {
                         Image(systemName: "trash.fill")
-                        Text("삭제 (10P)")
+                        Text("10P")
                     }
                     .tint(.red)
                 }
