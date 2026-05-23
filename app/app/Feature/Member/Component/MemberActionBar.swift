@@ -25,6 +25,7 @@ struct MemberActionBar: View {
                     Image(systemName: "heart.fill")
                         .font(.title2)
                         .foregroundStyle(member.isLike ? .red : .gray)
+                        .symbolEffect(.bounce, value: member.isLike)
                 }
                 .sensoryFeedback(.selection, trigger: member.isLike)
                 
@@ -40,6 +41,7 @@ struct MemberActionBar: View {
                     Image(systemName: "heart.slash.fill")
                         .font(.title2)
                         .foregroundStyle(member.isUnlike ? .blue : .gray)
+                        .symbolEffect(.bounce, value: member.isUnlike)
                 }
                 .sensoryFeedback(.selection, trigger: member.isUnlike)
 
@@ -73,6 +75,7 @@ struct MemberActionBar: View {
                     Image(systemName: "nosign")
                         .font(.title2.bold())
                         .foregroundStyle(member.isBlock ? .orange : .gray)
+                        .symbolEffect(.bounce, value: member.isBlock)
                 }
             }
             .padding()

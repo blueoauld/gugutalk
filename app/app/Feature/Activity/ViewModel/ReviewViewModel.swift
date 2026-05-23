@@ -61,8 +61,10 @@ final class ReviewViewModel {
         do {
             let response = try await reviewService.create(memberId: memberId, content: review)
 
-            reviews.insert(ReviewRowResponse(from: response), at: 0)
-            review = ""
+            withAnimation {
+                reviews.insert(ReviewRowResponse(from: response), at: 0)
+                review = ""
+            }
             state = .data
 
             ToastManager.shared.show("리뷰를 작성하셨습니다.", style: .info)
@@ -82,7 +84,9 @@ final class ReviewViewModel {
         do {
             try await reviewService.delete(reviewId: reviewId)
 
-            reviews.removeAll { $0.reviewId == reviewId }
+            withAnimation {
+                reviews.removeAll { $0.reviewId == reviewId }
+            }
             state = reviews.isEmpty ? .empty : .data
 
             ToastManager.shared.show("리뷰를 삭제하셨습니다.", style: .info)

@@ -39,6 +39,7 @@ struct ReviewList: View {
             }
         }
         .listStyle(.plain)
+        .scrollDismissesKeyboard(.interactively)
         .alert(
             "리뷰 삭제",
             isPresented: Binding(
