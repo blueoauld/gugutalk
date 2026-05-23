@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ReviewActionBar: View {
+struct ReviewInputBar: View {
 
     @Binding var review: String
 

@@ -19,7 +19,7 @@ struct ReviewView: View {
             hideKeyboard()
         }
         .safeAreaBar(edge: .bottom) {
-            ReviewActionBar(review: $vm.review) {
+            ReviewInputBar(review: $vm.review) {
                 await vm.createReview(memberId: memberId)
             }
         }

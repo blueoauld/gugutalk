@@ -2,8 +2,6 @@ import SwiftUI
 
 struct RecentView: View {
 
-    @Environment(AppRouter.self) private var router
-
     @State private var vm = RecentViewModel()
 
     @State private var showComment = false
