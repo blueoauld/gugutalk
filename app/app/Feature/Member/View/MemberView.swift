@@ -3,7 +3,9 @@ import SwiftUI
 struct MemberView: View {
     
     let memberId: Int64
-    
+
+    @Environment(AppRouter.self) private var router
+
     @State private var vm = MemberViewModel()
     
     @State private var currentPage = 0
@@ -20,6 +22,11 @@ struct MemberView: View {
         }
         .task {
             await vm.get(memberId: memberId)
+        }
+        .overlay {
+            if vm.isLoading {
+                LoadingOverlay()
+            }
         }
     }
     
@@ -67,9 +74,9 @@ struct MemberView: View {
                             }
                         }
                     }
-                    
+
                     Button("신고", role: .destructive) {
-                        
+                        router.push(AppRoute.report(memberId, member.nickname))
                     }
                 }
             }
