@@ -93,7 +93,7 @@ struct ToastModifier: ViewModifier {
                         dismiss()
                     }
                     .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 72)
                     .zIndex(1)
                 }
             }

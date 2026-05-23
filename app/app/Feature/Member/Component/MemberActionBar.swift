@@ -43,7 +43,7 @@ struct MemberActionBar: View {
                 }
                 .sensoryFeedback(.selection, trigger: member.isUnlike)
 
-                NavigationLink(value: AppRoute.review(memberId)) {
+                NavigationLink(value: AppRoute.review(memberId, member.nickname)) {
                     Image(systemName: "star.fill")
                         .font(.title2)
                         .foregroundStyle(.yellow)

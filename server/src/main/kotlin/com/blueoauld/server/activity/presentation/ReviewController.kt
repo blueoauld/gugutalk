@@ -37,14 +37,14 @@ class ReviewController(
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("/reviews", version = "1")
+    @GetMapping("/reviews/{targetId}", version = "1")
     fun gets(
-        @Login memberId: Long,
+        @PathVariable targetId: Long,
         @RequestParam(required = false) cursorId: Long?,
         @RequestParam(required = false) cursorDateAt: Instant?,
         @RequestParam(defaultValue = "20") size: Int,
     ): ResponseEntity<CursorResponse<ReviewRowResponse>> {
-        val response = reviewService.gets(memberId, cursorId, cursorDateAt, size)
+        val response = reviewService.gets(targetId, cursorId, cursorDateAt, size)
         return ResponseEntity.ok(response)
     }
 }

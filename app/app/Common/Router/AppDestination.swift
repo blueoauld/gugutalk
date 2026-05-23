@@ -18,8 +18,8 @@ struct AppDestination: ViewModifier {
                     MemberSearchView()
                 case .member(let memberId):
                     MemberView(memberId: memberId)
-                case .review(let memberId):
-                    ReviewView(memberId: memberId)
+                case .review(let memberId, let nickname):
+                    ReviewView(memberId: memberId, nickname: nickname)
                 }
             }
     }
