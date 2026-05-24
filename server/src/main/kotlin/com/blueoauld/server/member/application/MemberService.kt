@@ -92,4 +92,37 @@ class MemberService(
             hasNext = hasNext
         )
     }
+
+    @Transactional(readOnly = true)
+    fun getsByRegion(
+        memberId: Long,
+        gender: String,
+        cursorId: Long?,
+        cursorDateAt: Instant?,
+        size: Int
+    ): CursorResponse<MemberRowResponse> {
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+
+        val result = memberRepository.findAllByRegion(
+            memberId = memberId,
+            gender = gender,
+            region = member.region,
+            cursorId = cursorId,
+            cursorDateAt = cursorDateAt,
+            size = size + 1
+        ).map {
+            MemberRowResponse.from(it)
+        }
+
+        val hasNext = result.size > size
+        val items = if (hasNext) result.dropLast(1) else result
+        val last = items.lastOrNull()
+
+        return CursorResponse(
+            payload = items,
+            nextId = last?.memberId,
+            nextDateAt = last?.updatedAt,
+            hasNext = hasNext
+        )
+    }
 }

@@ -55,4 +55,16 @@ class MemberController(
         val response = memberService.gets(memberId, gender, cursorId, cursorDateAt, size)
         return ResponseEntity.ok(response)
     }
+
+    @GetMapping("/members/region", version = "1")
+    fun getsByRegion(
+        @Login memberId: Long,
+        @RequestParam(defaultValue = "ALL") gender: String,
+        @RequestParam(required = false) cursorId: Long?,
+        @RequestParam(required = false) cursorDateAt: Instant?,
+        @RequestParam(defaultValue = "20") size: Int,
+    ): ResponseEntity<CursorResponse<MemberRowResponse>> {
+        val response = memberService.getsByRegion(memberId, gender, cursorId, cursorDateAt, size)
+        return ResponseEntity.ok(response)
+    }
 }
