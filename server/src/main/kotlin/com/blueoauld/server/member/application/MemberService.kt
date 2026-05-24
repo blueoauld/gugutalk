@@ -74,6 +74,7 @@ class MemberService(
         val result = memberRepository.findAllByCursor(
             memberId = memberId,
             gender = gender,
+            region = null,
             cursorId = cursorId,
             cursorDateAt = cursorDateAt,
             size = size + 1
@@ -103,7 +104,7 @@ class MemberService(
     ): CursorResponse<MemberRowResponse> {
         val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
 
-        val result = memberRepository.findAllByRegion(
+        val result = memberRepository.findAllByCursor(
             memberId = memberId,
             gender = gender,
             region = member.region,
