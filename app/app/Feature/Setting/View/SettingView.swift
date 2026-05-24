@@ -18,8 +18,13 @@ struct SettingView: View {
                 }
 
                 Section("활동") {
-                    Label("좋아요 목록", systemImage: "heart.fill")
-                        .labelStyle(.settings(color: .red))
+                    NavigationLink(value: AppRoute.likeList) {
+                        Label("좋아요 목록", systemImage: "heart.fill")
+                            .labelStyle(.settings(color: .red))
+                    }
+                    .navigationLinkIndicatorVisibility(.hidden)
+
+
                     Label("싫어요 목록", systemImage: "heart.slash.fill")
                         .labelStyle(.settings(color: .blue))
                     Label("내가 쓴 리뷰 목록", systemImage: "star.fill")
@@ -75,12 +80,5 @@ struct SettingView: View {
                 }
             }
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        SettingView()
-            .environment(AppRouter())
     }
 }

@@ -6,9 +6,9 @@ import com.blueoauld.server.member.entity.type.Region
 import java.time.Instant
 import java.time.Year
 
-data class LikeRowResponse(
+data class ActivityRowResponse(
 
-    val likeId: Long,
+    val activityId: Long,
     val toId: Long,
     val profileUrl: String?,
     val nickname: String,
@@ -19,9 +19,9 @@ data class LikeRowResponse(
 ) {
 
     companion object {
-        fun from(result: ActivityResult): LikeRowResponse {
-            return LikeRowResponse(
-                likeId = result.activityId,
+        fun from(result: ActivityResult): ActivityRowResponse {
+            return ActivityRowResponse(
+                activityId = result.activityId,
                 toId = result.toId,
                 profileUrl = result.profileUrl,
                 nickname = result.nickname,

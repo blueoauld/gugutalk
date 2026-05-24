@@ -45,7 +45,7 @@ class DummyData(
                 memberRepository.saveAll(members)
             }
             if (reviewRepository.count() == 0L) {
-                val reviews = (1 until 100).map {
+                val reviews = (2 until 101).map {
                     Review(
                         fromId = it.toLong(),
                         toId = 1,
@@ -57,7 +57,7 @@ class DummyData(
                 reviewRepository.saveAll(reviews)
             }
             if (likeRepository.count() == 0L) {
-                val likes = (1 until 100).map {
+                val likes = (2 until 101).map {
                     Like(
                         fromId = 1,
                         toId = it.toLong()

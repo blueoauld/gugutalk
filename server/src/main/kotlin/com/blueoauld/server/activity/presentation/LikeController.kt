@@ -1,7 +1,7 @@
 package com.blueoauld.server.activity.presentation
 
 import com.blueoauld.server.activity.application.LikeService
-import com.blueoauld.server.activity.application.response.LikeRowResponse
+import com.blueoauld.server.activity.application.response.ActivityRowResponse
 import com.blueoauld.server.common.authentication.annotation.Login
 import com.blueoauld.server.common.dto.response.CursorResponse
 import org.springframework.http.ResponseEntity
@@ -39,7 +39,7 @@ class LikeController(
         @RequestParam(required = false) cursorId: Long?,
         @RequestParam(required = false) cursorDateAt: Instant?,
         @RequestParam(defaultValue = "20") size: Int,
-    ): ResponseEntity<CursorResponse<LikeRowResponse>> {
+    ): ResponseEntity<CursorResponse<ActivityRowResponse>> {
         val response = likeService.gets(memberId, cursorId, cursorDateAt, size)
         return ResponseEntity.ok(response)
     }

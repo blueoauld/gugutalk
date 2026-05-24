@@ -2,66 +2,47 @@ import SwiftUI
 
 struct LikeListView: View {
 
+    @State private var vm = LikeListViewModel()
+
     var body: some View {
         VStack {
-            List {
-                ForEach(1...1000, id: \.self) { it in
-                    HStack {
-                        Image(systemName: "person.fill")
-                            .font(.title)
-                            .padding()
-                            .foregroundStyle(Color(.systemGray4))
-                            .background(Color(.systemGray6))
-                            .clipShape(Circle())
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("닉네임")
-                                .font(.subheadline.bold())
-
-                            HStack {
-                                Text("남자")
-
-                                Text("·")
-
-                                Text("20살")
-
-                                Text("·")
-
-                                Text("서울")
-                            }
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                        }
-
-                        Spacer()
-
-                        Button {
-                        } label: {
-                            Image(systemName: "trash.fill")
-                                .font(.title3)
-                                .padding()
-                                .foregroundColor(.white)
-                                .background(
-                                    .red,
-                                    in: Circle()
-                                )
-                        }
-                    }
-                    .padding(.vertical, 4)
-                    .padding(.horizontal)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets())
-                }
-            }
-            .listStyle(.plain)
+            content
         }
         .navigationTitle("좋아요 목록")
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await vm.load()
+        }
+        .overlay {
+            if vm.isLoading {
+                LoadingOverlay()
+            }
+        }
     }
-}
 
-#Preview {
-    NavigationStack {
-        LikeListView()
+    @ViewBuilder
+    private var content: some View {
+        switch vm.state {
+        case .idle:
+            Spacer()
+        case .loading:
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .empty:
+            ScrollView {
+                ContentUnavailableView("내역 없음", systemImage: "tray")
+                    .containerRelativeFrame([.horizontal, .vertical])
+            }
+        case .data:
+            ActivityList(
+                likes: vm.likes,
+                hasNext: vm.hasNext,
+                onNext: vm.loadNext,
+                onDelete: vm.delete
+            )
+        case .error(let message):
+            ErrorRetryView(message: message, retry: {
+                await vm.load()
+            })
+        }
     }
 }

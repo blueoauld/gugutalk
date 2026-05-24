@@ -1,6 +1,6 @@
 package com.blueoauld.server.activity.application
 
-import com.blueoauld.server.activity.application.response.LikeRowResponse
+import com.blueoauld.server.activity.application.response.ActivityRowResponse
 import com.blueoauld.server.activity.entity.Like
 import com.blueoauld.server.activity.repository.LikeRepository
 import com.blueoauld.server.common.dto.response.CursorResponse
@@ -45,14 +45,14 @@ class LikeService(
         cursorId: Long?,
         cursorDateAt: Instant?,
         size: Int
-    ): CursorResponse<LikeRowResponse> {
+    ): CursorResponse<ActivityRowResponse> {
         val result = likeRepository.findAllByCursor(
             memberId = memberId,
             cursorId = cursorId,
             cursorDateAt = cursorDateAt,
             size = size + 1
         ).map {
-            LikeRowResponse.from(it)
+            ActivityRowResponse.from(it)
         }
 
         val hasNext = result.size > size
@@ -61,7 +61,7 @@ class LikeService(
 
         return CursorResponse(
             payload = items,
-            nextId = last?.likeId,
+            nextId = last?.activityId,
             nextDateAt = last?.createdAt,
             hasNext = hasNext
         )

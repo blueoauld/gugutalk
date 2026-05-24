@@ -22,6 +22,8 @@ struct AppDestination: ViewModifier {
                     ReviewView(memberId: memberId, nickname: nickname)
                 case .report(let memberId, let nickname):
                     ReportView(memberId: memberId, nickname: nickname)
+                case .likeList:
+                    LikeListView()
                 }
             }
     }
