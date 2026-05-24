@@ -26,6 +26,8 @@ struct AppDestination: ViewModifier {
                     LikeListView()
                 case .unlikeList:
                     UnlikeListView()
+                case .privateImageGrantList:
+                    PrivateImageGrantListView()
                 }
             }
     }

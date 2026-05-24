@@ -32,8 +32,13 @@ struct SettingView: View {
                     
                     Label("내가 쓴 리뷰 목록", systemImage: "star.fill")
                         .labelStyle(.settings(color: .yellow))
-                    Label("비밀 사진 목록", systemImage: "lock.fill")
-                        .labelStyle(.settings(color: .green))
+
+                    NavigationLink(value: AppRoute.privateImageGrantList) {
+                        Label("비밀 사진 공개 목록", systemImage: "lock.fill")
+                            .labelStyle(.settings(color: .green))
+                    }
+                    .navigationLinkIndicatorVisibility(.hidden)
+
                     Label("차단 목록", systemImage: "nosign")
                         .labelStyle(.settings(color: .gray))
                 }
