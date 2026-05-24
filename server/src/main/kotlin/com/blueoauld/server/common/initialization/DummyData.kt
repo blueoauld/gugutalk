@@ -1,6 +1,8 @@
 package com.blueoauld.server.common.initialization
 
+import com.blueoauld.server.activity.entity.Like
 import com.blueoauld.server.activity.entity.Review
+import com.blueoauld.server.activity.repository.LikeRepository
 import com.blueoauld.server.activity.repository.ReviewRepository
 import com.blueoauld.server.common.util.RandomNicknameGenerator
 import com.blueoauld.server.member.entity.Member
@@ -25,6 +27,7 @@ class DummyData(
     fun setup(
         memberRepository: MemberRepository,
         reviewRepository: ReviewRepository,
+        likeRepository: LikeRepository,
     ): CommandLineRunner {
         return CommandLineRunner {
             if (memberRepository.count() == 0L) {
@@ -53,9 +56,20 @@ class DummyData(
 
                 reviewRepository.saveAll(reviews)
             }
+            if (likeRepository.count() == 0L) {
+                val likes = (1 until 100).map {
+                    Like(
+                        fromId = 1,
+                        toId = it.toLong()
+                    )
+                }
+
+                likeRepository.saveAll(likes)
+            }
 
             log.info { "회원 더미 데이터 ${memberRepository.count()}개 생성" }
             log.info { "리뷰 더미 데이터 ${memberRepository.count()}개 생성" }
+            log.info { "좋아요 더미 데이터 ${memberRepository.count()}개 생성" }
         }
     }
 }

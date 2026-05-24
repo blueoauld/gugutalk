@@ -1,12 +1,15 @@
 package com.blueoauld.server.activity.application
 
+import com.blueoauld.server.activity.application.response.LikeRowResponse
 import com.blueoauld.server.activity.entity.Like
 import com.blueoauld.server.activity.repository.LikeRepository
+import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.ACTIVITY_01
 import com.blueoauld.server.common.exception.type.ErrorCode.ACTIVITY_02
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 @Service
 class LikeService(
@@ -34,5 +37,33 @@ class LikeService(
         if (count == 0) {
             throw CustomException(ACTIVITY_02)
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun gets(
+        memberId: Long,
+        cursorId: Long?,
+        cursorDateAt: Instant?,
+        size: Int
+    ): CursorResponse<LikeRowResponse> {
+        val result = likeRepository.findAllByCursor(
+            memberId = memberId,
+            cursorId = cursorId,
+            cursorDateAt = cursorDateAt,
+            size = size + 1
+        ).map {
+            LikeRowResponse.from(it)
+        }
+
+        val hasNext = result.size > size
+        val items = if (hasNext) result.dropLast(1) else result
+        val last = items.lastOrNull()
+
+        return CursorResponse(
+            payload = items,
+            nextId = last?.likeId,
+            nextDateAt = last?.createdAt,
+            hasNext = hasNext
+        )
     }
 }
