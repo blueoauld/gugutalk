@@ -14,7 +14,7 @@ struct SettingView: View {
             Form {
                 Section("계정") {
                     Label("내 프로필", systemImage: "person.fill")
-                        .labelStyle(.settings(color: .blue))
+                        .labelStyle(.settings(color: .yellow))
                 }
 
                 Section("활동") {
@@ -29,12 +29,9 @@ struct SettingView: View {
                             .labelStyle(.settings(color: .blue))
                     }
                     .navigationLinkIndicatorVisibility(.hidden)
-                    
-                    Label("내가 쓴 리뷰 목록", systemImage: "star.fill")
-                        .labelStyle(.settings(color: .yellow))
 
                     NavigationLink(value: AppRoute.privateImageGrantList) {
-                        Label("비밀 사진 공개 목록", systemImage: "lock.fill")
+                        Label("비밀 사진 목록", systemImage: "lock.fill")
                             .labelStyle(.settings(color: .green))
                     }
                     .navigationLinkIndicatorVisibility(.hidden)

@@ -8,7 +8,7 @@ struct PrivateImageGrantListView: View {
         VStack {
             content
         }
-        .navigationTitle("비밀 사진 공개 목록")
+        .navigationTitle("비밀 사진 목록")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await vm.load()
