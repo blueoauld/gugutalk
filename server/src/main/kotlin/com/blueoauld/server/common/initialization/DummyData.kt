@@ -1,13 +1,7 @@
 package com.blueoauld.server.common.initialization
 
-import com.blueoauld.server.activity.entity.Like
-import com.blueoauld.server.activity.entity.PrivateImageGrant
-import com.blueoauld.server.activity.entity.Review
-import com.blueoauld.server.activity.entity.Unlike
-import com.blueoauld.server.activity.repository.LikeRepository
-import com.blueoauld.server.activity.repository.PrivateImageGrantRepository
-import com.blueoauld.server.activity.repository.ReviewRepository
-import com.blueoauld.server.activity.repository.UnlikeRepository
+import com.blueoauld.server.activity.entity.*
+import com.blueoauld.server.activity.repository.*
 import com.blueoauld.server.common.util.RandomNicknameGenerator
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.entity.type.Gender
@@ -33,7 +27,8 @@ class DummyData(
         reviewRepository: ReviewRepository,
         likeRepository: LikeRepository,
         unlikeRepository: UnlikeRepository,
-        privateImageGrantRepository: PrivateImageGrantRepository
+        privateImageGrantRepository: PrivateImageGrantRepository,
+        blockRepository: BlockRepository,
     ): CommandLineRunner {
         return CommandLineRunner {
             if (memberRepository.count() == 0L) {
@@ -92,12 +87,23 @@ class DummyData(
 
                 privateImageGrantRepository.saveAll(privateImageGrants)
             }
+            if (blockRepository.count() == 0L) {
+                val blocks = (2 until 101).map {
+                    Block(
+                        fromId = 1,
+                        toId = it.toLong()
+                    )
+                }
+
+                blockRepository.saveAll(blocks)
+            }
 
             log.info { "회원 더미 데이터 ${memberRepository.count()}개 생성" }
             log.info { "리뷰 더미 데이터 ${reviewRepository.count()}개 생성" }
             log.info { "좋아요 더미 데이터 ${likeRepository.count()}개 생성" }
             log.info { "싫어요 더미 데이터 ${unlikeRepository.count()}개 생성" }
             log.info { "비밀 사진 부여 더미 데이터 ${privateImageGrantRepository.count()}개 생성" }
+            log.info { "차단 더미 데이터 ${blockRepository.count()}개 생성" }
         }
     }
 }

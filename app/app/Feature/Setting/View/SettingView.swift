@@ -39,8 +39,11 @@ struct SettingView: View {
                     }
                     .navigationLinkIndicatorVisibility(.hidden)
 
-                    Label("차단 목록", systemImage: "nosign")
-                        .labelStyle(.settings(color: .gray))
+                    NavigationLink(value: AppRoute.blockList) {
+                        Label("차단 목록", systemImage: "nosign")
+                            .labelStyle(.settings(color: .gray))
+                    }
+                    .navigationLinkIndicatorVisibility(.hidden)
                 }
 
                 Section("포인트") {

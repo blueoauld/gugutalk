@@ -28,6 +28,8 @@ struct AppDestination: ViewModifier {
                     UnlikeListView()
                 case .privateImageGrantList:
                     PrivateImageGrantListView()
+                case .blockList:
+                    BlockListView()
                 }
             }
     }
