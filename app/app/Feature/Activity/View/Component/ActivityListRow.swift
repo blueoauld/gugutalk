@@ -43,7 +43,7 @@ struct ActivityListRow: View {
                             
                             Text(region.label)
                         }
-                        .font(.caption2)
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                     }
                 }
