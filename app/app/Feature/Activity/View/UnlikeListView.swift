@@ -1,14 +1,14 @@
 import SwiftUI
 
-struct LikeListView: View {
+struct UnlikeListView: View {
 
-    @State private var vm = LikeListViewModel()
+    @State private var vm = UnlikeListViewModel()
 
     var body: some View {
         VStack {
             content
         }
-        .navigationTitle("좋아요 목록")
+        .navigationTitle("싫어요 목록")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await vm.load()
@@ -34,7 +34,7 @@ struct LikeListView: View {
             }
         case .data:
             ActivityList(
-                items: vm.likes,
+                items: vm.unlikes,
                 hasNext: vm.hasNext,
                 onNext: vm.loadNext,
                 onDelete: vm.delete

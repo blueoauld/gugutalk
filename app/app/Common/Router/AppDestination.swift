@@ -24,6 +24,8 @@ struct AppDestination: ViewModifier {
                     ReportView(memberId: memberId, nickname: nickname)
                 case .likeList:
                     LikeListView()
+                case .unlikeList:
+                    UnlikeListView()
                 }
             }
     }

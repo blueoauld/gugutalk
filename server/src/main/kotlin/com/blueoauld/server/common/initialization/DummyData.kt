@@ -2,8 +2,10 @@ package com.blueoauld.server.common.initialization
 
 import com.blueoauld.server.activity.entity.Like
 import com.blueoauld.server.activity.entity.Review
+import com.blueoauld.server.activity.entity.Unlike
 import com.blueoauld.server.activity.repository.LikeRepository
 import com.blueoauld.server.activity.repository.ReviewRepository
+import com.blueoauld.server.activity.repository.UnlikeRepository
 import com.blueoauld.server.common.util.RandomNicknameGenerator
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.entity.type.Gender
@@ -28,6 +30,7 @@ class DummyData(
         memberRepository: MemberRepository,
         reviewRepository: ReviewRepository,
         likeRepository: LikeRepository,
+        unlikeRepository: UnlikeRepository,
     ): CommandLineRunner {
         return CommandLineRunner {
             if (memberRepository.count() == 0L) {
@@ -66,10 +69,21 @@ class DummyData(
 
                 likeRepository.saveAll(likes)
             }
+            if (unlikeRepository.count() == 0L) {
+                val unlikes = (2 until 101).map {
+                    Unlike(
+                        fromId = 1,
+                        toId = it.toLong()
+                    )
+                }
+
+                unlikeRepository.saveAll(unlikes)
+            }
 
             log.info { "회원 더미 데이터 ${memberRepository.count()}개 생성" }
-            log.info { "리뷰 더미 데이터 ${memberRepository.count()}개 생성" }
-            log.info { "좋아요 더미 데이터 ${memberRepository.count()}개 생성" }
+            log.info { "리뷰 더미 데이터 ${reviewRepository.count()}개 생성" }
+            log.info { "좋아요 더미 데이터 ${likeRepository.count()}개 생성" }
+            log.info { "싫어요 더미 데이터 ${unlikeRepository.count()}개 생성" }
         }
     }
 }

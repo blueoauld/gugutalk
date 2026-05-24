@@ -2,14 +2,14 @@ import SwiftUI
 
 struct ActivityList: View {
 
-    let likes: [ActivityRowResponse]
+    let items: [ActivityRowResponse]
     let hasNext: Bool
     var onNext: () async -> Void
     var onDelete: (Int64) async -> Void
 
     var body: some View {
         List {
-            ForEach(likes) { it in
+            ForEach(items) { it in
                 ActivityListRow(
                     memberId: it.toId,
                     nickname: it.nickname,

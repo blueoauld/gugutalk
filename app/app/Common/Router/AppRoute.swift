@@ -9,6 +9,7 @@ enum AppRoute: Hashable {
     case review(Int64, String)
     case report(Int64, String)
     case likeList
+    case unlikeList
 
     var hideTabBar: Bool {
         switch self {
@@ -16,6 +17,7 @@ enum AppRoute: Hashable {
         case .review: return true
         case .report: return true
         case .likeList: return true
+        case .unlikeList: return true
         default: return false
         }
     }

@@ -3,7 +3,7 @@ package com.blueoauld.server.activity.repository
 import com.blueoauld.server.activity.entity.Unlike
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface UnlikeRepository : JpaRepository<Unlike, Long> {
+interface UnlikeRepository : JpaRepository<Unlike, Long>, UnlikeCustomRepository {
 
     fun existsByFromIdAndToId(fromId: Long, toId: Long): Boolean
 
