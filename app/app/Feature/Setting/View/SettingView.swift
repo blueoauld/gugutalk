@@ -22,7 +22,7 @@ struct SettingView: View {
                         .labelStyle(.settings(color: .red))
                     Label("싫어요 목록", systemImage: "heart.slash.fill")
                         .labelStyle(.settings(color: .blue))
-                    Label("리뷰 목록", systemImage: "star.fill")
+                    Label("내가 쓴 리뷰 목록", systemImage: "star.fill")
                         .labelStyle(.settings(color: .yellow))
                     Label("비밀 사진 목록", systemImage: "lock.fill")
                         .labelStyle(.settings(color: .green))
