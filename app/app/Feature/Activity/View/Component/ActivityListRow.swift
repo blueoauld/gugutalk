@@ -46,11 +46,12 @@ struct ActivityListRow: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                     }
+
+                    Spacer()
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            
-            Spacer()
             
             Button {
                 deleteTrigger.toggle()

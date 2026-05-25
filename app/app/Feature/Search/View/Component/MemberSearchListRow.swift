@@ -55,6 +55,7 @@ struct MemberSearchListRow: View {
                         .foregroundStyle(.secondary)
                     }
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }
