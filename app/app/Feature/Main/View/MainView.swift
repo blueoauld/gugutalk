@@ -74,7 +74,7 @@ struct MainView: View {
                 }
             )
         case .error(let message):
-            ErrorRetryView(message: message, retry: vm.reload)
+            ErrorRetryView(message: message, retry: vm.switchView)
         }
     }
 
