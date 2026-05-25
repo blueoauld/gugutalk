@@ -31,6 +31,8 @@ enum class ErrorCode(
     ACTIVITY_10(HttpStatus.BAD_REQUEST, "존재하지 않는 리뷰입니다."),
     ACTIVITY_11(HttpStatus.BAD_REQUEST, "접근할 수 없는 리뷰입니다."),
 
+    SEARCH_01(HttpStatus.BAD_REQUEST, "최소 2자 이상 입력해주시길 바랍니다."),
+
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청하신 리소스를 찾을 수 없습니다."),

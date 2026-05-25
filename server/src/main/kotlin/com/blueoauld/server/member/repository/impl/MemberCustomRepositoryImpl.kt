@@ -9,6 +9,7 @@ import com.blueoauld.server.member.entity.type.Gender
 import com.blueoauld.server.member.entity.type.Region
 import com.blueoauld.server.member.repository.MemberCustomRepository
 import com.blueoauld.server.member.repository.result.MemberResult
+import com.blueoauld.server.member.repository.result.MemberSearchResult
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
@@ -92,6 +93,63 @@ class MemberCustomRepositoryImpl(
 
         val rendered = jpqlRenderer.render(query, jpqlRenderContext)
         val jpaQuery = entityManager.createQuery(rendered.query, MemberResult::class.java).apply {
+            rendered.params.forEach { (name, value) ->
+                setParameter(name, value)
+            }
+        }
+        return jpaQuery.setMaxResults(size).resultList
+    }
+
+    override fun findAllByNickname(
+        memberId: Long,
+        nickname: String,
+        cursorId: Long?,
+        cursorDateAt: Instant?,
+        size: Int
+    ): List<MemberSearchResult> {
+        val query = jpql {
+            selectNew<MemberSearchResult>(
+                path(Member::id),
+                path(Member::nickname),
+                path(Member::profileUrl),
+                path(Member::gender),
+                path(Member::birthYear),
+                path(Member::region),
+                path(Member::updatedAt),
+            ).from(
+                entity(Member::class),
+            ).whereAnd(
+                path(Member::id).ne(memberId),
+                path(Member::nickname).like("$nickname%"),
+                path(Member::id).notIn(
+                    select<Long>(path(Block::toId))
+                        .from(entity(Block::class))
+                        .where(path(Block::fromId).eq(memberId))
+                        .asSubquery(),
+                ),
+                path(Member::id).notIn(
+                    select<Long>(path(Block::fromId))
+                        .from(entity(Block::class))
+                        .where(path(Block::toId).eq(memberId))
+                        .asSubquery(),
+                ),
+                if (cursorId != null && cursorDateAt != null) {
+                    or(
+                        path(Member::updatedAt).lt(cursorDateAt),
+                        and(
+                            path(Member::updatedAt).eq(cursorDateAt),
+                            path(Member::id).lt(cursorId),
+                        ),
+                    )
+                } else null,
+            ).orderBy(
+                path(Member::updatedAt).desc(),
+                path(Member::id).desc(),
+            )
+        }
+
+        val rendered = jpqlRenderer.render(query, jpqlRenderContext)
+        val jpaQuery = entityManager.createQuery(rendered.query, MemberSearchResult::class.java).apply {
             rendered.params.forEach { (name, value) ->
                 setParameter(name, value)
             }

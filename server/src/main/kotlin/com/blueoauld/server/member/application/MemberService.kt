@@ -4,9 +4,11 @@ import com.blueoauld.server.activity.repository.*
 import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.MEMBER_01
+import com.blueoauld.server.common.exception.type.ErrorCode.SEARCH_01
 import com.blueoauld.server.member.application.request.UpdateCommentRequest
 import com.blueoauld.server.member.application.response.MemberGetResponse
 import com.blueoauld.server.member.application.response.MemberRowResponse
+import com.blueoauld.server.member.application.response.MemberSearchRowResponse
 import com.blueoauld.server.member.repository.MemberRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -113,6 +115,40 @@ class MemberService(
             size = size + 1
         ).map {
             MemberRowResponse.from(it)
+        }
+
+        val hasNext = result.size > size
+        val items = if (hasNext) result.dropLast(1) else result
+        val last = items.lastOrNull()
+
+        return CursorResponse(
+            payload = items,
+            nextId = last?.memberId,
+            nextDateAt = last?.updatedAt,
+            hasNext = hasNext
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun search(
+        memberId: Long,
+        nickname: String,
+        cursorId: Long?,
+        cursorDateAt: Instant?,
+        size: Int
+    ): CursorResponse<MemberSearchRowResponse> {
+        if (nickname.length < 2) {
+            throw CustomException(SEARCH_01)
+        }
+
+        val result = memberRepository.findAllByNickname(
+            memberId = memberId,
+            nickname = nickname,
+            cursorId = cursorId,
+            cursorDateAt = cursorDateAt,
+            size = size + 1
+        ).map {
+            MemberSearchRowResponse.from(it)
         }
 
         val hasNext = result.size > size

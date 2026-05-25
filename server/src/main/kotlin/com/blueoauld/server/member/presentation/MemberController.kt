@@ -6,6 +6,7 @@ import com.blueoauld.server.member.application.MemberService
 import com.blueoauld.server.member.application.request.UpdateCommentRequest
 import com.blueoauld.server.member.application.response.MemberGetResponse
 import com.blueoauld.server.member.application.response.MemberRowResponse
+import com.blueoauld.server.member.application.response.MemberSearchRowResponse
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -65,6 +66,18 @@ class MemberController(
         @RequestParam(defaultValue = "20") size: Int,
     ): ResponseEntity<CursorResponse<MemberRowResponse>> {
         val response = memberService.getsByRegion(memberId, gender, cursorId, cursorDateAt, size)
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/members/search", version = "1")
+    fun search(
+        @Login memberId: Long,
+        @RequestParam nickname: String,
+        @RequestParam(required = false) cursorId: Long?,
+        @RequestParam(required = false) cursorDateAt: Instant?,
+        @RequestParam(defaultValue = "20") size: Int,
+    ): ResponseEntity<CursorResponse<MemberSearchRowResponse>> {
+        val response = memberService.search(memberId, nickname, cursorId, cursorDateAt, size)
         return ResponseEntity.ok(response)
     }
 }
