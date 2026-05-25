@@ -7,14 +7,12 @@ struct RootTabView: View {
         case location
         case chat
         case setting
-        case search
     }
 
     @State private var recentRouter = AppRouter()
     @State private var locationRouter = AppRouter()
     @State private var chatRouter = AppRouter()
     @State private var settingRouter = AppRouter()
-    @State private var memberSearchRouter = AppRouter()
 
     @State private var selectedTab: TabType = .recent
     @State private var hideTabBar = false
@@ -54,11 +52,6 @@ struct RootTabView: View {
 
             Tab("설정", systemImage: "gearshape", value: TabType.setting) {
                 SettingNavigationView(router: settingRouter)
-                    .toolbarVisibility(hideTabBar ? .hidden : .visible, for: .tabBar)
-            }
-
-            Tab("검색", systemImage: "magnifyingglass", value: TabType.search, role: .search) {
-                MemberSearchNavigationView(router: memberSearchRouter)
                     .toolbarVisibility(hideTabBar ? .hidden : .visible, for: .tabBar)
             }
         }

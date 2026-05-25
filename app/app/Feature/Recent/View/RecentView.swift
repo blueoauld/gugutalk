@@ -2,6 +2,8 @@ import SwiftUI
 
 struct RecentView: View {
 
+    @Environment(AppRouter.self) private var router
+
     @State private var vm = RecentViewModel()
 
     @State private var showComment = false
@@ -78,6 +80,15 @@ struct RecentView: View {
                 showComment = true
             } label: {
                 Image(systemName: "square.and.pencil")
+                    .font(.default)
+                    .foregroundStyle(.primary)
+            }
+        }
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                router.push(AppRoute.memberSearch)
+            } label: {
+                Image(systemName: "magnifyingglass")
                     .font(.default)
                     .foregroundStyle(.primary)
             }

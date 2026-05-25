@@ -46,7 +46,7 @@ final class MemberService {
             "gender": gender,
             "size": size,
         ]
-        
+
         if let cursorId {
             parameters["cursorId"] = cursorId
         }
@@ -87,6 +87,33 @@ final class MemberService {
             parameters: parameters,
             encoding: URLEncoding.default,
             as: CursorResponse<MemberRowResponse>.self
+        )
+    }
+
+    func search(
+        nickname: String,
+        cursorId: Int64?,
+        cursorDateAt: String?,
+        size: Int = 20,
+    ) async throws -> CursorResponse<MemberSearchRowResponse> {
+        var parameters: [String: Any] = [
+            "nickname": nickname,
+            "size": size,
+        ]
+
+        if let cursorId {
+            parameters["cursorId"] = cursorId
+        }
+        if let cursorDateAt {
+            parameters["cursorDateAt"] = cursorDateAt
+        }
+
+        return try await PrivateNetworkManager.shared.request(
+            "/members/search",
+            method: .get,
+            parameters: parameters,
+            encoding: URLEncoding.default,
+            as: CursorResponse<MemberSearchRowResponse>.self
         )
     }
 }
