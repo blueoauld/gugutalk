@@ -6,10 +6,8 @@ struct AppDestination: ViewModifier {
         content
             .navigationDestination(for: AppRoute.self) { route in
                 switch route {
-                case .recent:
-                    RecentView()
-                case .location:
-                    LocationView()
+                case .main:
+                    MainView()
                 case .chat:
                     ChatView()
                 case .setting:

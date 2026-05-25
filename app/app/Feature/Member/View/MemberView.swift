@@ -61,7 +61,7 @@ struct MemberView: View {
                     showMenu = true
                 } label: {
                     Image(systemName: "ellipsis")
-                        .font(.default)
+                        .font(.body)
                         .foregroundStyle(.primary)
                 }
                 .confirmationDialog("메뉴", isPresented: $showMenu) {

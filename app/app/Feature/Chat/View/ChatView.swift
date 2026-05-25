@@ -20,7 +20,7 @@ struct ChatView: View {
                 Button {
                 } label: {
                     Image(systemName: "magnifyingglass")
-                        .font(.default)
+                        .font(.body)
                         .foregroundStyle(.primary)
                 }
             }
@@ -30,7 +30,7 @@ struct ChatView: View {
                     isMute.toggle()
                 } label: {
                     Image(systemName: isMute ? "bell.slash" : "bell")
-                        .font(.default)
+                        .font(.body)
                         .foregroundStyle(.primary)
                         .contentTransition(.symbolEffect(.replace))
                 }

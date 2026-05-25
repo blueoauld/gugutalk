@@ -1,7 +1,6 @@
 enum AppRoute: Hashable {
     
-    case recent
-    case location
+    case main
     case chat
     case setting
     case memberSearch

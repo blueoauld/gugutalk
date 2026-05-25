@@ -1,12 +1,12 @@
 import SwiftUI
 
-struct LocationNavigationView: View {
+struct MainNavigationView: View {
 
     @Bindable var router: AppRouter
 
     var body: some View {
         NavigationStack(path: $router.path) {
-            LocationView()
+            MainView()
                 .appDestination()
         }
         .environment(router)

@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum RecentViewState {
+enum MainViewState {
 
     case idle
     case loading
@@ -11,13 +11,14 @@ enum RecentViewState {
 
 @MainActor
 @Observable
-final class RecentViewModel {
+final class MainViewModel {
 
     private let memberService = MemberService.shared
 
-    var state: RecentViewState = .idle
+    var state: MainViewState = .idle
     var members: [MemberRowResponse] = []
-    var gender = "ALL"
+    var gender = GenderFilter.all
+    var view = ViewFilter.recent
     var comment = ""
 
     private(set) var isPaging = false
@@ -41,13 +42,7 @@ final class RecentViewModel {
         defer { isPaging = false }
 
         do {
-            let response = try await memberService.gets(
-                gender: gender,
-                cursorId: cursor.cursorId,
-                cursorDateAt: cursor.cursorDateAt,
-                size: 20
-            )
-
+            let response = try await requestMembers()
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members.append(contentsOf: response.payload)
         } catch let error as APIError {
@@ -59,10 +54,15 @@ final class RecentViewModel {
 
     func reload() async {
         guard !isLoading else { return }
-
+        
         isLoading = true
         defer { isLoading = false }
 
+        await fetch()
+    }
+
+    func switchView() async {
+        state = .loading
         await fetch()
     }
 
@@ -78,7 +78,7 @@ final class RecentViewModel {
 
         do {
             try await memberService.updateComment(
-                content: comment,
+                content: comment
             )
 
             ToastManager.shared.show("코멘트를 작성하셨습니다.", style: .info)
@@ -98,13 +98,7 @@ final class RecentViewModel {
         members = []
 
         do {
-            let response = try await memberService.gets(
-                gender: gender,
-                cursorId: cursor.cursorId,
-                cursorDateAt: cursor.cursorDateAt,
-                size: 20
-            )
-
+            let response = try await requestMembers()
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members = response.payload
             state = members.isEmpty ? .empty : .data
@@ -112,6 +106,25 @@ final class RecentViewModel {
             state = .error(error.message)
         } catch {
             state = .error(error.localizedDescription)
+        }
+    }
+
+    private func requestMembers() async throws -> CursorResponse<MemberRowResponse> {
+        switch view {
+        case .recent:
+            return try await memberService.gets(
+                gender: gender.rawValue,
+                cursorId: cursor.cursorId,
+                cursorDateAt: cursor.cursorDateAt,
+                size: 20
+            )
+        case .region:
+            return try await memberService.getsByRegion(
+                gender: gender.rawValue,
+                cursorId: cursor.cursorId,
+                cursorDateAt: cursor.cursorDateAt,
+                size: 20
+            )
         }
     }
 }

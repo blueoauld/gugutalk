@@ -3,26 +3,21 @@ import SwiftUI
 struct RootTabView: View {
 
     enum TabType: Hashable {
-        case recent
-        case location
+        case main
         case chat
         case setting
     }
 
-    @State private var recentRouter = AppRouter()
-    @State private var locationRouter = AppRouter()
+    @State private var mainRouter = AppRouter()
     @State private var chatRouter = AppRouter()
     @State private var settingRouter = AppRouter()
 
-    @State private var selectedTab: TabType = .recent
+    @State private var selectedTab: TabType = .main
     @State private var hideTabBar = false
 
     var body: some View {
         tabContent
-            .onChange(of: recentRouter.path) { _, path in
-                hideTabBar = path.last?.hideTabBar ?? false
-            }
-            .onChange(of: locationRouter.path) { _, path in
+            .onChange(of: mainRouter.path) { _, path in
                 hideTabBar = path.last?.hideTabBar ?? false
             }
             .onChange(of: chatRouter.path) { _, path in
@@ -35,13 +30,8 @@ struct RootTabView: View {
 
     private var tabContent: some View {
         TabView(selection: $selectedTab) {
-            Tab("최근", systemImage: "clock", value: TabType.recent) {
-                RecentNavigationView(router: recentRouter)
-                    .toolbarVisibility(hideTabBar ? .hidden : .visible, for: .tabBar)
-            }
-
-            Tab("위치", systemImage: "location", value: TabType.location) {
-                LocationNavigationView(router: locationRouter)
+            Tab("메인", systemImage: "house", value: TabType.main) {
+                MainNavigationView(router: mainRouter)
                     .toolbarVisibility(hideTabBar ? .hidden : .visible, for: .tabBar)
             }
 

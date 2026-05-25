@@ -1,20 +1,20 @@
 import SwiftUI
 
-struct RecentView: View {
+struct MainView: View {
 
     @Environment(AppRouter.self) private var router
 
-    @State private var vm = RecentViewModel()
+    @State private var vm = MainViewModel()
 
     @State private var showComment = false
 
     var body: some View {
         VStack {
-            GenderPicker(selectedGender: $vm.gender)
+            MainViewPicker(selectedView: $vm.view)
 
             content
         }
-        .navigationTitle("최근")
+        .navigationTitle("메인")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             toolbarContent
@@ -24,7 +24,12 @@ struct RecentView: View {
         }
         .onChange(of: vm.gender) { _, _ in
             Task {
-                await vm.reload()
+                await vm.switchView()
+            }
+        }
+        .onChange(of: vm.view) { _, _ in
+            Task {
+                await vm.switchView()
             }
         }
         .alert("코멘트", isPresented: $showComment) {
@@ -75,21 +80,30 @@ struct RecentView: View {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            Menu {
+                GenderPicker(selectedGender: $vm.gender)
+            } label: {
+                Image(systemName: "line.3.horizontal.decrease")
+                    .font(.body)
+                    .foregroundStyle(.primary)
+            }
+
             Button {
                 showComment = true
             } label: {
                 Image(systemName: "square.and.pencil")
-                    .font(.default)
+                    .font(.body)
                     .foregroundStyle(.primary)
             }
         }
+
         ToolbarItem(placement: .topBarLeading) {
             Button {
                 router.push(AppRoute.memberSearch)
             } label: {
                 Image(systemName: "magnifyingglass")
-                    .font(.default)
+                    .font(.body)
                     .foregroundStyle(.primary)
             }
         }
