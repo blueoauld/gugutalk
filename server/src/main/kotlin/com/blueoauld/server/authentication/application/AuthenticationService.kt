@@ -8,12 +8,12 @@ import com.blueoauld.server.authentication.repository.VerificationCodeRepository
 import com.blueoauld.server.common.authentication.application.TokenProvider
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.*
+import com.blueoauld.server.common.properties.JwtProperties
 import com.blueoauld.server.common.util.IpExtractor
 import com.blueoauld.server.common.util.RandomNumberGenerator
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.repository.MemberRepository
 import jakarta.servlet.http.HttpServletRequest
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -32,14 +32,12 @@ const val AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY = "authentication:access_tok
 @Service
 class AuthenticationService(
 
-    @Value($$"${jwt.access-token-expire-seconds}") private val accessTokenExpireSeconds: Long,
-    @Value($$"${jwt.refresh-token-expire-seconds}") private val refreshTokenExpireSeconds: Long,
-
     private val memberRepository: MemberRepository,
     private val verificationCodeRepository: VerificationCodeRepository,
     private val stringRedisTemplate: StringRedisTemplate,
     private val tokenProvider: TokenProvider,
     private val passwordEncoder: PasswordEncoder,
+    private val jwtProperties: JwtProperties,
 ) {
 
     @Transactional
@@ -99,7 +97,7 @@ class AuthenticationService(
         val refreshTokenKey = AUTHENTICATION_REFRESH_TOKEN_KEY + refreshToken
 
         stringRedisTemplate.opsForValue().set(
-            refreshTokenKey, member.id.toString(), refreshTokenExpireSeconds, TimeUnit.SECONDS
+            refreshTokenKey, member.id.toString(), jwtProperties.refreshTokenExpireSeconds, TimeUnit.SECONDS
         )
         stringRedisTemplate.delete(codeKey)
 
@@ -139,7 +137,7 @@ class AuthenticationService(
         val refreshTokenKey = AUTHENTICATION_REFRESH_TOKEN_KEY + refreshToken
 
         stringRedisTemplate.opsForValue().set(
-            refreshTokenKey, member.id.toString(), refreshTokenExpireSeconds, TimeUnit.SECONDS
+            refreshTokenKey, member.id.toString(), jwtProperties.refreshTokenExpireSeconds, TimeUnit.SECONDS
         )
         return LoginResponse(member.id, accessToken, refreshToken)
     }
@@ -159,7 +157,7 @@ class AuthenticationService(
 
         val accessTokenBlacklistKey = AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY + request.accessToken
         stringRedisTemplate.opsForValue().set(
-            accessTokenBlacklistKey, memberId.toString(), accessTokenExpireSeconds, TimeUnit.SECONDS
+            accessTokenBlacklistKey, memberId.toString(), jwtProperties.accessTokenExpireSeconds, TimeUnit.SECONDS
         )
         stringRedisTemplate.delete(refreshTokenKey)
     }

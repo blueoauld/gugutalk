@@ -1,9 +1,9 @@
 package com.blueoauld.server.common.authentication.application
 
+import com.blueoauld.server.common.properties.JwtProperties
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
 import java.time.Duration
@@ -13,18 +13,16 @@ import javax.crypto.SecretKey
 @Service
 class TokenProvider(
 
-    @Value($$"${jwt.secret}") private val secret: String,
-    @Value($$"${jwt.access-token-expire-seconds}") private val accessTokenExpireSeconds: Long,
-    @Value($$"${jwt.refresh-token-expire-seconds}") private val refreshTokenExpireSeconds: Long,
+    private val jwtProperties: JwtProperties
 ) {
 
     private val key: SecretKey by lazy {
-        Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8))
+        Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray(StandardCharsets.UTF_8))
     }
 
     fun createAccessToken(memberId: Long, nickname: String): String {
         val now = Date()
-        val second = Duration.ofSeconds(accessTokenExpireSeconds)
+        val second = Duration.ofSeconds(jwtProperties.accessTokenExpireSeconds)
 
         return Jwts.builder()
             .subject(memberId.toString())
@@ -37,7 +35,7 @@ class TokenProvider(
 
     fun createRefreshToken(memberId: Long): String {
         val now = Date()
-        val second = Duration.ofSeconds(refreshTokenExpireSeconds)
+        val second = Duration.ofSeconds(jwtProperties.refreshTokenExpireSeconds)
 
         return Jwts.builder()
             .subject(memberId.toString())
