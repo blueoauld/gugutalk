@@ -48,6 +48,9 @@ dependencies {
     implementation("com.linecorp.kotlin-jdsl:jpql-dsl:3.9.0")
     implementation("com.linecorp.kotlin-jdsl:jpql-render:3.9.0")
     implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:3.9.0")
+
+    // s3
+    implementation("software.amazon.awssdk:s3:2.44.12")
 }
 
 kotlin {
