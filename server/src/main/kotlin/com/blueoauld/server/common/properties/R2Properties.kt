@@ -10,4 +10,5 @@ data class R2Properties(
     val secretKey: String,
     val api: String,
     val domain: String,
+    val bucket: String,
 )

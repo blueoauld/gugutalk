@@ -35,12 +35,12 @@ class R2Configuration(
     @Bean
     fun s3Presigner(): S3Presigner {
         return S3Presigner.builder()
-            .endpointOverride(URI.create(r2Properties.domain))
+            .endpointOverride(URI.create(r2Properties.api))
             .region(Region.of("auto"))
             .credentialsProvider(credentials())
             .serviceConfiguration(
                 S3Configuration.builder()
-                    .pathStyleAccessEnabled(false)
+                    .pathStyleAccessEnabled(true)
                     .build()
             )
             .build()
