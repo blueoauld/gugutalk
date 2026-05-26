@@ -33,6 +33,9 @@ class Report(
     @Column(name = "type", nullable = false)
     var type: ReportType,
 
+    @Column(name = "reason", length = 500, nullable = false)
+    var reason: String = "",
+
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 )
