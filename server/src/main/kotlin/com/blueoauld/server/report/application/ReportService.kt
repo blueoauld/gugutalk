@@ -5,11 +5,13 @@ import com.blueoauld.server.common.exception.type.ErrorCode.MEMBER_01
 import com.blueoauld.server.common.exception.type.ErrorCode.REPORT_01
 import com.blueoauld.server.common.properties.R2Properties
 import com.blueoauld.server.member.repository.MemberRepository
+import com.blueoauld.server.report.application.event.ReportCreateEvent
 import com.blueoauld.server.report.application.request.ReportCreateRequest
 import com.blueoauld.server.report.entity.Report
 import com.blueoauld.server.report.entity.ReportImage
 import com.blueoauld.server.report.repository.ReportImageRepository
 import com.blueoauld.server.report.repository.ReportRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,6 +22,7 @@ class ReportService(
     private val reportRepository: ReportRepository,
     private val reportImageRepository: ReportImageRepository,
     private val memberRepository: MemberRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
     private val r2Properties: R2Properties
 ) {
 
@@ -54,5 +57,13 @@ class ReportService(
             )
         }
         reportImageRepository.saveAll(reportImages)
+
+        // 이벤트
+        applicationEventPublisher.publishEvent(
+            ReportCreateEvent(
+                reportId = report.id,
+                keys = request.images.map { it.key }
+            )
+        )
     }
 }
