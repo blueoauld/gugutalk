@@ -35,20 +35,11 @@ final class PrivateNetworkManager {
             encoding: encoding,
             headers: headers
         )
-        .validate(statusCode: 200..<300)
-        .serializingDecodable(T.self)
-        .response
+            .validate(statusCode: 200..<300)
+            .serializingDecodable(T.self)
+            .response
 
-        switch response.result {
-        case .success(let value):
-            return value
-        case .failure(let afError):
-            throw error(
-                afError,
-                data: response.data,
-                statusCode: response.response?.statusCode
-            )
-        }
+        return try handle(response: response)
     }
 
     func requestVoid(
@@ -67,10 +58,74 @@ final class PrivateNetworkManager {
             encoding: encoding,
             headers: headers
         )
-        .validate(statusCode: 200..<300)
-        .serializingData(emptyResponseCodes: [200, 204, 205])
-        .response
+            .validate(statusCode: 200..<300)
+            .serializingData(emptyResponseCodes: [200, 204, 205])
+            .response
 
+        try handleVoid(response: response)
+    }
+
+    func request<Parameters: Encodable, T: Decodable>(
+        _ path: String,
+        method: HTTPMethod = .get,
+        parameters: Parameters,
+        encoder: ParameterEncoder = JSONParameterEncoder.default,
+        headers: HTTPHeaders? = nil,
+        as type: T.Type
+    ) async throws -> T {
+        let url = APIEnvironment.baseURL + path
+
+        let response = await session.request(
+            url,
+            method: method,
+            parameters: parameters,
+            encoder: encoder,
+            headers: headers
+        )
+            .validate(statusCode: 200..<300)
+            .serializingDecodable(T.self)
+            .response
+
+        return try handle(response: response)
+    }
+
+    func requestVoid<Parameters: Encodable>(
+        _ path: String,
+        method: HTTPMethod = .get,
+        parameters: Parameters,
+        encoder: ParameterEncoder = JSONParameterEncoder.default,
+        headers: HTTPHeaders? = nil
+    ) async throws {
+        let url = APIEnvironment.baseURL + path
+
+        let response = await session.request(
+            url,
+            method: method,
+            parameters: parameters,
+            encoder: encoder,
+            headers: headers
+        )
+            .validate(statusCode: 200..<300)
+            .serializingData(emptyResponseCodes: [200, 204, 205])
+            .response
+
+        try handleVoid(response: response)
+    }
+
+    private func handle<T: Decodable>(response: DataResponse<T, AFError>) throws -> T {
+        switch response.result {
+        case .success(let value):
+            return value
+        case .failure(let afError):
+            throw error(
+                afError,
+                data: response.data,
+                statusCode: response.response?.statusCode
+            )
+        }
+    }
+
+    private func handleVoid(response: DataResponse<Data, AFError>) throws {
         if case .failure(let afError) = response.result {
             throw error(
                 afError,
@@ -83,7 +138,8 @@ final class PrivateNetworkManager {
     private func error(_ error: AFError, data: Data?, statusCode: Int?) -> APIError {
         if let urlError = error.underlyingError as? URLError {
             switch urlError.code {
-            case .notConnectedToInternet, .timedOut, .networkConnectionLost, .cannotConnectToHost, .cannotFindHost, .dataNotAllowed:
+            case .notConnectedToInternet, .timedOut, .networkConnectionLost,
+                    .cannotConnectToHost, .cannotFindHost, .dataNotAllowed:
                 return .network
             default:
                 break
@@ -101,7 +157,6 @@ final class PrivateNetworkManager {
                         statusCode: statusCode
                     )
                 }
-
                 return .server(
                     code: "INTERNAL_SERVER_ERROR",
                     message: "서버 오류가 발생했습니다.",

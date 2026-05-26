@@ -3,6 +3,7 @@ package com.blueoauld.server.report.application
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.MEMBER_01
 import com.blueoauld.server.common.exception.type.ErrorCode.REPORT_01
+import com.blueoauld.server.common.properties.R2Properties
 import com.blueoauld.server.member.repository.MemberRepository
 import com.blueoauld.server.report.application.request.ReportCreateRequest
 import com.blueoauld.server.report.entity.Report
@@ -19,6 +20,7 @@ class ReportService(
     private val reportRepository: ReportRepository,
     private val reportImageRepository: ReportImageRepository,
     private val memberRepository: MemberRepository,
+    private val r2Properties: R2Properties
 ) {
 
     @Transactional
@@ -43,10 +45,12 @@ class ReportService(
         reportRepository.save(report)
 
         val reportImages = request.images.map {
+            val fileName = it.key.substringAfterLast("/")
+
             ReportImage(
                 reportId = report.id,
-                key = it.key,
-                url = it.url
+                key = "report/${report.id}/$fileName",
+                url = "${r2Properties.domain}/report/${report.id}/$fileName"
             )
         }
         reportImageRepository.saveAll(reportImages)

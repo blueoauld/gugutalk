@@ -2,11 +2,13 @@ import SwiftUI
 
 struct ReportMenu: View {
 
+    @Binding var reportType: ReportType?
+
     var body: some View {
         VStack(spacing: 10) {
             ForEach(ReportType.allCases, id: \.self) { it in
                 Button {
-
+                    reportType = it
                 } label: {
                     HStack {
                         Text(it.label)
@@ -15,7 +17,7 @@ struct ReportMenu: View {
 
                         Spacer()
 
-                        Image(systemName: "circle")
+                        Image(systemName: reportType == it ? "checkmark.circle.fill" : "circle")
                             .foregroundColor(.secondary)
                     }
                     .padding(.vertical, 7)
@@ -25,5 +27,6 @@ struct ReportMenu: View {
                 .tint(.secondary)
             }
         }
+        .sensoryFeedback(.selection, trigger: reportType)
     }
 }

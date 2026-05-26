@@ -1,4 +1,4 @@
-struct ReviewCreateRequest: Decodable {
+struct ReviewCreateRequest: Encodable {
 
     let content: String
 }

@@ -8,7 +8,7 @@ data class ReportCreateRequest(
 
     val type: ReportType,
 
-    @field:Size(max = 500, message = "내용은 500자 이하여야 합니다.")
+    @field:Size(max = 500, message = "신고 사유는 500자 이하여야 합니다.")
     val reason: String,
 
     @field:Size(

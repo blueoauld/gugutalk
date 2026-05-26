@@ -14,7 +14,7 @@ class ReportImageService(
     private val r2Provider: R2Provider,
 ) {
 
-    fun createUploadUrl(requests: UploadUrlRequests): UploadUrlResponses {
+    fun createUploadUrls(requests: UploadUrlRequests): UploadUrlResponses {
         val urls = requests.urls.map {
             val contentType = FileContentType.from(it.contentType)
             val fileName = "${UUID.randomUUID()}.${contentType.extension}"

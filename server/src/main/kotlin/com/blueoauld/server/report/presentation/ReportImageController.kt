@@ -21,7 +21,7 @@ class ReportImageController(
     fun createUploadUrls(
         @Valid @RequestBody requests: UploadUrlRequests
     ): ResponseEntity<UploadUrlResponses> {
-        val responses = reportImageService.createUploadUrl(requests)
+        val responses = reportImageService.createUploadUrls(requests)
         return ResponseEntity.ok(responses)
     }
 }
