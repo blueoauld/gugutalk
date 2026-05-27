@@ -52,11 +52,12 @@ struct MemberList: View {
                 }
             }
         }
-        .listStyle(.plain)
-        .navigationLinkIndicatorVisibility(.hidden)
         .refreshable {
             await onRefresh()
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .navigationLinkIndicatorVisibility(.hidden)
         .alert("쪽지", isPresented: $showMessage) {
             TextField("내용", text: $message)
             Button("전송") { }
