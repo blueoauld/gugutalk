@@ -1,5 +1,6 @@
 package com.blueoauld.server.member.presentation
 
+import com.blueoauld.server.common.authentication.annotation.Login
 import com.blueoauld.server.member.application.MemberImageService
 import com.blueoauld.server.r2.application.request.UploadUrlRequests
 import com.blueoauld.server.r2.application.response.UploadUrlResponses
@@ -19,17 +20,19 @@ class MemberImageController(
 
     @PostMapping("/members/images/public/urls", version = "1")
     fun createPublicUploadUrls(
+        @Login memberId: Long,
         @Valid @RequestBody requests: UploadUrlRequests
     ): ResponseEntity<UploadUrlResponses> {
-        val responses = memberImageService.createPublicUploadUrls(requests)
+        val responses = memberImageService.createPublicUploadUrls(memberId, requests)
         return ResponseEntity.ok(responses)
     }
 
     @PostMapping("/members/images/private/urls", version = "1")
     fun createPrivateUploadUrls(
+        @Login memberId: Long,
         @Valid @RequestBody requests: UploadUrlRequests
     ): ResponseEntity<UploadUrlResponses> {
-        val responses = memberImageService.createPrivateUploadUrls(requests)
+        val responses = memberImageService.createPrivateUploadUrls(memberId, requests)
         return ResponseEntity.ok(responses)
     }
 }

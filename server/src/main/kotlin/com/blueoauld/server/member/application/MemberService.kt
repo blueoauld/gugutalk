@@ -227,7 +227,21 @@ class MemberService(
     ): MemberImageSyncResult {
         val pathPrefix = type.name.lowercase()
 
-        // 1. 요청에서 원하는 상태 구성
+        // 기존 이미지 조회
+        val existingImages = memberImageRepository.findAllByMemberIdAndType(memberId, type)
+        val existingKeys = existingImages.map { it.key }.toSet()
+
+        // 검증
+        images.forEach { image ->
+            val isNew = image.key.startsWith("member/$pathPrefix/temporary/$memberId/")
+            val isExisting = image.key in existingKeys
+
+            if (!isNew && !isExisting) {
+                throw CustomException(FILE_02)
+            }
+        }
+
+        // 요청에서 원하는 상태 구성
         val desiredOrderByKey = images.mapIndexed { index, image ->
             val fileName = image.key.substringAfterLast("/")
             "member/$pathPrefix/$memberId/$fileName" to index
@@ -238,14 +252,10 @@ class MemberService(
             "member/$pathPrefix/$memberId/$fileName" to image.key
         }
 
-        // 2. 기존 이미지 조회
-        val existingImages = memberImageRepository.findAllByMemberIdAndType(memberId, type)
-        val existingKeys = existingImages.map { it.key }.toSet()
-
-        // 3. 삭제 대상
+        // 삭제 대상
         val toDelete = existingImages.filter { it.key !in desiredOrderByKey }
 
-        // 4. 추가 대상
+        // 추가 대상
         val toInsert = desiredOrderByKey
             .filterKeys { it !in existingKeys }
             .map { (key, sortOrder) ->
@@ -258,7 +268,7 @@ class MemberService(
                 )
             }
 
-        // 5. 유지 대상
+        // 유지 대상
         existingImages
             .filter { it.key in desiredOrderByKey }
             .forEach { existing ->

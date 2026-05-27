@@ -14,22 +14,22 @@ class MemberImageService(
     private val r2Provider: R2Provider,
 ) {
 
-    fun createPublicUploadUrls(requests: UploadUrlRequests): UploadUrlResponses {
+    fun createPublicUploadUrls(memberId: Long, requests: UploadUrlRequests): UploadUrlResponses {
         val urls = requests.urls.map {
             val contentType = FileContentType.from(it.contentType)
             val fileName = "${UUID.randomUUID()}.${contentType.extension}"
-            val key = "member/public/temporary/$fileName"
+            val key = "member/public/temporary/$memberId/$fileName"
 
             r2Provider.createUploadUrl(key, it.contentType, Duration.ofMinutes(5))
         }
         return UploadUrlResponses(urls)
     }
 
-    fun createPrivateUploadUrls(requests: UploadUrlRequests): UploadUrlResponses {
+    fun createPrivateUploadUrls(memberId: Long, requests: UploadUrlRequests): UploadUrlResponses {
         val urls = requests.urls.map {
             val contentType = FileContentType.from(it.contentType)
             val fileName = "${UUID.randomUUID()}.${contentType.extension}"
-            val key = "member/private/temporary/$fileName"
+            val key = "member/private/temporary/$memberId/$fileName"
 
             r2Provider.createUploadUrl(key, it.contentType, Duration.ofMinutes(5))
         }

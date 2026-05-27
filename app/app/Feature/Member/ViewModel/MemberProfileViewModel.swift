@@ -113,32 +113,69 @@ final class MemberProfileViewModel {
         guard !pickedImages.isEmpty else { return [] }
 
         // 이미지 압축
-        let images: [Data] = try await Task.detached(priority: .userInitiated) {
-            try pickedImages.map { it in
-                let resized = it.image.resized(toMaxDimension: 1024)
-
-                guard let data = resized.jpegData(compressionQuality: 0.8) else {
-                    throw APIError.server(
-                        code: "INTERNAL_SERVER_ERROR",
-                        message: "이미지 압축에 실패했습니다.",
-                        statusCode: 500
-                    )
-                }
-                return data
-            }
-        }.value
+        let images = try await compressImages(pickedImages)
 
         // 업로드 URL 생성
         let requests = UploadUrlRequests(
-            urls: images.map { _ in
-                UploadUrlRequest(contentType: "image/jpeg")
-            }
+            urls: images.map { _ in UploadUrlRequest(contentType: "image/jpeg") }
         )
         let responses = try await createUploadUrls(requests)
 
+        // 응답 개수 검증
+        guard responses.urls.count == images.count else {
+            throw APIError.server(
+                code: "INTERNAL_SERVER_ERROR",
+                message: "이미지 개수가 올바르지 않습니다.",
+                statusCode: 500
+            )
+        }
+
         // R2 업로드
+        try await uploadToR2(images: images, urls: responses.urls)
+
+        return responses.urls.map { response in
+            MemberImageCreateRequest(url: response.url, key: response.key)
+        }
+    }
+
+    private func compressImages(_ pickedImages: [PickedImage]) async throws -> [Data] {
+        try await withThrowingTaskGroup(of: (Int, Data).self) { group in
+            for (index, picked) in pickedImages.enumerated() {
+                group.addTask(priority: .userInitiated) {
+                    let resized = picked.image.resized(toMaxDimension: 1024)
+
+                    guard let data = resized.jpegData(compressionQuality: 0.8) else {
+                        throw APIError.server(
+                            code: "INTERNAL_SERVER_ERROR",
+                            message: "이미지 압축에 실패했습니다.",
+                            statusCode: 500
+                        )
+                    }
+                    return (index, data)
+                }
+            }
+
+            var results = Array<Data?>(repeating: nil, count: pickedImages.count)
+            for try await (index, data) in group {
+                results[index] = data
+            }
+            return results.compactMap { $0 }
+        }
+    }
+
+    private func uploadToR2(
+        images: [Data],
+        urls: [UploadUrlResponse],
+        maxConcurrent: Int = 4
+    ) async throws {
         try await withThrowingTaskGroup(of: Void.self) { group in
-            for (image, response) in zip(images, responses.urls) {
+            var nextIndex = 0
+            let total = images.count
+
+            while nextIndex < min(maxConcurrent, total) {
+                let image = images[nextIndex]
+                let response = urls[nextIndex]
+
                 group.addTask {
                     try await self.r2Service.upload(
                         data: image,
@@ -146,12 +183,24 @@ final class MemberProfileViewModel {
                         contentType: "image/jpeg"
                     )
                 }
+                nextIndex += 1
             }
-            try await group.waitForAll()
-        }
 
-        return responses.urls.map { it in
-            MemberImageCreateRequest(url: it.url, key: it.key)
+            while try await group.next() != nil {
+                guard nextIndex < total else { continue }
+
+                let image = images[nextIndex]
+                let response = urls[nextIndex]
+
+                group.addTask {
+                    try await self.r2Service.upload(
+                        data: image,
+                        url: response.url,
+                        contentType: "image/jpeg"
+                    )
+                }
+                nextIndex += 1
+            }
         }
     }
 
@@ -161,29 +210,24 @@ final class MemberProfileViewModel {
     ) async throws -> [MemberImageCreateRequest] {
         // 새로 고른 것만 추출
         let picks = images.compactMap { image -> PickedImage? in
-            if case .picked(let p) = image {
-                return p
-            } else {
-                return nil
+            if case .picked(let picked) = image {
+                return picked
             }
+            return nil
         }
-
-        // 기존 uploadImages 로직 그대로 사용해서 업로드
+        
+        // 업로드
         let uploaded = try await uploadImages(picks, createUploadUrls: createUploadUrls)
 
         // 원래 순서대로 재조립
-        var result: [MemberImageCreateRequest] = []
-        var i = 0
-
-        for image in images {
+        var uploadedIterator = uploaded.makeIterator()
+        return images.map { image in
             switch image {
-            case .existing(let e):
-                result.append(MemberImageCreateRequest(url: e.url, key: e.key))
+            case .existing(let existing):
+                return MemberImageCreateRequest(url: existing.url, key: existing.key)
             case .picked:
-                result.append(uploaded[i])
-                i += 1
+                return uploadedIterator.next()!
             }
         }
-        return result
     }
 }
