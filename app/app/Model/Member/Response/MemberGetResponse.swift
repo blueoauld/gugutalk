@@ -12,6 +12,7 @@ struct MemberGetResponse: Decodable {
     var likes: Int
     var unlikes: Int
     let reviews: Int
+    let privateImages: Int
     var isLike: Bool
     var isUnlike: Bool
     var isPrivateImageGrant: Bool

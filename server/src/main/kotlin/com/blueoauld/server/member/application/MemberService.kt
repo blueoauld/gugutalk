@@ -12,6 +12,7 @@ import com.blueoauld.server.member.application.request.MemberUpdateProfileReques
 import com.blueoauld.server.member.application.response.*
 import com.blueoauld.server.member.entity.MemberImage
 import com.blueoauld.server.member.entity.type.MemberImageType
+import com.blueoauld.server.member.entity.type.MemberImageType.PRIVATE
 import com.blueoauld.server.member.entity.type.MemberImageType.PUBLIC
 import com.blueoauld.server.member.repository.MemberImageRepository
 import com.blueoauld.server.member.repository.MemberRepository
@@ -53,12 +54,11 @@ class MemberService(
     @Transactional(readOnly = true)
     fun get(memberId: Long, targetId: Long): MemberGetResponse {
         val target = memberRepository.findByIdOrNull(targetId) ?: throw CustomException(MEMBER_01)
-        val memberImages = memberImageRepository.findAllByMemberIdAndType(targetId, PUBLIC)
-            .map { MemberImageResponse.from(it) }
+        val memberImages = memberImageRepository.findAllByMemberId(targetId).map { MemberImageResponse.from(it) }
 
         return MemberGetResponse(
             memberId = target.id,
-            images = memberImages,
+            images = memberImages.filter { it.type == PUBLIC },
             nickname = target.nickname,
             gender = target.gender,
             age = Year.now().value - target.birthYear,
@@ -69,6 +69,7 @@ class MemberService(
             likes = likeRepository.countByToId(targetId),
             unlikes = unlikeRepository.countByToId(targetId),
             reviews = reviewRepository.countByToId(targetId),
+            privateImages = memberImages.count { it.type == PRIVATE },
             isLike = likeRepository.existsByFromIdAndToId(memberId, targetId),
             isUnlike = unlikeRepository.existsByFromIdAndToId(memberId, targetId),
             isPrivateImageGrant = privateImageGrantRepository.existsByFromIdAndToId(memberId, targetId),
@@ -199,7 +200,7 @@ class MemberService(
         }
 
         val publicImageResult = syncImages(member.id, request.publicImages, PUBLIC)
-        val privateImageResult = syncImages(member.id, request.privateImages, MemberImageType.PRIVATE)
+        val privateImageResult = syncImages(member.id, request.privateImages, PRIVATE)
 
         val moveTasks = publicImageResult.moveTasks + privateImageResult.moveTasks
         val deleteKeys = publicImageResult.deleteKeys + privateImageResult.deleteKeys

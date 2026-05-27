@@ -1,15 +1,15 @@
 import SwiftUI
 
 struct MemberActionBar: View {
-    
+
     let memberId: Int64
     let member: MemberGetResponse
     let vm: MemberViewModel
-    
+
     @State private var showMessage = false
     @State private var showBlock = false
     @State private var message = ""
-    
+
     var body: some View {
         VStack {
             HStack(spacing: 22) {
@@ -28,7 +28,7 @@ struct MemberActionBar: View {
                         .symbolEffect(.bounce, value: member.isLike)
                 }
                 .sensoryFeedback(.selection, trigger: member.isLike)
-                
+
                 Button {
                     Task {
                         if member.isUnlike {
@@ -59,16 +59,29 @@ struct MemberActionBar: View {
                         .foregroundStyle(member.isChat ? Color.primary : Color.gray)
                 }
                 .disabled(!member.isChat)
-                
+
                 Button {
-                    
+
                 } label: {
                     Image(systemName: "photo.fill")
                         .font(.title2)
                         .foregroundStyle(member.hasPrivateImageGrant ? .green : .gray)
+                        .overlay(alignment: .topTrailing) {
+                            Text("\(member.privateImages)")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(
+                                    member.privateImages <= 0 ? Color(.systemGray2) : Color(.systemRed),
+                                    in: Capsule()
+                                )
+                                .offset(x: 7, y: -7)
+                        }
                 }
                 .disabled(!member.hasPrivateImageGrant)
-                
+
                 Button {
                     showBlock = true
                 } label: {

@@ -18,6 +18,7 @@ data class MemberGetResponse(
     val likes: Int,
     val unlikes: Int,
     val reviews: Int,
+    val privateImages: Int,
     val isLike: Boolean,
     val isUnlike: Boolean,
     val isPrivateImageGrant: Boolean,
