@@ -4,4 +4,5 @@ data class MemberImageSyncResult(
 
     val moveTasks: List<MemberImageMoveTask>,
     val deleteKeys: List<String>,
+    val firstImageUrl: String?,
 )

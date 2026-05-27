@@ -201,6 +201,7 @@ class MemberService(
         val deleteKeys = publicImageResult.deleteKeys + privateImageResult.deleteKeys
 
         member.updateProfile(
+            profileUrl = publicImageResult.firstImageUrl,
             nickname = request.nickname,
             birthYear = request.birthYear,
             region = request.region,
@@ -283,9 +284,15 @@ class MemberService(
                 )
             }
 
+        val firstImageUrl = desiredOrderByKey.entries
+            .firstOrNull { (_, sortOrder) -> sortOrder == 0 }
+            ?.key
+            ?.let { "${r2Properties.domain}/$it" }
+
         return MemberImageSyncResult(
             moveTasks = moveTasks,
             deleteKeys = toDelete.map { it.key },
+            firstImageUrl = firstImageUrl,
         )
     }
 }

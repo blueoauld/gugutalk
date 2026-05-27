@@ -26,7 +26,7 @@ class Member(
     var deviceId: String,
 
     @Column(name = "profile_url")
-    val profileUrl: String? = null,
+    var profileUrl: String? = null,
 
     @Column(name = "nickname", length = 10, unique = true, nullable = false)
     var nickname: String = "닉네임_${UUID.randomUUID().toString().replace("-", "").take(6)}",
@@ -58,7 +58,8 @@ class Member(
     var updatedAt: Instant = Instant.now(),
 ) {
 
-    fun updateProfile(nickname: String, birthYear: Int, region: Region, bio: String) {
+    fun updateProfile(profileUrl: String? = null, nickname: String, birthYear: Int, region: Region, bio: String) {
+        this.profileUrl = profileUrl
         this.nickname = nickname
         this.birthYear = birthYear
         this.region = region
