@@ -51,6 +51,9 @@ dependencies {
 
     // s3
     implementation("software.amazon.awssdk:s3:2.44.12")
+
+    // coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 }
 
 kotlin {
