@@ -87,7 +87,8 @@ struct MemberImagePicker: View {
                     Color(.systemGray6)
                         .overlay(
                             Image(systemName: "photo")
-                                .foregroundStyle(Color(.systemGray4))
+                                .font(.title)
+                                .foregroundStyle(Color(.systemGray3))
                         )
                 case .empty:
                     Color(.systemGray6)

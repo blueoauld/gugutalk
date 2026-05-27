@@ -72,12 +72,12 @@ struct MemberView: View {
                             .foregroundStyle(.primary)
                     }
                     .confirmationDialog("메뉴", isPresented: $showMenu) {
-                        Button("리뷰") {
-                            router.push(AppRoute.review(memberId, member.nickname))
-                        }
-
                         Button("편집") {
                             router.push(AppRoute.memberProfile)
+                        }
+
+                        Button("리뷰") {
+                            router.push(AppRoute.review(memberId, member.nickname))
                         }
                     }
                 }
