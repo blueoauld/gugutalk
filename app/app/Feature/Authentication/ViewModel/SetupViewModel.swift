@@ -14,17 +14,31 @@ final class SetupViewModel {
     var bio = ""
 
     var enabled: Bool {
-        (2...10).contains(nickname.count) && birthYear.count == 4 && region != nil
+        (2...10).contains(nickname.trimmingCharacters(in: .whitespaces).count) && birthYear.count == 4 && region != nil
     }
 
     func setup() async -> Bool {
-        guard !isLoading, enabled else { return false }
+        guard !isLoading else { return false }
+
+        let trimmedNickname = nickname.trimmingCharacters(in: .whitespaces)
+        guard (2...10).contains(trimmedNickname.count) else {
+            ToastManager.shared.show("닉네임은 2자 이상 10자 이하여야 합니다.", style: .error)
+            return false
+        }
+        guard let region else {
+            ToastManager.shared.show("지역을 선택해주시길 바랍니다.", style: .error)
+            return false
+        }
+        guard bio.count < 500 else {
+            ToastManager.shared.show("자기소개는 500자 이하여야 합니다.", style: .error)
+            return false
+        }
 
         isLoading = true
         defer { isLoading = false }
 
         do {
-            try await authenticationService.setup(nickname: nickname, birthYear: birthYear, region: region!, bio: bio)
+            try await authenticationService.setup(nickname: trimmedNickname, birthYear: birthYear, region: region, bio: bio)
 
             ToastManager.shared.show("계정이 활성화되었습니다.", style: .success)
             return true
