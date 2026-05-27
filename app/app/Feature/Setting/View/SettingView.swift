@@ -13,8 +13,13 @@ struct SettingView: View {
         VStack {
             Form {
                 Section("계정") {
-                    Label("내 프로필", systemImage: "person.fill")
-                        .labelStyle(.settings(color: .yellow))
+                    if let memberId = TokenStorage.shared.memberId {
+                        NavigationLink(value: AppRoute.member(memberId)) {
+                            Label("내 프로필", systemImage: "person.fill")
+                                .labelStyle(.settings(color: .yellow))
+                        }
+                        .navigationLinkIndicatorVisibility(.hidden)
+                    }
                 }
 
                 Section("활동") {

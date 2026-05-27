@@ -1,21 +1,25 @@
 import SwiftUI
 
 struct MemberView: View {
-    
+
     let memberId: Int64
 
     @Environment(AppRouter.self) private var router
 
     @State private var vm = MemberViewModel()
-    
+
     @State private var currentPage = 0
     @State private var showMenu = false
-    
+
+    private var isMe: Bool {
+        memberId == TokenStorage.shared.memberId
+    }
+
     var body: some View {
         VStack {
             content
         }
-        .navigationTitle("프로필")
+        .navigationTitle(isMe ? "내 프로필" : "프로필")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             toolbarContent
@@ -29,7 +33,7 @@ struct MemberView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var content: some View {
         switch vm.state {
@@ -44,7 +48,9 @@ struct MemberView: View {
                     MemberProfile(member: member)
                 }
                 .safeAreaBar(edge: .bottom) {
-                    MemberActionBar(memberId: memberId, member: member, vm: vm)
+                    if !isMe {
+                        MemberActionBar(memberId: memberId, member: member, vm: vm)
+                    }
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
             }
@@ -52,31 +58,51 @@ struct MemberView: View {
             ErrorRetryView(message: message, retry: { await vm.get(memberId: memberId) })
         }
     }
-    
+
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         if let member = vm.member {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showMenu = true
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                }
-                .confirmationDialog("메뉴", isPresented: $showMenu) {
-                    Button(member.isPrivateImageGrant ? "비밀 사진 닫기" : "비밀 사진 공개") {
-                        Task {
-                            if member.isPrivateImageGrant {
-                                await vm.deletePrivateImageGrant(memberId: memberId)
-                            } else {
-                                await vm.createPrivateImageGrant(memberId: memberId)
-                            }
+            if isMe {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showMenu = true
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                    }
+                    .confirmationDialog("메뉴", isPresented: $showMenu) {
+                        Button("리뷰") {
+                            router.push(AppRoute.review(memberId, member.nickname))
+                        }
+
+                        Button("편집") {
                         }
                     }
+                }
+            } else {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showMenu = true
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                    }
+                    .confirmationDialog("메뉴", isPresented: $showMenu) {
+                        Button(member.isPrivateImageGrant ? "비밀 사진 닫기" : "비밀 사진 공개") {
+                            Task {
+                                if member.isPrivateImageGrant {
+                                    await vm.deletePrivateImageGrant(memberId: memberId)
+                                } else {
+                                    await vm.createPrivateImageGrant(memberId: memberId)
+                                }
+                            }
+                        }
 
-                    Button("신고", role: .destructive) {
-                        router.push(AppRoute.report(memberId, member.nickname))
+                        Button("신고", role: .destructive) {
+                            router.push(AppRoute.report(memberId, member.nickname))
+                        }
                     }
                 }
             }
