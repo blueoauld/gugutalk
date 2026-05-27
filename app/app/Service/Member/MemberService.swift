@@ -116,4 +116,15 @@ final class MemberService {
             as: CursorResponse<MemberSearchRowResponse>.self
         )
     }
+
+    func updateProfile(
+        request: MemberUpdateProfileRequest
+    ) async throws {
+        try await PrivateNetworkManager.shared.requestVoid(
+            "/members/profile",
+            method: .put,
+            parameters: request,
+            encoder: JSONParameterEncoder.default
+        )
+    }
 }

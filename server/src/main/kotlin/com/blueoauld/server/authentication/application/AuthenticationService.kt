@@ -106,14 +106,13 @@ class AuthenticationService(
 
     @Transactional
     fun setup(memberId: Long, request: SetupRequest) {
-        val member = (memberRepository.findByIdOrNull(memberId)
-            ?: throw CustomException(MEMBER_01))
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
 
         if (memberRepository.existsByNickname(request.nickname)) {
             throw CustomException(MEMBER_03)
         }
 
-        member.setup(
+        member.updateProfile(
             nickname = request.nickname,
             birthYear = request.birthYear,
             region = request.region,

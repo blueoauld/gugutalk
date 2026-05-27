@@ -5,6 +5,7 @@ enum AppRoute: Hashable {
     case setting
     case memberSearch
     case member(Int64)
+    case memberProfile
     case review(Int64, String)
     case report(Int64, String)
     case likeList
@@ -15,6 +16,7 @@ enum AppRoute: Hashable {
     var hideTabBar: Bool {
         switch self {
         case .member: return true
+        case .memberProfile: return true
         case .review: return true
         case .report: return true
         case .likeList: return true

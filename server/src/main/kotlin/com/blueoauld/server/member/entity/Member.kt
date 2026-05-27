@@ -58,11 +58,12 @@ class Member(
     var updatedAt: Instant = Instant.now(),
 ) {
 
-    fun setup(nickname: String, birthYear: Int, region: Region, bio: String) {
+    fun updateProfile(nickname: String, birthYear: Int, region: Region, bio: String) {
         this.nickname = nickname
         this.birthYear = birthYear
         this.region = region
         this.bio = bio
+        this.updatedAt = Instant.now()
     }
 
     fun updateDeviceId(deviceId: String) {

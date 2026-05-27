@@ -61,6 +61,7 @@ struct MainView: View {
                     .containerRelativeFrame([.horizontal, .vertical])
             }
             .refreshable {
+                await vm.bump()
                 await vm.reload()
             }
         case .data:

@@ -77,6 +77,7 @@ struct MemberView: View {
                         }
 
                         Button("편집") {
+                            router.push(AppRoute.memberProfile)
                         }
                     }
                 }

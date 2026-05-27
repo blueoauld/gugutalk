@@ -3,7 +3,8 @@ package com.blueoauld.server.member.presentation
 import com.blueoauld.server.common.authentication.annotation.Login
 import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.member.application.MemberService
-import com.blueoauld.server.member.application.request.UpdateCommentRequest
+import com.blueoauld.server.member.application.request.MemberUpdateCommentRequest
+import com.blueoauld.server.member.application.request.MemberUpdateProfileRequest
 import com.blueoauld.server.member.application.response.MemberGetResponse
 import com.blueoauld.server.member.application.response.MemberRowResponse
 import com.blueoauld.server.member.application.response.MemberSearchRowResponse
@@ -22,7 +23,7 @@ class MemberController(
     @PatchMapping("/members/comment", version = "1")
     fun updateComment(
         @Login memberId: Long,
-        @Valid @RequestBody request: UpdateCommentRequest
+        @Valid @RequestBody request: MemberUpdateCommentRequest
     ): ResponseEntity<Unit> {
         memberService.updateComment(memberId, request)
         return ResponseEntity.ok().build()
@@ -79,5 +80,14 @@ class MemberController(
     ): ResponseEntity<CursorResponse<MemberSearchRowResponse>> {
         val response = memberService.search(memberId, nickname, cursorId, cursorDateAt, size)
         return ResponseEntity.ok(response)
+    }
+
+    @PutMapping("/members/profile", version = "1")
+    fun updateProfile(
+        @Login memberId: Long,
+        @Valid @RequestBody request: MemberUpdateProfileRequest
+    ): ResponseEntity<Unit> {
+        memberService.updateProfile(memberId, request)
+        return ResponseEntity.ok().build()
     }
 }
