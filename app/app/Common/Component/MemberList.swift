@@ -15,6 +15,7 @@ struct MemberList: View {
             ForEach(members) { it in
                 NavigationLink(value: AppRoute.member(it.memberId)) {
                     MemberListRow(
+                        profileUrl: it.profileUrl,
                         nickname: it.nickname,
                         updatedAt: it.updatedAt,
                         comment: it.comment,
