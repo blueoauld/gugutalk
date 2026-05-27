@@ -5,6 +5,7 @@ import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.member.application.MemberService
 import com.blueoauld.server.member.application.request.MemberUpdateCommentRequest
 import com.blueoauld.server.member.application.request.MemberUpdateProfileRequest
+import com.blueoauld.server.member.application.response.MemberGetMeResponse
 import com.blueoauld.server.member.application.response.MemberGetResponse
 import com.blueoauld.server.member.application.response.MemberRowResponse
 import com.blueoauld.server.member.application.response.MemberSearchRowResponse
@@ -79,6 +80,14 @@ class MemberController(
         @RequestParam(defaultValue = "20") size: Int,
     ): ResponseEntity<CursorResponse<MemberSearchRowResponse>> {
         val response = memberService.search(memberId, nickname, cursorId, cursorDateAt, size)
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/members/me", version = "1")
+    fun getMe(
+        @Login memberId: Long,
+    ): ResponseEntity<MemberGetMeResponse> {
+        val response = memberService.getMe(memberId)
         return ResponseEntity.ok(response)
     }
 

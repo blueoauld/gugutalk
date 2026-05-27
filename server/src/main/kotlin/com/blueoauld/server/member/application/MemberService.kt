@@ -9,10 +9,7 @@ import com.blueoauld.server.member.application.event.MemberUpdateProfileEvent
 import com.blueoauld.server.member.application.request.MemberImageCreateRequest
 import com.blueoauld.server.member.application.request.MemberUpdateCommentRequest
 import com.blueoauld.server.member.application.request.MemberUpdateProfileRequest
-import com.blueoauld.server.member.application.response.MemberGetResponse
-import com.blueoauld.server.member.application.response.MemberImageMoveTask
-import com.blueoauld.server.member.application.response.MemberRowResponse
-import com.blueoauld.server.member.application.response.MemberSearchRowResponse
+import com.blueoauld.server.member.application.response.*
 import com.blueoauld.server.member.entity.MemberImage
 import com.blueoauld.server.member.entity.type.MemberImageType
 import com.blueoauld.server.member.repository.MemberImageRepository
@@ -174,6 +171,21 @@ class MemberService(
         )
     }
 
+    @Transactional(readOnly = true)
+    fun getMe(memberId: Long): MemberGetMeResponse {
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+        val memberImages = memberImageRepository.findAllByMemberId(member.id).map { MemberImageResponse.from(it) }
+
+        return MemberGetMeResponse(
+            memberId = member.id,
+            images = memberImages,
+            nickname = member.nickname,
+            birthYear = member.birthYear,
+            region = member.region,
+            bio = member.bio
+        )
+    }
+
     @Transactional
     fun updateProfile(memberId: Long, request: MemberUpdateProfileRequest) {
         val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
@@ -182,8 +194,11 @@ class MemberService(
             throw CustomException(MEMBER_03)
         }
 
-        val moveTasks = syncImages(member.id, request.publicImages, MemberImageType.PUBLIC) +
-                syncImages(member.id, request.privateImages, MemberImageType.PRIVATE)
+        val publicImageResult = syncImages(member.id, request.publicImages, MemberImageType.PUBLIC)
+        val privateImageResult = syncImages(member.id, request.privateImages, MemberImageType.PRIVATE)
+
+        val moveTasks = publicImageResult.moveTasks + privateImageResult.moveTasks
+        val deleteKeys = publicImageResult.deleteKeys + privateImageResult.deleteKeys
 
         member.updateProfile(
             nickname = request.nickname,
@@ -193,9 +208,13 @@ class MemberService(
         )
 
         // 이벤트
-        if (moveTasks.isNotEmpty()) {
+        if (moveTasks.isNotEmpty() || deleteKeys.isNotEmpty()) {
             applicationEventPublisher.publishEvent(
-                MemberUpdateProfileEvent(memberId = member.id, moveTasks = moveTasks)
+                MemberUpdateProfileEvent(
+                    memberId = member.id,
+                    moveTasks = moveTasks,
+                    deleteKeys = deleteKeys,
+                )
             )
         }
     }
@@ -203,8 +222,8 @@ class MemberService(
     private fun syncImages(
         memberId: Long,
         images: List<MemberImageCreateRequest>,
-        type: MemberImageType
-    ): List<MemberImageMoveTask> {
+        type: MemberImageType,
+    ): MemberImageSyncResult {
         val pathPrefix = type.name.lowercase()
 
         // 1. 요청에서 원하는 상태 구성
@@ -222,10 +241,10 @@ class MemberService(
         val existingImages = memberImageRepository.findAllByMemberIdAndType(memberId, type)
         val existingKeys = existingImages.map { it.key }.toSet()
 
-        // 3. 삭제 대상 (DB에는 있는데 요청엔 없는 것)
+        // 3. 삭제 대상
         val toDelete = existingImages.filter { it.key !in desiredOrderByKey }
 
-        // 4. 추가 대상 (요청에는 있는데 DB엔 없는 것)
+        // 4. 추가 대상
         val toInsert = desiredOrderByKey
             .filterKeys { it !in existingKeys }
             .map { (key, sortOrder) ->
@@ -238,12 +257,11 @@ class MemberService(
                 )
             }
 
-        // 5. 유지 대상 (sortOrder만 바뀌었으면 업데이트)
+        // 5. 유지 대상
         existingImages
             .filter { it.key in desiredOrderByKey }
             .forEach { existing ->
                 val newSortOrder = desiredOrderByKey.getValue(existing.key)
-
                 if (existing.sortOrder != newSortOrder) {
                     existing.updateSortOrder(newSortOrder)
                 }
@@ -256,7 +274,7 @@ class MemberService(
             memberImageRepository.saveAll(toInsert)
         }
 
-        return desiredOrderByKey.keys
+        val moveTasks = desiredOrderByKey.keys
             .filter { it !in existingKeys }
             .map { destinationKey ->
                 MemberImageMoveTask(
@@ -264,5 +282,10 @@ class MemberService(
                     destinationKey = destinationKey,
                 )
             }
+
+        return MemberImageSyncResult(
+            moveTasks = moveTasks,
+            deleteKeys = toDelete.map { it.key },
+        )
     }
 }

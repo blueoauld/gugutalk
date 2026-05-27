@@ -6,4 +6,5 @@ data class MemberUpdateProfileEvent(
 
     val memberId: Long,
     val moveTasks: List<MemberImageMoveTask>,
+    val deleteKeys: List<String>,
 )

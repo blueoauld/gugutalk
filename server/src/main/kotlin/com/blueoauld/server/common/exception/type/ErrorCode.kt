@@ -34,6 +34,7 @@ enum class ErrorCode(
     SEARCH_01(HttpStatus.BAD_REQUEST, "최소 2자 이상 입력해주시길 바랍니다."),
 
     FILE_01(HttpStatus.BAD_REQUEST, "잘못된 컨텐츠 타입입니다."),
+    FILE_02(HttpStatus.BAD_REQUEST, "접근할 수 없는 파일입니다."),
 
     REPORT_01(HttpStatus.BAD_REQUEST, "본인을 신고할 수 없습니다."),
 

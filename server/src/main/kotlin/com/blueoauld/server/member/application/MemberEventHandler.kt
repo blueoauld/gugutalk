@@ -26,9 +26,20 @@ class MemberEventHandler(
 
             runCatching {
                 r2Provider.moveFile(task.sourceKey, task.destinationKey)
+
                 log.info { "${task.sourceKey} -> ${task.destinationKey}" }
             }.onFailure { e ->
                 log.error(e) { "프로필 이미지 이동에 실패했습니다. 키 = ${task.sourceKey}" }
+            }
+        }
+
+        event.deleteKeys.forEach { key ->
+            runCatching {
+                r2Provider.deleteFile(key)
+
+                log.info { "프로필 이미지 삭제: $key" }
+            }.onFailure { e ->
+                log.error(e) { "프로필 이미지 삭제에 실패했습니다. 키 = $key" }
             }
         }
     }

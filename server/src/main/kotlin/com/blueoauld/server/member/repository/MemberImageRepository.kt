@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface MemberImageRepository : JpaRepository<MemberImage, Long> {
 
+    fun findAllByMemberId(memberId: Long): MutableList<MemberImage>
+
     fun findAllByMemberIdAndType(memberId: Long, type: MemberImageType): List<MemberImage>
 }

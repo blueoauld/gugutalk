@@ -67,4 +67,18 @@ class R2Provider(
             throw e
         }
     }
+
+    fun deleteFile(key: String) {
+        try {
+            s3Client.deleteObject(
+                DeleteObjectRequest.builder()
+                    .bucket(r2Properties.bucket)
+                    .key(key)
+                    .build()
+            )
+        } catch (e: S3Exception) {
+            log.error(e) { "파일 삭제에 실패했습니다. 키 = $key" }
+            throw e
+        }
+    }
 }

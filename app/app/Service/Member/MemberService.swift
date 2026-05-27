@@ -127,4 +127,13 @@ final class MemberService {
             encoder: JSONParameterEncoder.default
         )
     }
+
+    func getMe() async throws -> MemberGetMeResponse {
+        return try await PrivateNetworkManager.shared.request(
+            "/members/me",
+            method: .get,
+            encoding: URLEncoding.default,
+            as: MemberGetMeResponse.self
+        )
+    }
 }
