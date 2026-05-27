@@ -20,18 +20,21 @@ struct MemberProfile: View {
                         .tag(0)
                 } else {
                     ForEach(Array(member.images.enumerated()), id: \.element.imageId) { index, image in
-                        KFImage(URL(string: image.url))
-                            .placeholder {
-                                ProgressView()
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .background(Color(.systemGray6))
+                        Color.clear
+                            .overlay {
+                                KFImage(URL(string: image.url))
+                                    .placeholder {
+                                        ProgressView()
+                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            .background(Color(.systemGray6))
+                                    }
+                                    .retry(maxCount: 3, interval: .seconds(2))
+                                    .fade(duration: 0.25)
+                                    .resizable()
+                                    .scaledToFill()
                             }
-                            .retry(maxCount: 3, interval: .seconds(2))
-                            .fade(duration: 0.25)
-                            .resizable()
-                            .scaledToFill()
-                            .tag(index)
                             .clipped()
+                            .tag(index)
                     }
                 }
             }

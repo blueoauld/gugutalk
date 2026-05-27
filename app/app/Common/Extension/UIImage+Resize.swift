@@ -1,7 +1,5 @@
 import SwiftUI
 
-import SwiftUI
-
 extension UIImage {
 
     nonisolated func resized(toMaxDimension maxDimension: CGFloat) -> UIImage {
