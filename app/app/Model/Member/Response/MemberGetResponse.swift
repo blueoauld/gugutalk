@@ -1,6 +1,7 @@
 struct MemberGetResponse: Decodable {
 
     let memberId: Int64
+    let images: [MemberImageResponse]
     let nickname: String
     let gender: Gender
     let age: Int

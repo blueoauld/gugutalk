@@ -1,4 +1,5 @@
 import SwiftUI
+import Kingfisher
 
 struct MemberProfile: View {
 
@@ -9,13 +10,30 @@ struct MemberProfile: View {
     var body: some View {
         VStack {
             TabView(selection: $currentPage) {
-                Image(systemName: "person.fill")
-                    .font(.largeTitle)
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .foregroundStyle(Color(.systemGray4))
-                    .background(Color(.systemGray6))
-                    .tag(0)
+                if member.images.isEmpty {
+                    Image(systemName: "person.fill")
+                        .font(.largeTitle)
+                        .padding()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .foregroundStyle(Color(.systemGray4))
+                        .background(Color(.systemGray6))
+                        .tag(0)
+                } else {
+                    ForEach(Array(member.images.enumerated()), id: \.element.imageId) { index, image in
+                        KFImage(URL(string: image.url))
+                            .placeholder {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .background(Color(.systemGray6))
+                            }
+                            .retry(maxCount: 3, interval: .seconds(2))
+                            .fade(duration: 0.25)
+                            .resizable()
+                            .scaledToFill()
+                            .tag(index)
+                            .clipped()
+                    }
+                }
             }
             .tabViewStyle(.page)
             .aspectRatio(4/3, contentMode: .fit)

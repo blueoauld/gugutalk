@@ -12,6 +12,7 @@ import com.blueoauld.server.member.application.request.MemberUpdateProfileReques
 import com.blueoauld.server.member.application.response.*
 import com.blueoauld.server.member.entity.MemberImage
 import com.blueoauld.server.member.entity.type.MemberImageType
+import com.blueoauld.server.member.entity.type.MemberImageType.PUBLIC
 import com.blueoauld.server.member.repository.MemberImageRepository
 import com.blueoauld.server.member.repository.MemberRepository
 import org.springframework.context.ApplicationEventPublisher
@@ -52,9 +53,12 @@ class MemberService(
     @Transactional(readOnly = true)
     fun get(memberId: Long, targetId: Long): MemberGetResponse {
         val target = memberRepository.findByIdOrNull(targetId) ?: throw CustomException(MEMBER_01)
+        val memberImages = memberImageRepository.findAllByMemberIdAndType(targetId, PUBLIC)
+            .map { MemberImageResponse.from(it) }
 
         return MemberGetResponse(
             memberId = target.id,
+            images = memberImages,
             nickname = target.nickname,
             gender = target.gender,
             age = Year.now().value - target.birthYear,
@@ -194,7 +198,7 @@ class MemberService(
             throw CustomException(MEMBER_03)
         }
 
-        val publicImageResult = syncImages(member.id, request.publicImages, MemberImageType.PUBLIC)
+        val publicImageResult = syncImages(member.id, request.publicImages, PUBLIC)
         val privateImageResult = syncImages(member.id, request.privateImages, MemberImageType.PRIVATE)
 
         val moveTasks = publicImageResult.moveTasks + privateImageResult.moveTasks

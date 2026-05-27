@@ -7,6 +7,7 @@ import java.time.Instant
 data class MemberGetResponse(
 
     val memberId: Long,
+    val images: List<MemberImageResponse>,
     val nickname: String,
     val gender: Gender,
     val age: Int,
