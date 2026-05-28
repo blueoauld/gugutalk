@@ -52,6 +52,8 @@ struct SettingView: View {
                 }
 
                 Section("포인트") {
+                    Label("포인트 내역", systemImage: "gift.fill")
+                        .labelStyle(.settings(color: .cyan))
                     Label("출석 체크", systemImage: "calendar.badge.checkmark")
                         .labelStyle(.settings(color: .indigo))
                     Label("광고 보상", systemImage: "play.rectangle.fill")
