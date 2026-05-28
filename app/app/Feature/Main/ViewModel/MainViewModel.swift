@@ -21,8 +21,15 @@ final class MainViewModel {
     var view: ViewFilter
     var comment = ""
 
-    private(set) var isPaging = false
     private(set) var isLoading = false
+
+    private var isPaging = false
+
+    private var fetchCount = 0
+    private var isFetching: Bool { fetchCount > 0 }
+
+    private var generation = 0
+
     private var hasLoad = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
@@ -37,20 +44,25 @@ final class MainViewModel {
 
     func load() async {
         guard !hasLoad else { return }
+        hasLoad = true
 
         state = .loading
         await fetch()
-        hasLoad = true
     }
 
     func loadNext() async {
-        guard !isPaging, hasNext else { return }
+        guard !isPaging, !isFetching, hasNext else { return }
+
+        let token = generation
 
         isPaging = true
         defer { isPaging = false }
 
         do {
             let response = try await requestMembers()
+
+            guard token == generation else { return }
+
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members.append(contentsOf: response.payload)
         } catch let error as APIError {
@@ -61,11 +73,6 @@ final class MainViewModel {
     }
 
     func reload() async {
-        guard !isLoading else { return }
-
-        isLoading = true
-        defer { isLoading = false }
-
         await fetch()
     }
 
@@ -89,10 +96,8 @@ final class MainViewModel {
         defer { isLoading = false }
 
         do {
-            try await memberService.updateComment(
-                content: comment
-            )
-
+            try await memberService.updateComment(content: comment)
+            
             ToastManager.shared.show("코멘트를 작성하셨습니다.", style: .info)
             return true
         } catch let error as APIError {
@@ -109,17 +114,30 @@ final class MainViewModel {
     }
 
     private func fetch() async {
+        generation &+= 1
+
+        let token = generation
+
+        fetchCount += 1
+        defer { fetchCount -= 1 }
+
         cursor.reset()
-        members = []
 
         do {
             let response = try await requestMembers()
+
+            guard token == generation else { return }
+
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members = response.payload
             state = members.isEmpty ? .empty : .data
         } catch let error as APIError {
+            guard token == generation else { return }
+
             state = .error(error.message)
         } catch {
+            guard token == generation else { return }
+
             state = .error(error.localizedDescription)
         }
     }

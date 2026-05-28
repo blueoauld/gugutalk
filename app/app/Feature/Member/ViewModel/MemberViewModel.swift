@@ -22,6 +22,7 @@ final class MemberViewModel {
     var member: MemberGetResponse? = nil
 
     private(set) var isLoading = false
+    private(set) var isMutating = false
 
     func get(memberId: Int64) async {
         state = .loading
@@ -37,73 +38,97 @@ final class MemberViewModel {
     }
 
     func createLike(memberId: Int64) async {
-        guard !isLoading else { return }
+        guard !isMutating else { return }
 
-        isLoading = true
-        defer { isLoading = false }
+        isMutating = true
+        defer { isMutating = false }
+
+        member?.isLike = true
+        member?.likes += 1
 
         do {
             try await likeService.create(memberId: memberId)
-
-            member?.isLike = true
-            member?.likes += 1
         } catch let error as APIError {
+            member?.isLike = false
+            member?.likes -= 1
+
             ToastManager.shared.show(error.message, style: .error)
         } catch {
+            member?.isLike = false
+            member?.likes -= 1
+
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
 
     func deleteLike(memberId: Int64) async {
-        guard !isLoading else { return }
+        guard !isMutating else { return }
 
-        isLoading = true
-        defer { isLoading = false }
+        isMutating = true
+        defer { isMutating = false }
+
+        member?.isLike = false
+        member?.likes -= 1
 
         do {
             try await likeService.delete(memberId: memberId)
-
-            member?.isLike = false
-            member?.likes -= 1
         } catch let error as APIError {
+            member?.isLike = true
+            member?.likes += 1
+
             ToastManager.shared.show(error.message, style: .error)
         } catch {
+            member?.isLike = true
+            member?.likes += 1
+
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
 
     func createUnlike(memberId: Int64) async {
-        guard !isLoading else { return }
+        guard !isMutating else { return }
 
-        isLoading = true
-        defer { isLoading = false }
+        isMutating = true
+        defer { isMutating = false }
+
+        member?.isUnlike = true
+        member?.unlikes += 1
 
         do {
             try await unlikeService.create(memberId: memberId)
-
-            member?.isUnlike = true
-            member?.unlikes += 1
         } catch let error as APIError {
+            member?.isUnlike = false
+            member?.unlikes -= 1
+
             ToastManager.shared.show(error.message, style: .error)
         } catch {
+            member?.isUnlike = false
+            member?.unlikes -= 1
+
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
 
     func deleteUnlike(memberId: Int64) async {
-        guard !isLoading else { return }
+        guard !isMutating else { return }
 
-        isLoading = true
-        defer { isLoading = false }
+        isMutating = true
+        defer { isMutating = false }
+
+        member?.isUnlike = false
+        member?.unlikes -= 1
 
         do {
             try await unlikeService.delete(memberId: memberId)
-
-            member?.isUnlike = false
-            member?.unlikes -= 1
         } catch let error as APIError {
+            member?.isUnlike = false
+            member?.unlikes += 1
+
             ToastManager.shared.show(error.message, style: .error)
         } catch {
+            member?.isUnlike = false
+            member?.unlikes += 1
+
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
