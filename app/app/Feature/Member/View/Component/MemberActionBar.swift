@@ -7,6 +7,7 @@ struct MemberActionBar: View {
     let vm: MemberViewModel
 
     @State private var showMessage = false
+    @State private var showPrivateImageFullScreen = false
     @State private var showBlock = false
     @State private var message = ""
 
@@ -61,7 +62,7 @@ struct MemberActionBar: View {
                 .disabled(!member.isChat)
 
                 Button {
-
+                    showPrivateImageFullScreen = true
                 } label: {
                     Image(systemName: "photo.fill")
                         .font(.title2)
@@ -93,6 +94,11 @@ struct MemberActionBar: View {
             }
             .padding()
             .glassEffect(.regular, in: .capsule)
+        }
+        .fullScreenCover(isPresented: $showPrivateImageFullScreen) {
+            PrivateImageFullScreenView(
+                memberId: member.memberId
+            )
         }
         .alert("쪽지", isPresented: $showMessage) {
             TextField("내용", text: $message)

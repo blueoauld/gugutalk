@@ -3,15 +3,15 @@ import Kingfisher
 import LazyPager
 
 struct ImageFullScreenView: View {
-
+    
     let images: [MemberImageResponse]
-
+    
     @Binding var currentPage: Int
-
+    
     @Environment(\.dismiss) private var dismiss
-
+    
     @State private var backgroundOpacity: CGFloat = 1
-
+    
     var body: some View {
         ZStack(alignment: .topLeading) {
             LazyPager(data: images, page: $currentPage) { image in
@@ -37,7 +37,7 @@ struct ImageFullScreenView: View {
             .background(.black.opacity(backgroundOpacity))
             .background(ClearFullScreenBackground())
             .ignoresSafeArea()
-
+            
             Button {
                 dismiss()
             } label: {
@@ -50,7 +50,7 @@ struct ImageFullScreenView: View {
             }
             .padding(.horizontal)
             .opacity(backgroundOpacity)
-
+            
             if images.count > 1 {
                 pageIndicator
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
@@ -59,7 +59,7 @@ struct ImageFullScreenView: View {
             }
         }
     }
-
+    
     private var pageIndicator: some View {
         HStack(spacing: 8) {
             ForEach(0..<images.count, id: \.self) { index in

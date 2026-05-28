@@ -136,4 +136,15 @@ final class MemberService {
             as: MemberGetMeResponse.self
         )
     }
+    
+    func getPrivateImages(
+        memberId: Int64
+    ) async throws -> MemberGetPrivateImagesResponse {
+        return try await PrivateNetworkManager.shared.request(
+            "/members/\(memberId)/private-images",
+            method: .get,
+            encoding: URLEncoding.default,
+            as: MemberGetPrivateImagesResponse.self
+        )
+    }
 }

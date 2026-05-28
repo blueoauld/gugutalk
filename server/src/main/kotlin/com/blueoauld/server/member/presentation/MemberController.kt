@@ -5,10 +5,7 @@ import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.member.application.MemberService
 import com.blueoauld.server.member.application.request.MemberUpdateCommentRequest
 import com.blueoauld.server.member.application.request.MemberUpdateProfileRequest
-import com.blueoauld.server.member.application.response.MemberGetMeResponse
-import com.blueoauld.server.member.application.response.MemberGetResponse
-import com.blueoauld.server.member.application.response.MemberRowResponse
-import com.blueoauld.server.member.application.response.MemberSearchRowResponse
+import com.blueoauld.server.member.application.response.*
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -98,5 +95,14 @@ class MemberController(
     ): ResponseEntity<Unit> {
         memberService.updateProfile(memberId, request)
         return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/members/{targetId}/private-images", version = "1")
+    fun getPrivateImages(
+        @Login memberId: Long,
+        @PathVariable targetId: Long
+    ): ResponseEntity<MemberGetPrivateImagesResponse> {
+        val response = memberService.getPrivateImages(memberId, targetId)
+        return ResponseEntity.ok(response)
     }
 }

@@ -6,7 +6,7 @@ struct MemberProfile: View {
     let member: MemberGetResponse
 
     @State private var currentPage = 0
-    @State private var showFullScreen = false
+    @State private var showImageFullScreen = false
 
     var body: some View {
         VStack {
@@ -37,14 +37,14 @@ struct MemberProfile: View {
                             .clipped()
                             .tag(index)
                             .onTapGesture {
-                                showFullScreen = true
+                                showImageFullScreen = true
                             }
                     }
                 }
             }
             .tabViewStyle(.page)
             .aspectRatio(4/3, contentMode: .fit)
-            .fullScreenCover(isPresented: $showFullScreen) {
+            .fullScreenCover(isPresented: $showImageFullScreen) {
                 ImageFullScreenView(
                     images: member.images,
                     currentPage: $currentPage

@@ -225,6 +225,20 @@ class MemberService(
         }
     }
 
+    @Transactional(readOnly = true)
+    fun getPrivateImages(memberId: Long, targetId: Long): MemberGetPrivateImagesResponse {
+        if (!privateImageGrantRepository.existsByFromIdAndToId(targetId, memberId)) {
+            throw CustomException(ACTIVITY_12)
+        }
+
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+        val memberImages = memberImageRepository.findAllByMemberIdAndType(targetId, PRIVATE).map {
+            MemberImageResponse.from(it)
+        }
+
+        return MemberGetPrivateImagesResponse(member.phone, memberImages)
+    }
+
     private fun syncImages(
         memberId: Long,
         images: List<MemberImageCreateRequest>,
