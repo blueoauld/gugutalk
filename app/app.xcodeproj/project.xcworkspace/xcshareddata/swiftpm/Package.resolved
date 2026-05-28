@@ -1,5 +1,5 @@
 {
-  "originHash" : "9e8db01d01e1ceabceb91ebff295ef10dae52a2e61b86c7c9e72ef4d9ab170c8",
+  "originHash" : "05c0857fcc0c4faec93c9e26de9fe1ed2948e01cd7aeaa6d55e820d6c874b5b0",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "cf8be20d07654570554c8a8a4952bc8a5766a8b0",
         "version" : "8.9.0"
+      }
+    },
+    {
+      "identity" : "swiftui-lazypager",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gh123man/SwiftUI-LazyPager.git",
+      "state" : {
+        "revision" : "be4b1952c1054e8b7802863005184eefd42104bd",
+        "version" : "1.2.1"
       }
     }
   ],
