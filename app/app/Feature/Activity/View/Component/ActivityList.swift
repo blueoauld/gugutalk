@@ -13,6 +13,7 @@ struct ActivityList: View {
                 ActivityListRow(
                     memberId: it.toId,
                     nickname: it.nickname,
+                    profileUrl: it.profileUrl,
                     gender: it.gender,
                     age: it.age,
                     region: it.region,

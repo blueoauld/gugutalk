@@ -1,9 +1,11 @@
 import SwiftUI
+import Kingfisher
 
 struct ActivityListRow: View {
 
     let memberId: Int64
     let nickname: String
+    let profileUrl: String?
     let gender: Gender
     let age: Int
     let region: Region
@@ -13,34 +15,43 @@ struct ActivityListRow: View {
 
     @State private var deleteTrigger = false
 
+    private let imageSize: CGFloat = 60
+    
     var body: some View {
         HStack {
             Button {
                 router.push(.member(memberId))
             } label: {
                 HStack {
-                    Image(systemName: "person.fill")
-                        .font(.title)
-                        .padding()
-                        .foregroundStyle(Color(.systemGray4))
-                        .background(
-                            Color(.systemGray6),
-                            in: Circle()
-                        )
-                    
+                    KFImage(profileUrl.flatMap { URL(string: $0) })
+                        .placeholder {
+                            Image(systemName: "person.fill")
+                                .font(.title)
+                                .foregroundStyle(Color(.systemGray4))
+                                .frame(width: imageSize, height: imageSize)
+                                .background(Color(.systemGray6))
+                                .clipShape(Circle())
+                        }
+                        .retry(maxCount: 3, interval: .seconds(2))
+                        .fade(duration: 0.25)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: imageSize, height: imageSize)
+                        .clipShape(Circle())
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text(nickname)
                             .font(.subheadline.bold())
-                        
+
                         HStack {
                             Text(gender.label)
-                            
+
                             Text("·")
-                            
+
                             Text("\(age)살")
-                            
+
                             Text("·")
-                            
+
                             Text(region.label)
                         }
                         .font(.footnote)
@@ -52,7 +63,7 @@ struct ActivityListRow: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            
+
             Button {
                 deleteTrigger.toggle()
 

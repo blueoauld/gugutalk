@@ -11,6 +11,8 @@ struct SettingView: View {
     @State private var showMenu = false
     @State private var showQuestion = false
     @State private var showBug = false
+    @State private var showService = false
+    @State private var showPrivate = false
 
     var body: some View {
         VStack {
@@ -85,10 +87,27 @@ struct SettingView: View {
                     }
                     .tint(.primary)
 
-                    Label("서비스 이용약관", systemImage: "doc.text.fill")
-                        .labelStyle(.settings(color: .orange))
-                    Label("개인정보 취급방침", systemImage: "hand.raised.fill")
-                        .labelStyle(.settings(color: .brown))
+                    Button {
+                        showService = true
+                    } label: {
+                        Label("서비스 이용약관", systemImage: "doc.text.fill")
+                            .labelStyle(.settings(color: .orange))
+                    }
+                    .sheet(isPresented: $showService) {
+                        SafariView(url: URL(string: "https://pidulgi.com/service.html")!)
+                    }
+                    .tint(.primary)
+
+                    Button {
+                        showPrivate = true
+                    } label: {
+                        Label("개인정보 취급방침", systemImage: "hand.raised.fill")
+                            .labelStyle(.settings(color: .brown))
+                    }
+                    .sheet(isPresented: $showPrivate) {
+                        SafariView(url: URL(string: "https://pidulgi.com/private.html")!)
+                    }
+                    .tint(.primary)
                 }
             }
         }

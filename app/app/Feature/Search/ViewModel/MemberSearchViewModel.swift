@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum MemberSearchViewState {
-    
+
     case idle
     case loading
     case empty
@@ -12,38 +12,37 @@ enum MemberSearchViewState {
 @MainActor
 @Observable
 final class MemberSearchViewModel {
-    
+
     private let memberService = MemberService.shared
-    
+
     var state: MemberSearchViewState = .idle
     var members: [MemberSearchRowResponse] = []
-    
+
     var nickname = ""
     private var searchedNickname = ""
-    
+
     private(set) var isPaging = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
-    
+
     func search() async {
-        let trimmed = nickname.trimmingCharacters(in: .whitespaces)
-        
-        guard trimmed.count >= 2 else {
-            ToastManager.shared.show("최소 2자 이상 입력해주시길 바랍니다.", style: .error)
+        let trimmedNickname = nickname.trimmingCharacters(in: .whitespaces)
+        guard (2...10).contains(trimmedNickname.count) else {
+            ToastManager.shared.show("닉네임 검색은 2자 이상 10자 이하여야 합니다.", style: .error)
             return
         }
-        
-        searchedNickname = trimmed
+
+        searchedNickname = trimmedNickname
         state = .loading
         await fetch()
     }
-    
+
     func loadNext() async {
         guard !isPaging, hasNext else { return }
-        
+
         isPaging = true
         defer { isPaging = false }
-        
+
         do {
             let response = try await memberService.search(
                 nickname: searchedNickname,
@@ -51,7 +50,7 @@ final class MemberSearchViewModel {
                 cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
-            
+
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members.append(contentsOf: response.payload)
         } catch let error as APIError {
@@ -60,7 +59,7 @@ final class MemberSearchViewModel {
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
-    
+
     private func fetch() async {
         cursor.reset()
         members = []
@@ -72,7 +71,7 @@ final class MemberSearchViewModel {
                 cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
-            
+
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members = response.payload
             state = members.isEmpty ? .empty : .data

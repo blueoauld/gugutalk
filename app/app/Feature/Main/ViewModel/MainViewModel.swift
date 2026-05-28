@@ -17,8 +17,8 @@ final class MainViewModel {
 
     var state: MainViewState = .idle
     var members: [MemberRowResponse] = []
-    var gender = GenderFilter.all
-    var view = ViewFilter.recent
+    var gender: GenderFilter
+    var view: ViewFilter
     var comment = ""
 
     private(set) var isPaging = false
@@ -26,6 +26,14 @@ final class MainViewModel {
     private var hasLoad = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
+
+    init() {
+        let viewRaw = UserDefaults.standard.string(forKey: StorageKey.view)
+        self.view = viewRaw.flatMap(ViewFilter.init(rawValue:)) ?? .recent
+
+        let genderRaw = UserDefaults.standard.string(forKey: StorageKey.gender)
+        self.gender = genderRaw.flatMap(GenderFilter.init(rawValue:)) ?? .all
+    }
 
     func load() async {
         guard !hasLoad else { return }
@@ -54,7 +62,7 @@ final class MainViewModel {
 
     func reload() async {
         guard !isLoading else { return }
-        
+
         isLoading = true
         defer { isLoading = false }
 
@@ -66,11 +74,15 @@ final class MainViewModel {
         await fetch()
     }
 
-    func updateComment() async {
-        guard !isLoading else { return }
+    func updateComment() async -> Bool {
+        guard !isLoading else { return false }
         guard !comment.isEmpty else {
             ToastManager.shared.show("코멘트 내용을 작성해주시길 바랍니다.", style: .error)
-            return
+            return false
+        }
+        guard comment.count < 50 else {
+            ToastManager.shared.show("코멘트는 50자 이하여야 합니다.", style: .error)
+            return false
         }
 
         isLoading = true
@@ -82,10 +94,13 @@ final class MainViewModel {
             )
 
             ToastManager.shared.show("코멘트를 작성하셨습니다.", style: .info)
+            return true
         } catch let error as APIError {
             ToastManager.shared.show(error.message, style: .error)
+            return false
         } catch {
             ToastManager.shared.show(error.localizedDescription, style: .error)
+            return false
         }
     }
 

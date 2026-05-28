@@ -101,8 +101,10 @@ struct MemberActionBar: View {
             )
         }
         .alert("쪽지", isPresented: $showMessage) {
-            TextField("내용", text: $message)
+            TextField("내용 (15P)", text: $message)
+
             Button("전송") { }
+
             Button("취소", role: .cancel) { }
         }
         .alert("차단", isPresented: $showBlock) {

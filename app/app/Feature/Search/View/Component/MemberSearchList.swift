@@ -12,6 +12,7 @@ struct MemberSearchList: View {
                 MemberSearchListRow(
                     memberId: it.memberId,
                     nickname: it.nickname,
+                    profileUrl: it.profileUrl,
                     gender: it.gender,
                     age: it.age,
                     region: it.region,

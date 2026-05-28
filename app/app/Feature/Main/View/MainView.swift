@@ -2,10 +2,13 @@ import SwiftUI
 
 struct MainView: View {
 
+    @AppStorage(StorageKey.comment) private var savedComment = ""
+    @AppStorage(StorageKey.view) private var savedView: ViewFilter = .recent
+    @AppStorage(StorageKey.gender) private var savedGender: GenderFilter = .all
+
     @Environment(AppRouter.self) private var router
 
     @State private var vm = MainViewModel()
-
     @State private var showComment = false
 
     var body: some View {
@@ -22,23 +25,31 @@ struct MainView: View {
         .task {
             await vm.load()
         }
-        .onChange(of: vm.gender) { _, _ in
+        .onChange(of: vm.gender) { _, newValue in
+            savedGender = newValue
+
             Task {
                 await vm.switchView()
             }
         }
-        .onChange(of: vm.view) { _, _ in
+        .onChange(of: vm.view) { _, newValue in
+            savedView = newValue
+
             Task {
                 await vm.switchView()
             }
         }
         .alert("코멘트", isPresented: $showComment) {
             TextField("내용", text: $vm.comment)
+
             Button("작성") {
                 Task {
-                    await vm.updateComment()
+                    if await vm.updateComment() {
+                        savedComment = vm.comment
+                    }
                 }
             }
+
             Button("취소", role: .cancel) { }
         }
         .overlay {
@@ -61,8 +72,10 @@ struct MainView: View {
                     .containerRelativeFrame([.horizontal, .vertical])
             }
             .refreshable {
-                await vm.bump()
-                await vm.reload()
+                async let b: Void = vm.bump()
+                async let r: Void = vm.reload()
+
+                _ = await (b, r)
             }
         case .data:
             MemberList(
@@ -70,8 +83,10 @@ struct MainView: View {
                 hasNext: vm.hasNext,
                 onNext: vm.loadNext,
                 onRefresh: {
-                    await vm.bump()
-                    await vm.reload()
+                    async let b: Void = vm.bump()
+                    async let r: Void = vm.reload()
+
+                    _ = await (b, r)
                 }
             )
         case .error(let message):
@@ -91,6 +106,7 @@ struct MainView: View {
             }
 
             Button {
+                vm.comment = savedComment
                 showComment = true
             } label: {
                 Image(systemName: "square.and.pencil")
