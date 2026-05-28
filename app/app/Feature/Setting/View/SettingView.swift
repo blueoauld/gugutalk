@@ -1,4 +1,5 @@
 import SwiftUI
+import MessageUI
 
 struct SettingView: View {
 
@@ -8,6 +9,8 @@ struct SettingView: View {
     @State private var vm = SettingViewModel()
 
     @State private var showMenu = false
+    @State private var showQuestion = false
+    @State private var showBug = false
 
     var body: some View {
         VStack {
@@ -56,10 +59,30 @@ struct SettingView: View {
                 }
 
                 Section("기타") {
-                    Label("문의하기", systemImage: "ellipsis.message.fill")
-                        .labelStyle(.settings(color: .green))
-                    Label("버그제보", systemImage: "lightbulb.fill")
-                        .labelStyle(.settings(color: .mint))
+                    Button {
+                        if MFMailComposeViewController.canSendMail() {
+                            showQuestion = true
+                        } else {
+                            ToastManager.shared.show("메일 계정을 설정해주시길 바랍니다.", style: .error)
+                        }
+                    } label: {
+                        Label("문의사항", systemImage: "ellipsis.message.fill")
+                            .labelStyle(.settings(color: .green))
+                    }
+                    .tint(.primary)
+
+                    Button {
+                        if MFMailComposeViewController.canSendMail() {
+                            showBug = true
+                        } else {
+                            ToastManager.shared.show("메일 계정을 설정해주시길 바랍니다.", style: .error)
+                        }
+                    } label: {
+                        Label("버그제보", systemImage: "lightbulb.fill")
+                            .labelStyle(.settings(color: .mint))
+                    }
+                    .tint(.primary)
+
                     Label("서비스 이용약관", systemImage: "doc.text.fill")
                         .labelStyle(.settings(color: .orange))
                     Label("개인정보 취급방침", systemImage: "hand.raised.fill")
@@ -91,6 +114,59 @@ struct SettingView: View {
 
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showQuestion) {
+            let deviceId = TokenStorage.shared.deviceId ?? "알 수 없음"
+            let deviceModel = machineIdentifier()
+            let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "알 수 없음"
+
+            MailView(
+                recipients: ["gugutalk@proton.me"],
+                subject: "문의사항",
+                body: """
+                    내용: 
+                    
+                    
+                    아래 정보를 삭제하지 마세요.
+                    ─────────────────
+                    디바이스 ID: \(deviceId)
+                    기기: \(deviceModel)
+                    버전: \(appVersion)
+                    ─────────────────
+                """,
+            )
+        }
+        .sheet(isPresented: $showBug) {
+            let deviceId = TokenStorage.shared.deviceId ?? "알 수 없음"
+            let deviceModel = machineIdentifier()
+            let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "알 수 없음"
+
+            MailView(
+                recipients: ["gugutalk@proton.me"],
+                subject: "버그제보",
+                body: """
+                    내용: 
+                    
+                    
+                    아래 정보를 삭제하지 마세요.
+                    ─────────────────
+                    디바이스 ID: \(deviceId)
+                    기기: \(deviceModel)
+                    버전: \(appVersion)
+                    ─────────────────
+                """,
+            )
+        }
+    }
+
+    private func machineIdentifier() -> String {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+
+        return withUnsafePointer(to: &systemInfo.machine) {
+            $0.withMemoryRebound(to: CChar.self, capacity: 1) {
+                String(validatingUTF8: $0) ?? "Unknown"
             }
         }
     }
