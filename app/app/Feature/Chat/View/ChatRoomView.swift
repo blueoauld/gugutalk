@@ -5,7 +5,7 @@ struct ChatRoomView: View {
     @Environment(AppRouter.self) private var router
 
     @State private var vm = ChatRoomViewModel()
-    @State private var isMute = false
+    @State private var toggleChatTrigger = false
 
     var body: some View {
         VStack {
@@ -27,18 +27,25 @@ struct ChatRoomView: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    isMute.toggle()
+                    toggleChatTrigger.toggle()
+
+                    Task {
+                        await vm.toggleChat()
+                    }
                 } label: {
-                    Image(systemName: isMute ? "bell.slash" : "bell")
+                    Image(systemName: vm.isChat ? "bell" : "bell.slash")
                         .font(.body)
                         .foregroundStyle(.primary)
                         .contentTransition(.symbolEffect(.replace))
                 }
-                .sensoryFeedback(.selection, trigger: isMute)
+                .sensoryFeedback(.selection, trigger: toggleChatTrigger)
             }
         }
         .task {
-            await vm.load()
+            async let i: Void = vm.isChat()
+            async let l: Void = vm.load()
+
+            _ = await (i, l)
         }
         .onChange(of: vm.status) { _, newValue in
             Task {

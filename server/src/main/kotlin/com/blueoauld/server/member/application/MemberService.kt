@@ -51,6 +51,13 @@ class MemberService(
         member.bump()
     }
 
+    @Transactional
+    fun toggleChat(memberId: Long) {
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+
+        member.toggleChat()
+    }
+
     @Transactional(readOnly = true)
     fun get(memberId: Long, targetId: Long): MemberGetResponse {
         val target = memberRepository.findByIdOrNull(targetId) ?: throw CustomException(MEMBER_01)
@@ -237,6 +244,12 @@ class MemberService(
         }
 
         return MemberGetPrivateImagesResponse(member.phone, memberImages)
+    }
+
+    @Transactional(readOnly = true)
+    fun isChat(memberId: Long): MemberIsChatResponse {
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+        return MemberIsChatResponse(member.isChat)
     }
 
     private fun syncImages(

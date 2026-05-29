@@ -79,4 +79,8 @@ class Member(
     fun bump() {
         this.updatedAt = Instant.now()
     }
+
+    fun toggleChat() {
+        this.isChat = !this.isChat
+    }
 }

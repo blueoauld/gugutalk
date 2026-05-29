@@ -66,7 +66,7 @@ struct ChatList: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .navigationLinkIndicatorVisibility(.hidden)
-        .sensoryFeedback(.impact(weight: .medium), trigger: readTrigger)
-        .sensoryFeedback(.impact(flexibility: .solid), trigger: deleteTrigger)
+        .sensoryFeedback(.selection, trigger: readTrigger)
+        .sensoryFeedback(.selection, trigger: deleteTrigger)
     }
 }

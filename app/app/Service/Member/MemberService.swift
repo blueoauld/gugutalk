@@ -25,6 +25,14 @@ final class MemberService {
         )
     }
 
+    func toggleChat() async throws {
+        try await PrivateNetworkManager.shared.requestVoid(
+            "/members/is-chat",
+            method: .patch,
+            encoding: JSONEncoding.default
+        )
+    }
+
     func get(
         memberId: Int64
     ) async throws -> MemberGetResponse {
@@ -145,6 +153,15 @@ final class MemberService {
             method: .get,
             encoding: URLEncoding.default,
             as: MemberGetPrivateImagesResponse.self
+        )
+    }
+
+    func isChat() async throws -> MemberIsChatResponse {
+        return try await PrivateNetworkManager.shared.request(
+            "/members/is-chat",
+            method: .get,
+            encoding: URLEncoding.default,
+            as: MemberIsChatResponse.self
         )
     }
 }

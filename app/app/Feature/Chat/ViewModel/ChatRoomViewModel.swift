@@ -14,14 +14,17 @@ enum ChatRoomViewState {
 final class ChatRoomViewModel {
 
     private let chatRoomService = ChatRoomService.shared
+    private let memberService = MemberService.shared
 
     var state: ChatRoomViewState = .idle
     var chatRooms: [ChatRoomRowResponse] = []
     var status: ChatRoomStatusFilter = .all
+    var isChat = true
 
     private(set) var isPaging = false
     private(set) var isLoading = false
-    
+    private(set) var isMutating = false
+
     private var hasLoad = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
@@ -94,6 +97,33 @@ final class ChatRoomViewModel {
         } catch let error as APIError {
             ToastManager.shared.show(error.message, style: .error)
         } catch {
+            ToastManager.shared.show(error.localizedDescription, style: .error)
+        }
+    }
+
+    func isChat() async {
+        guard let response = try? await memberService.isChat() else { return }
+
+        isChat = response.isChat
+    }
+
+    func toggleChat() async {
+        guard !isMutating else { return }
+
+        isMutating = true
+        defer { isMutating = false }
+
+        isChat.toggle()
+
+        do {
+            try await memberService.toggleChat()
+        } catch let error as APIError {
+            isChat.toggle()
+
+            ToastManager.shared.show(error.message, style: .error)
+        } catch {
+            isChat.toggle()
+
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }

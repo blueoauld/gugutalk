@@ -35,6 +35,14 @@ class MemberController(
         return ResponseEntity.ok().build()
     }
 
+    @PatchMapping("/members/is-chat", version = "1")
+    fun toggleChat(
+        @Login memberId: Long
+    ): ResponseEntity<Unit> {
+        memberService.toggleChat(memberId)
+        return ResponseEntity.ok().build()
+    }
+
     @GetMapping("/members/{targetId}", version = "1")
     fun get(
         @Login memberId: Long,
@@ -103,6 +111,14 @@ class MemberController(
         @PathVariable targetId: Long
     ): ResponseEntity<MemberGetPrivateImagesResponse> {
         val response = memberService.getPrivateImages(memberId, targetId)
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/members/is-chat", version = "1")
+    fun isChat(
+        @Login memberId: Long
+    ): ResponseEntity<MemberIsChatResponse> {
+        val response = memberService.isChat(memberId)
         return ResponseEntity.ok(response)
     }
 }
