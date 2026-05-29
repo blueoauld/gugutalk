@@ -4,6 +4,16 @@ final class ChatRoomService {
 
     static let shared = ChatRoomService()
 
+    func delete(
+        chatRoomId: Int64,
+    ) async throws {
+        try await PrivateNetworkManager.shared.requestVoid(
+            "/chat-rooms/\(chatRoomId)",
+            method: .delete,
+            encoding: JSONEncoding.default
+        )
+    }
+
     func gets(
         status: String,
         cursorId: Int64?,

@@ -62,6 +62,27 @@ final class ChatRoomViewModel {
         }
     }
 
+    func delete(chatRoomId: Int64) async {
+        guard !isLoading else { return }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await chatRoomService.delete(chatRoomId: chatRoomId)
+
+            withAnimation {
+                chatRooms.removeAll { $0.chatRoomId == chatRoomId }
+            }
+
+            state = chatRooms.isEmpty ? .empty : .data
+        } catch let error as APIError {
+            ToastManager.shared.show(error.message, style: .error)
+        } catch {
+            ToastManager.shared.show(error.localizedDescription, style: .error)
+        }
+    }
+
     private func fetch() async {
         cursor.reset()
         chatRooms = []

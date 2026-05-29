@@ -5,8 +5,11 @@ struct ChatList: View {
     let chatRooms: [ChatRoomRowResponse]
     let hasNext: Bool
     var onNext: () async -> Void
+    var onDelete: (Int64) async -> Void
 
     @Environment(\.colorScheme) private var colorScheme
+
+    @State private var deleteTrigger = false
 
     var body: some View {
         List {
@@ -29,6 +32,11 @@ struct ChatList: View {
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     Button {
+                        deleteTrigger.toggle()
+
+                        Task {
+                            await onDelete(it.chatRoomId)
+                        }
                     } label: {
                         Image(systemName: "trash.fill")
                     }
@@ -51,5 +59,6 @@ struct ChatList: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .navigationLinkIndicatorVisibility(.hidden)
+        .sensoryFeedback(.impact(flexibility: .solid), trigger: deleteTrigger)
     }
 }

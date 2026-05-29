@@ -64,6 +64,7 @@ struct ChatRoomView: View {
                 chatRooms: vm.chatRooms,
                 hasNext: vm.hasNext,
                 onNext: vm.loadNext,
+                onDelete: vm.delete,
             )
         case .error(let message):
             ErrorRetryView(message: message, retry: vm.switchView)
