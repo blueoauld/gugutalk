@@ -40,7 +40,7 @@ struct MainView: View {
             }
         }
         .alert("코멘트", isPresented: $showComment) {
-            TextField("내용", text: $vm.comment)
+            TextField("내용 입력", text: $vm.comment)
 
             Button("작성") {
                 Task {

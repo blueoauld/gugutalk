@@ -101,7 +101,7 @@ struct MemberActionBar: View {
             )
         }
         .alert("쪽지", isPresented: $showMessage) {
-            TextField("내용 (15P)", text: $message)
+            TextField("내용 입력 (15P)", text: $message)
 
             Button("전송") { }
 
