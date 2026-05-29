@@ -41,6 +41,7 @@ enum class ErrorCode(
 
     CHAT_01(HttpStatus.BAD_REQUEST, "자기 자신과는 채팅방을 생성할 수 없습니다."),
     CHAT_02(HttpStatus.BAD_REQUEST, "접근할 수 없는 채팅방입니다."),
+    CHAT_03(HttpStatus.BAD_REQUEST, "존재하지 않는 채팅방입니다."),
 
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),

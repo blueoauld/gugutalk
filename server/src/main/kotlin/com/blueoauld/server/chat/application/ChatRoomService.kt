@@ -7,8 +7,9 @@ import com.blueoauld.server.chat.entity.type.MessageType
 import com.blueoauld.server.chat.repository.ChatMessageRepository
 import com.blueoauld.server.chat.repository.ChatRoomRepository
 import com.blueoauld.server.common.exception.CustomException
-import com.blueoauld.server.common.exception.type.ErrorCode.MEMBER_01
+import com.blueoauld.server.common.exception.type.ErrorCode.*
 import com.blueoauld.server.member.repository.MemberRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -41,5 +42,16 @@ class ChatRoomService(
         )
 
         room.onMessageSent(memberId, message)
+    }
+
+    @Transactional
+    fun delete(memberId: Long, chatRoomId: Long) {
+        val chatRoom = chatRoomRepository.findByIdOrNull(chatRoomId) ?: throw CustomException(CHAT_03)
+
+        if (chatRoom.member1Id != memberId && chatRoom.member2Id != memberId) {
+            throw CustomException(CHAT_02)
+        }
+
+        chatRoomRepository.delete(chatRoom)
     }
 }

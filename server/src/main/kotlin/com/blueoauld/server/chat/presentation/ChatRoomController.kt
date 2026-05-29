@@ -23,4 +23,13 @@ class ChatRoomController(
         chatRoomService.create(memberId, targetId, request)
         return ResponseEntity.ok().build()
     }
+
+    @DeleteMapping("/chat-rooms/{chatRoomId}", version = "1")
+    fun delete(
+        @Login memberId: Long,
+        @PathVariable chatRoomId: Long,
+    ): ResponseEntity<Unit> {
+        chatRoomService.delete(memberId, chatRoomId)
+        return ResponseEntity.ok().build()
+    }
 }
