@@ -1,19 +1,32 @@
 import SwiftUI
+import Kingfisher
 
 struct ChatListRow: View {
 
     let nickname: String
+    let profileUrl: String?
     let updatedAt: String
     let message: String
-    let unreads: Int
+    let unreadCount: Int64
+
+    private let imageSize: CGFloat = 60
 
     var body: some View {
         HStack {
-            Image(systemName: "person.fill")
-                .font(.title)
-                .padding()
-                .foregroundStyle(Color(.systemGray4))
-                .background(Color(.systemGray6))
+            KFImage(profileUrl.flatMap { URL(string: $0) })
+                .placeholder {
+                    Image(systemName: "person.fill")
+                        .font(.largeTitle)
+                        .foregroundStyle(Color(.systemGray4))
+                        .frame(width: imageSize, height: imageSize)
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle())
+                }
+                .retry(maxCount: 3, interval: .seconds(2))
+                .fade(duration: 0.25)
+                .resizable()
+                .scaledToFill()
+                .frame(width: imageSize, height: imageSize)
                 .clipShape(Circle())
 
             VStack(alignment: .leading, spacing: 4) {
@@ -23,9 +36,11 @@ struct ChatListRow: View {
 
                     Spacer()
 
-                    Text(updatedAt)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                    if let date = updatedAt.toISO8601Date() {
+                        Text(display(for: date))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 HStack(alignment: .center) {
@@ -36,12 +51,13 @@ struct ChatListRow: View {
 
                     Spacer()
 
-                    if unreads > 0 {
-                        let label = unreads > 99 ? "+99" : "\(unreads)"
+                    if unreadCount > 0 {
+                        let label = unreadCount > 99 ? "+99" : "\(unreadCount)"
+
                         Text(label)
                             .font(.caption2.bold())
                             .foregroundStyle(.white)
-                            .padding(.horizontal, unreads < 10 ? 0 : 6)
+                            .padding(.horizontal, unreadCount < 10 ? 0 : 6)
                             .padding(.vertical, 3)
                             .frame(minWidth: 20, minHeight: 20)
                             .background(.red, in: Capsule())
@@ -51,5 +67,17 @@ struct ChatListRow: View {
         }
         .padding(.vertical, 4)
         .padding(.horizontal)
+    }
+
+    private func display(for date: Date) -> String {
+        let now = Calendar.current
+
+        if now.isDateInToday(date) {
+            return date.formatted(.dateTime.hour().minute())
+        } else if now.isDate(date, equalTo: Date(), toGranularity: .year) {
+            return date.formatted(.dateTime.month().day())
+        } else {
+            return date.formatted(.dateTime.year().month().day())
+        }
     }
 }

@@ -2,16 +2,21 @@ import SwiftUI
 
 struct ChatList: View {
 
+    let chatRooms: [ChatRoomRowResponse]
+    let hasNext: Bool
+    var onNext: () async -> Void
+
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         List {
-            ForEach(1...1000, id: \.self) { it in
+            ForEach(chatRooms) { it in
                 ChatListRow(
-                    nickname: "홍길동 \(it)",
-                    updatedAt: "오후 12:00",
-                    message: String(repeating: "메시지 ", count: it % 15 + 1),
-                    unreads: it
+                    nickname: it.nickname,
+                    profileUrl: it.profileUrl,
+                    updatedAt: it.lastMessageAt,
+                    message: it.lastMessagePreview,
+                    unreadCount: it.unreadCount
                 )
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets())
@@ -30,7 +35,21 @@ struct ChatList: View {
                     .tint(.red)
                 }
             }
+
+            if hasNext {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                .listRowSeparator(.hidden)
+                .task {
+                    await onNext()
+                }
+            }
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .navigationLinkIndicatorVisibility(.hidden)
     }
 }

@@ -2,10 +2,13 @@ package com.blueoauld.server.chat.presentation
 
 import com.blueoauld.server.chat.application.ChatRoomService
 import com.blueoauld.server.chat.application.request.ChatRoomCreateRequest
+import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
 import com.blueoauld.server.common.authentication.annotation.Login
+import com.blueoauld.server.common.dto.response.CursorResponse
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 
 @RequestMapping("/api")
 @RestController
@@ -31,5 +34,17 @@ class ChatRoomController(
     ): ResponseEntity<Unit> {
         chatRoomService.delete(memberId, chatRoomId)
         return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/chat-rooms", version = "1")
+    fun gets(
+        @Login memberId: Long,
+        @RequestParam(defaultValue = "ALL") status: String,
+        @RequestParam(required = false) cursorId: Long?,
+        @RequestParam(required = false) cursorDateAt: Instant?,
+        @RequestParam(defaultValue = "20") size: Int,
+    ): ResponseEntity<CursorResponse<ChatRoomRowResponse>> {
+        val response = chatRoomService.gets(memberId, status, cursorId, cursorDateAt, size)
+        return ResponseEntity.ok(response)
     }
 }

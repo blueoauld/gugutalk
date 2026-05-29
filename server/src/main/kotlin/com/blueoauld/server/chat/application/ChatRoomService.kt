@@ -1,17 +1,20 @@
 package com.blueoauld.server.chat.application
 
 import com.blueoauld.server.chat.application.request.ChatRoomCreateRequest
+import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
 import com.blueoauld.server.chat.entity.ChatMessage
 import com.blueoauld.server.chat.entity.ChatRoom
 import com.blueoauld.server.chat.entity.type.MessageType
 import com.blueoauld.server.chat.repository.ChatMessageRepository
 import com.blueoauld.server.chat.repository.ChatRoomRepository
+import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.*
 import com.blueoauld.server.member.repository.MemberRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 @Service
 class ChatRoomService(
@@ -53,5 +56,35 @@ class ChatRoomService(
         }
 
         chatRoomRepository.delete(chatRoom)
+    }
+
+    @Transactional(readOnly = true)
+    fun gets(
+        memberId: Long,
+        status: String,
+        cursorId: Long?,
+        cursorDateAt: Instant?,
+        size: Int
+    ): CursorResponse<ChatRoomRowResponse> {
+        val result = chatRoomRepository.findAllByCursor(
+            memberId = memberId,
+            status = status,
+            cursorId = cursorId,
+            cursorDateAt = cursorDateAt,
+            size = size + 1
+        ).map {
+            ChatRoomRowResponse.from(it)
+        }
+
+        val hasNext = result.size > size
+        val items = if (hasNext) result.dropLast(1) else result
+        val last = items.lastOrNull()
+
+        return CursorResponse(
+            payload = items,
+            nextId = last?.chatRoomId,
+            nextDateAt = last?.lastMessageAt,
+            hasNext = hasNext
+        )
     }
 }

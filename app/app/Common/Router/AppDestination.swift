@@ -9,7 +9,7 @@ struct AppDestination: ViewModifier {
                 case .main:
                     MainView()
                 case .chat:
-                    ChatView()
+                    ChatRoomView()
                 case .setting:
                     SettingView()
                 case .memberSearch:
@@ -30,6 +30,13 @@ struct AppDestination: ViewModifier {
                     PrivateImageGrantListView()
                 case .blockList:
                     BlockListView()
+                case .chatMessage(let chatRoomId, let memberId, let nickname, let profileUrl):
+                    ChatMessageView(
+                        chatRoomId: chatRoomId,
+                        memberId: memberId,
+                        nickname: nickname,
+                        profileUrl: profileUrl
+                    )
                 }
             }
     }

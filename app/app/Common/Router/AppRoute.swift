@@ -12,6 +12,7 @@ enum AppRoute: Hashable {
     case unlikeList
     case privateImageGrantList
     case blockList
+    case chatMessage(Int64, Int64, String, String?)
 
     var hideTabBar: Bool {
         switch self {
@@ -23,6 +24,7 @@ enum AppRoute: Hashable {
         case .unlikeList: return true
         case .privateImageGrantList: return true
         case .blockList: return true
+        case .chatMessage: return true
         default: return false
         }
     }

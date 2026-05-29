@@ -2,12 +2,13 @@ import SwiftUI
 
 struct ChatStatusPicker: View {
 
-    @Binding var selectedStatus: String
+    @Binding var selectedStatus: ChatRoomStatusFilter
 
     var body: some View {
         Picker("상태", selection: $selectedStatus) {
-            Text("전체").tag("ALL")
-            Text("안읽음").tag("UNREAD")
+            ForEach(ChatRoomStatusFilter.allCases, id: \.self) { it in
+                Text(it.label).tag(it)
+            }
         }
         .pickerStyle(.segmented)
         .padding(.horizontal, 12)

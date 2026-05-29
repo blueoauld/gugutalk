@@ -6,7 +6,7 @@ struct ChatNavigationView: View {
     
     var body: some View {
         NavigationStack(path: $router.path) {
-            ChatView()
+            ChatRoomView()
                 .appDestination()
         }
         .environment(router)

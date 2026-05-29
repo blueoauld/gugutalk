@@ -2,6 +2,8 @@ package com.blueoauld.server.common.initialization
 
 import com.blueoauld.server.activity.entity.*
 import com.blueoauld.server.activity.repository.*
+import com.blueoauld.server.chat.entity.ChatRoom
+import com.blueoauld.server.chat.repository.ChatRoomRepository
 import com.blueoauld.server.common.util.RandomNicknameGenerator
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.entity.type.Gender
@@ -11,6 +13,8 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Component
@@ -29,6 +33,7 @@ class DummyData(
         unlikeRepository: UnlikeRepository,
         privateImageGrantRepository: PrivateImageGrantRepository,
         blockRepository: BlockRepository,
+        chatRoomRepository: ChatRoomRepository,
     ): CommandLineRunner {
         return CommandLineRunner {
             if (memberRepository.count() == 0L) {
@@ -97,6 +102,20 @@ class DummyData(
 
                 blockRepository.saveAll(blocks)
             }
+            if (chatRoomRepository.count() == 0L) {
+                val chatRooms = (3 until 101).map {
+                    ChatRoom(
+                        member1Id = 2,
+                        member2Id = it.toLong(),
+                        member1LastReadMessageId = 0,
+                        member2LastReadMessageId = 0,
+                        lastMessagePreview = "테스트 $it".repeat(5),
+                        lastMessageAt = Instant.now().minus(it.toLong(), ChronoUnit.HOURS),
+                    )
+                }
+
+                chatRoomRepository.saveAll(chatRooms)
+            }
 
             log.info { "회원 더미 데이터 ${memberRepository.count()}개 생성" }
             log.info { "리뷰 더미 데이터 ${reviewRepository.count()}개 생성" }
@@ -104,6 +123,7 @@ class DummyData(
             log.info { "싫어요 더미 데이터 ${unlikeRepository.count()}개 생성" }
             log.info { "비밀 사진 부여 더미 데이터 ${privateImageGrantRepository.count()}개 생성" }
             log.info { "차단 더미 데이터 ${blockRepository.count()}개 생성" }
+            log.info { "채팅방 더미 데이터 ${chatRoomRepository.count()}개 생성" }
         }
     }
 }

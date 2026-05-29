@@ -28,7 +28,7 @@ class ChatRoom(
     @Column(name = "member2_last_read_message_id", nullable = false)
     var member2LastReadMessageId: Long,
 
-    @Column(name = "last_message_preview", nullable = false)
+    @Column(name = "last_message_preview", length = 100, nullable = false)
     var lastMessagePreview: String,
 
     @Column(name = "last_message_at", nullable = false)
