@@ -58,6 +58,14 @@ class ChatRoomService(
         chatRoomRepository.delete(chatRoom)
     }
 
+    @Transactional
+    fun read(memberId: Long, chatRoomId: Long) {
+        val chatRoom = chatRoomRepository.findByIdOrNull(chatRoomId) ?: throw CustomException(CHAT_03)
+        val lastMessageId = chatMessageRepository.findLastMessageId(chatRoomId) ?: return
+
+        chatRoom.markAsRead(memberId, lastMessageId)
+    }
+
     @Transactional(readOnly = true)
     fun gets(
         memberId: Long,

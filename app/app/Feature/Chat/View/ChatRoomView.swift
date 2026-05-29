@@ -45,6 +45,11 @@ struct ChatRoomView: View {
                 await vm.switchView()
             }
         }
+        .overlay {
+            if vm.isLoading {
+                LoadingOverlay()
+            }
+        }
     }
 
     @ViewBuilder
@@ -64,6 +69,7 @@ struct ChatRoomView: View {
                 chatRooms: vm.chatRooms,
                 hasNext: vm.hasNext,
                 onNext: vm.loadNext,
+                onRead: vm.read,
                 onDelete: vm.delete,
             )
         case .error(let message):

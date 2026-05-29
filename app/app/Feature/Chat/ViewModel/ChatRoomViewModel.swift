@@ -62,6 +62,21 @@ final class ChatRoomViewModel {
         }
     }
 
+    func read(chatRoomId: Int64) async {
+        guard !isLoading else { return }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await chatRoomService.read(chatRoomId: chatRoomId)
+        } catch let error as APIError {
+            ToastManager.shared.show(error.message, style: .error)
+        } catch {
+            ToastManager.shared.show(error.localizedDescription, style: .error)
+        }
+    }
+
     func delete(chatRoomId: Int64) async {
         guard !isLoading else { return }
 

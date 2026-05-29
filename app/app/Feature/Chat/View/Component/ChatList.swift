@@ -5,10 +5,12 @@ struct ChatList: View {
     let chatRooms: [ChatRoomRowResponse]
     let hasNext: Bool
     var onNext: () async -> Void
+    var onRead: (Int64) async -> Void
     var onDelete: (Int64) async -> Void
 
     @Environment(\.colorScheme) private var colorScheme
 
+    @State private var readTrigger = false
     @State private var deleteTrigger = false
 
     var body: some View {
@@ -25,6 +27,11 @@ struct ChatList: View {
                 .listRowInsets(EdgeInsets())
                 .swipeActions(edge: .leading, allowsFullSwipe: false) {
                     Button {
+                        readTrigger.toggle()
+
+                        Task {
+                            await onRead(it.chatRoomId)
+                        }
                     } label: {
                         Image(systemName: colorScheme == .dark ? "eyes" : "eyes.inverse")
                     }
@@ -59,6 +66,7 @@ struct ChatList: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .navigationLinkIndicatorVisibility(.hidden)
+        .sensoryFeedback(.impact(weight: .medium), trigger: readTrigger)
         .sensoryFeedback(.impact(flexibility: .solid), trigger: deleteTrigger)
     }
 }

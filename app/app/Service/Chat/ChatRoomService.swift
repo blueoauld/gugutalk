@@ -14,6 +14,16 @@ final class ChatRoomService {
         )
     }
 
+    func read(
+        chatRoomId: Int64,
+    ) async throws {
+        try await PrivateNetworkManager.shared.requestVoid(
+            "/chat-rooms/\(chatRoomId)/read",
+            method: .patch,
+            encoding: JSONEncoding.default
+        )
+    }
+
     func gets(
         status: String,
         cursorId: Int64?,

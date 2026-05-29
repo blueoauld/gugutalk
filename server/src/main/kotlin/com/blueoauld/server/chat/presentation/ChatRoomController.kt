@@ -36,6 +36,15 @@ class ChatRoomController(
         return ResponseEntity.ok().build()
     }
 
+    @PatchMapping("/chat-rooms/{chatRoomId}/read", version = "1")
+    fun read(
+        @Login memberId: Long,
+        @PathVariable chatRoomId: Long,
+    ): ResponseEntity<Unit> {
+        chatRoomService.read(memberId, chatRoomId)
+        return ResponseEntity.ok().build()
+    }
+
     @GetMapping("/chat-rooms", version = "1")
     fun gets(
         @Login memberId: Long,
