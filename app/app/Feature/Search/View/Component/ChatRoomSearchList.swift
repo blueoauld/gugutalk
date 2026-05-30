@@ -9,13 +9,15 @@ struct ChatRoomSearchList: View {
     var body: some View {
         List {
             ForEach(chatRooms) { it in
-                ChatRoomListRow(
-                    nickname: it.nickname,
-                    profileUrl: it.profileUrl,
-                    updatedAt: it.lastMessageAt,
-                    message: it.lastMessagePreview,
-                    unreadCount: it.unreadCount
-                )
+                NavigationLink(value: AppRoute.chatMessage(it.chatRoomId, it.memberId, it.nickname, it.profileUrl)) {
+                    ChatRoomListRow(
+                        nickname: it.nickname,
+                        profileUrl: it.profileUrl,
+                        updatedAt: it.lastMessageAt,
+                        message: it.lastMessagePreview,
+                        unreadCount: it.unreadCount
+                    )
+                }
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets())
             }
