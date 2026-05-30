@@ -14,6 +14,7 @@ import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import jakarta.persistence.EntityManager
+import org.springframework.data.jpa.repository.query.EscapeCharacter
 import org.springframework.stereotype.Repository
 import java.time.Instant
 
@@ -108,6 +109,8 @@ class MemberCustomRepositoryImpl(
         size: Int
     ): List<MemberSearchResult> {
         val query = jpql {
+            val escaped = EscapeCharacter.DEFAULT.escape(nickname)
+
             selectNew<MemberSearchResult>(
                 path(Member::id),
                 path(Member::nickname),
@@ -120,7 +123,7 @@ class MemberCustomRepositoryImpl(
                 entity(Member::class),
             ).whereAnd(
                 path(Member::id).ne(memberId),
-                path(Member::nickname).like("$nickname%"),
+                path(Member::nickname).like("$escaped%", escape = '\\'),
                 path(Member::id).notIn(
                     select<Long>(path(Block::toId))
                         .from(entity(Block::class))

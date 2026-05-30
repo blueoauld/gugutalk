@@ -95,4 +95,38 @@ class ChatRoomService(
             hasNext = hasNext
         )
     }
+
+    @Transactional(readOnly = true)
+    fun search(
+        memberId: Long,
+        nickname: String,
+        cursorId: Long?,
+        cursorDateAt: Instant?,
+        size: Int
+    ): CursorResponse<ChatRoomRowResponse> {
+        if (nickname.length < 2) {
+            throw CustomException(SEARCH_01)
+        }
+
+        val result = chatRoomRepository.findAllByNickname(
+            memberId = memberId,
+            nickname = nickname,
+            cursorId = cursorId,
+            cursorDateAt = cursorDateAt,
+            size = size + 1
+        ).map {
+            ChatRoomRowResponse.from(it)
+        }
+
+        val hasNext = result.size > size
+        val items = if (hasNext) result.dropLast(1) else result
+        val last = items.lastOrNull()
+
+        return CursorResponse(
+            payload = items,
+            nextId = last?.chatRoomId,
+            nextDateAt = last?.lastMessageAt,
+            hasNext = hasNext
+        )
+    }
 }
