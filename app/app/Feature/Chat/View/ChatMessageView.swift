@@ -1,12 +1,5 @@
 import SwiftUI
-
-struct ChatMessage: Identifiable {
-
-    let id = UUID()
-    let text: String
-    let isFromCurrentUser: Bool
-    let date: Date
-}
+import Kingfisher
 
 struct ChatMessageView: View {
 
@@ -15,137 +8,80 @@ struct ChatMessageView: View {
     let nickname: String
     let profileUrl: String?
 
-    @State private var review = ""
-    @State private var messages: [ChatMessage] = [
-        ChatMessage(text: "안녕하세요! 오늘 회의 시간 확인차 연락드려요.", isFromCurrentUser: false, date: .now.addingTimeInterval(-600)),
-        ChatMessage(text: "네 안녕하세요 오후 2시 맞습니다.", isFromCurrentUser: true, date: .now.addingTimeInterval(-540)),
-        ChatMessage(text: "장소는 어디인가요?", isFromCurrentUser: false, date: .now.addingTimeInterval(-480)),
-        ChatMessage(text: "3층 대회의실이에요. 자료는 미리 공유드릴게요!", isFromCurrentUser: true, date: .now.addingTimeInterval(-420)),
-        ChatMessage(text: "감사합니다 😊 그때 뵙겠습니다.", isFromCurrentUser: false, date: .now.addingTimeInterval(-360))
-    ]
+    @Environment(AppRouter.self) private var router
+
+    @State private var vm = ChatMessageViewModel()
+
+    private let imageSize: CGFloat = 35
 
     var body: some View {
-        List {
-            ForEach(messages) { message in
-                MessageBubble(message: message)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
-            }
+        VStack {
+            content
         }
-        .listStyle(.plain)
+        .onTapGesture {
+            hideKeyboard()
+        }
         .safeAreaBar(edge: .bottom) {
-            TextField("메시지 입력", text: $review, axis: .vertical)
-                .font(.subheadline)
-                .lineLimit(1...5)
-                .multilineTextAlignment(.leading)
-                .padding(.leading)
-                .padding(.trailing, 50)
-                .padding(.vertical, 8)
-                .frame(minHeight: 44)
-                .overlay(alignment: .bottomTrailing) {
-                    Button {
-                        Task {
-                            sendMessage()
-                        }
-                    } label: {
-                        Image(systemName: "paperplane.fill")
-                            .foregroundColor(.white)
-                            .frame(width: 36, height: 36)
-                            .background(review.isEmpty ? Color(.systemGray3) : .blue)
-                            .clipShape(Circle())
-                    }
-                    .padding(.trailing, 4)
-                    .padding(.bottom, 4)
-                    .disabled(review.isEmpty)
-                }
-                .glassEffect(
-                    .regular.tint(.clear).interactive(),
-                    in: .rect(cornerRadius: 20)
-                )
-                .autocorrectionDisabled(true)
-                .textInputAutocapitalization(.never)
-                .padding()
+            ChatMessageInput(message: $vm.message)
         }
-        .navigationTitle("홍길동")
+        .navigationTitle(nickname)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Image(systemName: "person.fill")
-                    .font(.footnote)
-                    .foregroundColor(Color(.systemGray5))
-                    .frame(width: 35, height: 35)
-                    .background(Color(.systemGray4))
-                    .clipShape(Circle())
-            }
+            toolbarContent
+        }
+        .task {
+            await vm.load(chatRoomId: chatRoomId)
         }
     }
 
-    private func sendMessage() {
-        let trimmed = review.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        messages.append(ChatMessage(text: trimmed, isFromCurrentUser: true, date: .now))
-        review = ""
-    }
-}
-
-struct MessageBubble: View {
-
-    let message: ChatMessage
-
-    private var timeText: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "a h:mm"
-        return formatter.string(from: message.date)
-    }
-
-    var body: some View {
-        if message.isFromCurrentUser {
-            VStack(alignment: .trailing) {
-                HStack(alignment: .bottom, spacing: 4) {
-                    Spacer()
-
-                    timeLabel
-
-                    Text(message.text)
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    @ViewBuilder
+    private var content: some View {
+        switch vm.state {
+        case .idle:
+            Spacer()
+        case .loading:
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .empty:
+            ScrollView {
+                ContentUnavailableView("내역 없음", systemImage: "tray")
+                    .containerRelativeFrame([.horizontal, .vertical])
+            }
+        case .data:
+            ChatMessageList(
+                chatMessage: vm.chatMessages,
+                hasNext: vm.hasNext,
+                onNext: {
+                    await vm.loadNext(chatRoomId: chatRoomId)
                 }
-            }
+            )
+        case .error(let message):
+            ErrorRetryView(message: message, retry: {
+                await vm.load(chatRoomId: chatRoomId)
+            })
         }
+    }
 
-        if !message.isFromCurrentUser {
-            VStack(alignment: .trailing) {
-                HStack(alignment: .bottom, spacing: 4) {
-                    Text(message.text)
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(Color(.systemGray5))
-                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-
-                    timeLabel
-
-                    Spacer()
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            KFImage(profileUrl.flatMap { URL(string: $0) })
+                .placeholder {
+                    Image(systemName: "person.fill")
+                        .font(.footnote)
+                        .foregroundColor(Color(.systemGray4))
+                        .frame(width: imageSize, height: imageSize)
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle())
                 }
-            }
+                .retry(maxCount: 3, interval: .seconds(2))
+                .fade(duration: 0.25)
+                .resizable()
+                .scaledToFill()
+                .frame(width: imageSize, height: imageSize)
+                .clipShape(Circle())
+                .onTapGesture {
+                    router.push(AppRoute.member(memberId))
+                }
         }
-    }
-
-    private var timeLabel: some View {
-        Text(timeText)
-            .font(.caption2)
-            .foregroundColor(.secondary)
-    }
-}
-
-#Preview {
-    NavigationStack {
-        ChatMessageView(chatRoomId: 1, memberId: 1, nickname: "홍길동", profileUrl: nil)
     }
 }

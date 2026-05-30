@@ -126,7 +126,8 @@ class DummyData(
                         chatRoomId = 1,
                         senderId = 3,
                         type = MessageType.TEXT,
-                        content = "내용 $it"
+                        content = "내용 $it",
+                        createdAt = Instant.now().minus(it.toLong(), ChronoUnit.HOURS),
                     )
                 }
 
