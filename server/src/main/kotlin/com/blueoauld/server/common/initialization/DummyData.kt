@@ -2,7 +2,10 @@ package com.blueoauld.server.common.initialization
 
 import com.blueoauld.server.activity.entity.*
 import com.blueoauld.server.activity.repository.*
+import com.blueoauld.server.chat.entity.ChatMessage
 import com.blueoauld.server.chat.entity.ChatRoom
+import com.blueoauld.server.chat.entity.type.MessageType
+import com.blueoauld.server.chat.repository.ChatMessageRepository
 import com.blueoauld.server.chat.repository.ChatRoomRepository
 import com.blueoauld.server.common.util.RandomNicknameGenerator
 import com.blueoauld.server.member.entity.Member
@@ -34,6 +37,7 @@ class DummyData(
         privateImageGrantRepository: PrivateImageGrantRepository,
         blockRepository: BlockRepository,
         chatRoomRepository: ChatRoomRepository,
+        chatMessageRepository: ChatMessageRepository,
     ): CommandLineRunner {
         return CommandLineRunner {
             if (memberRepository.count() == 0L) {
@@ -116,6 +120,18 @@ class DummyData(
 
                 chatRoomRepository.saveAll(chatRooms)
             }
+            if (chatMessageRepository.count() == 0L) {
+                val chatMessages = (0 until 100).map {
+                    ChatMessage(
+                        chatRoomId = 1,
+                        senderId = 3,
+                        type = MessageType.TEXT,
+                        content = "내용 $it"
+                    )
+                }
+
+                chatMessageRepository.saveAll(chatMessages)
+            }
 
             log.info { "회원 더미 데이터 ${memberRepository.count()}개 생성" }
             log.info { "리뷰 더미 데이터 ${reviewRepository.count()}개 생성" }
@@ -124,6 +140,7 @@ class DummyData(
             log.info { "비밀 사진 부여 더미 데이터 ${privateImageGrantRepository.count()}개 생성" }
             log.info { "차단 더미 데이터 ${blockRepository.count()}개 생성" }
             log.info { "채팅방 더미 데이터 ${chatRoomRepository.count()}개 생성" }
+            log.info { "메세지 더미 데이터 ${chatMessageRepository.count()}개 생성" }
         }
     }
 }
