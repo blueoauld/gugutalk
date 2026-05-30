@@ -1,7 +1,7 @@
 import SwiftUI
 import Kingfisher
 
-struct ChatListRow: View {
+struct ChatRoomListRow: View {
 
     let nickname: String
     let profileUrl: String?

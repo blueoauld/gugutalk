@@ -16,30 +16,7 @@ struct ChatRoomView: View {
         .navigationTitle("채팅")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                } label: {
-                    Image(systemName: "magnifyingglass")
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                }
-            }
-
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    toggleChatTrigger.toggle()
-
-                    Task {
-                        await vm.toggleChat()
-                    }
-                } label: {
-                    Image(systemName: vm.isChat ? "bell" : "bell.slash")
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                        .contentTransition(.symbolEffect(.replace))
-                }
-                .sensoryFeedback(.selection, trigger: toggleChatTrigger)
-            }
+            toolbarContent
         }
         .task {
             async let i: Void = vm.isChat()
@@ -72,7 +49,7 @@ struct ChatRoomView: View {
                     .containerRelativeFrame([.horizontal, .vertical])
             }
         case .data:
-            ChatList(
+            ChatRoomList(
                 chatRooms: vm.chatRooms,
                 hasNext: vm.hasNext,
                 onNext: vm.loadNext,
@@ -81,6 +58,35 @@ struct ChatRoomView: View {
             )
         case .error(let message):
             ErrorRetryView(message: message, retry: vm.switchView)
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                router.push(AppRoute.chatRoomSearch)
+            } label: {
+                Image(systemName: "magnifyingglass")
+                    .font(.body)
+                    .foregroundStyle(.primary)
+            }
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                toggleChatTrigger.toggle()
+
+                Task {
+                    await vm.toggleChat()
+                }
+            } label: {
+                Image(systemName: vm.isChat ? "bell" : "bell.slash")
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .contentTransition(.symbolEffect(.replace))
+            }
+            .sensoryFeedback(.selection, trigger: toggleChatTrigger)
         }
     }
 }

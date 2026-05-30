@@ -50,4 +50,31 @@ final class ChatRoomService {
             as: CursorResponse<ChatRoomRowResponse>.self
         )
     }
+
+    func search(
+        nickname: String,
+        cursorId: Int64?,
+        cursorDateAt: String?,
+        size: Int = 20,
+    ) async throws -> CursorResponse<ChatRoomRowResponse> {
+        var parameters: [String: Any] = [
+            "nickname": nickname,
+            "size": size,
+        ]
+
+        if let cursorId {
+            parameters["cursorId"] = cursorId
+        }
+        if let cursorDateAt {
+            parameters["cursorDateAt"] = cursorDateAt
+        }
+
+        return try await PrivateNetworkManager.shared.request(
+            "/chat-rooms/search",
+            method: .get,
+            parameters: parameters,
+            encoding: URLEncoding.default,
+            as: CursorResponse<ChatRoomRowResponse>.self
+        )
+    }
 }

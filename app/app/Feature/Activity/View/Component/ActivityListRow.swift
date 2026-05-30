@@ -26,7 +26,7 @@ struct ActivityListRow: View {
                     KFImage(profileUrl.flatMap { URL(string: $0) })
                         .placeholder {
                             Image(systemName: "person.fill")
-                                .font(.title)
+                                .font(.largeTitle)
                                 .foregroundStyle(Color(.systemGray4))
                                 .frame(width: imageSize, height: imageSize)
                                 .background(Color(.systemGray6))

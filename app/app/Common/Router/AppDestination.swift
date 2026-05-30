@@ -37,6 +37,8 @@ struct AppDestination: ViewModifier {
                         nickname: nickname,
                         profileUrl: profileUrl
                     )
+                case .chatRoomSearch:
+                    ChatRoomSearchView()
                 }
             }
     }

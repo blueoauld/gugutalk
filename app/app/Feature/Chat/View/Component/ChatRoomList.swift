@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ChatList: View {
+struct ChatRoomList: View {
 
     let chatRooms: [ChatRoomRowResponse]
     let hasNext: Bool
@@ -16,7 +16,7 @@ struct ChatList: View {
     var body: some View {
         List {
             ForEach(chatRooms) { it in
-                ChatListRow(
+                ChatRoomListRow(
                     nickname: it.nickname,
                     profileUrl: it.profileUrl,
                     updatedAt: it.lastMessageAt,
