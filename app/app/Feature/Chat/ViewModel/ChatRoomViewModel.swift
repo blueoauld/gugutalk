@@ -18,9 +18,12 @@ final class ChatRoomViewModel {
 
     private let upsertQueue = "/user/queue/chat-rooms/upsert"
     private let deleteQueue = "/user/queue/chat-rooms/delete"
+    private let readQueue = "/user/queue/chat-rooms/read"
 
     var state: ChatRoomViewState = .idle
-    var chatRooms: [ChatRoomRowResponse] = []
+    var chatRooms: [ChatRoomRowResponse] = [] {
+        didSet { syncBadge() }
+    }
     var status: ChatRoomStatusFilter = .all
     var isChat = true
 
@@ -28,10 +31,14 @@ final class ChatRoomViewModel {
     private(set) var isLoading = false
     private(set) var isMutating = false
 
+    private var hasLoad = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
 
     func load() async {
+        guard !hasLoad else { return }
+        hasLoad = true
+
         state = .loading
         await fetch()
     }
@@ -149,13 +156,19 @@ final class ChatRoomViewModel {
         }
     }
 
+    private func syncBadge() {
+        ChatBadgeManager.shared.unreadCount = chatRooms.filter { $0.unreadCount > 0 }.count
+    }
+
     // MARK: - STOMP
     func subscribe() {
         StompManager.shared.subscribe(
             to: upsertQueue,
-            as: ChatRoomRowResponse.self
+            as: ChatRoomCreateResponse.self
         ) { [weak self] room in
             guard let self else { return }
+
+            print(room)
 
             self.receive(room)
         }
@@ -168,6 +181,15 @@ final class ChatRoomViewModel {
 
             self.receive(room)
         }
+
+        StompManager.shared.subscribe(
+            to: readQueue,
+            as: ChatRoomReadResponse.self
+        ) { [weak self] room in
+            guard let self else { return }
+
+            self.receive(room)
+        }
     }
 
     func unsubscribe() {
@@ -175,24 +197,25 @@ final class ChatRoomViewModel {
         StompManager.shared.unsubscribe(from: deleteQueue)
     }
 
-    private func receive(_ room: ChatRoomRowResponse) {
+    private func receive(_ room: ChatRoomCreateResponse) {
+        let isMine = room.senderId == TokenStorage.shared.memberId
+
         if let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) {
             var updated = chatRooms.remove(at: index)
 
             updated.nickname = room.nickname
             updated.profileUrl = room.profileUrl
-            updated.unreadCount += 1
+            if !isMine {
+                updated.unreadCount += 1
+            }
             updated.lastMessagePreview = room.lastMessagePreview
             updated.lastMessageAt = room.lastMessageAt
 
             chatRooms.insert(updated, at: 0)
         } else {
-            var newRoom = room
+            var newRoom = ChatRoomRowResponse(from: room)
 
-            if newRoom.unreadCount == 0 {
-                newRoom.unreadCount = 1
-            }
-
+            newRoom.unreadCount = isMine ? 0 : 1
             chatRooms.insert(newRoom, at: 0)
             state = .data
         }
@@ -201,5 +224,11 @@ final class ChatRoomViewModel {
     private func receive(_ room: ChatRoomDeleteResponse) {
         chatRooms.removeAll { $0.chatRoomId == room.chatRoomId }
         state = chatRooms.isEmpty ? .empty : .data
+    }
+
+    private func receive(_ room: ChatRoomReadResponse) {
+        if let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) {
+            chatRooms[index].unreadCount = 0
+        }
     }
 }

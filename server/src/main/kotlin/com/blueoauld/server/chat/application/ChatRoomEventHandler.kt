@@ -1,9 +1,11 @@
 package com.blueoauld.server.chat.application
 
 import com.blueoauld.server.chat.application.event.ChatRoomDeleteEvent
+import com.blueoauld.server.chat.application.event.ChatRoomReadEvent
 import com.blueoauld.server.chat.application.event.ChatRoomUpsertEvent
+import com.blueoauld.server.chat.application.response.ChatRoomCreateResponse
 import com.blueoauld.server.chat.application.response.ChatRoomDeleteResponse
-import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
+import com.blueoauld.server.chat.application.response.ChatRoomReadResponse
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionPhase
@@ -20,7 +22,7 @@ class ChatRoomEventHandler(
         simpMessagingTemplate.convertAndSendToUser(
             event.targetId.toString(),
             "/queue/chat-rooms/upsert",
-            ChatRoomRowResponse.from(event)
+            ChatRoomCreateResponse.from(event)
         )
     }
 
@@ -30,6 +32,15 @@ class ChatRoomEventHandler(
             event.targetId.toString(),
             "/queue/chat-rooms/delete",
             ChatRoomDeleteResponse(event.chatRoomId)
+        )
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun handle(event: ChatRoomReadEvent) {
+        simpMessagingTemplate.convertAndSendToUser(
+            event.memberId.toString(),
+            "/queue/chat-rooms/read",
+            ChatRoomReadResponse(event.chatRoomId)
         )
     }
 }

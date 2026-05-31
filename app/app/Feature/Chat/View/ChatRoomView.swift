@@ -3,11 +3,13 @@ import SwiftUI
 struct ChatRoomView: View {
 
     @Environment(AppRouter.self) private var router
+    @Environment(ChatRoomViewModel.self) private var vm
 
-    @State private var vm = ChatRoomViewModel()
     @State private var toggleChatTrigger = false
 
     var body: some View {
+        @Bindable var vm = vm
+
         VStack {
             ChatStatusPicker(selectedStatus: $vm.status)
 
@@ -19,15 +21,8 @@ struct ChatRoomView: View {
             toolbarContent
         }
         .task {
-            vm.subscribe()
-            
-            async let i: Void = vm.isChat()
-            async let l: Void = vm.load()
-
-            _ = await (i, l)
-        }
-        .onDisappear {
-            vm.unsubscribe()
+            await vm.isChat()
+            await vm.load()
         }
         .onChange(of: vm.status) { _, newValue in
             Task {

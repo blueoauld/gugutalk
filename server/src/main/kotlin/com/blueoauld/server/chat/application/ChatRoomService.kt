@@ -2,6 +2,7 @@ package com.blueoauld.server.chat.application
 
 import com.blueoauld.server.chat.application.event.ChatMessageSendEvent
 import com.blueoauld.server.chat.application.event.ChatRoomDeleteEvent
+import com.blueoauld.server.chat.application.event.ChatRoomReadEvent
 import com.blueoauld.server.chat.application.event.ChatRoomUpsertEvent
 import com.blueoauld.server.chat.application.request.ChatRoomCreateRequest
 import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
@@ -33,6 +34,7 @@ class ChatRoomService(
     @Transactional
     fun create(memberId: Long, targetId: Long, request: ChatRoomCreateRequest) {
         val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+        val target = memberRepository.findByIdOrNull(targetId) ?: throw CustomException(MEMBER_01)
 
         val chatRoom = chatRoomRepository.findByMember1IdAndMember2Id(
             minOf(memberId, targetId),
@@ -67,8 +69,22 @@ class ChatRoomService(
                 chatRoomId = chatRoom.id,
                 targetId = targetId,
                 memberId = memberId,
+                senderId = memberId,
                 nickname = member.nickname,
                 profileUrl = member.profileUrl,
+                lastMessagePreview = request.content.take(100),
+                lastMessageAt = chatMessage.createdAt,
+            )
+        )
+
+        applicationEventPublisher.publishEvent(
+            ChatRoomUpsertEvent(
+                chatRoomId = chatRoom.id,
+                targetId = memberId,
+                memberId = targetId,
+                senderId = memberId,
+                nickname = target.nickname,
+                profileUrl = target.profileUrl,
                 lastMessagePreview = request.content.take(100),
                 lastMessageAt = chatMessage.createdAt,
             )
@@ -100,6 +116,14 @@ class ChatRoomService(
         val lastMessageId = chatMessageRepository.findLastMessageId(chatRoomId) ?: return
 
         chatRoom.markAsRead(memberId, lastMessageId)
+
+        // 이벤트
+        applicationEventPublisher.publishEvent(
+            ChatRoomReadEvent(
+                chatRoomId = chatRoomId,
+                memberId = memberId
+            )
+        )
     }
 
     @Transactional(readOnly = true)

@@ -99,6 +99,7 @@ class ChatMessageService(
                 chatRoomId = chatRoomId,
                 targetId = chatRoom.getOtherMemberId(memberId),
                 memberId = memberId,
+                senderId = memberId,
                 nickname = member.nickname,
                 profileUrl = member.profileUrl,
                 lastMessagePreview = request.content.take(100),

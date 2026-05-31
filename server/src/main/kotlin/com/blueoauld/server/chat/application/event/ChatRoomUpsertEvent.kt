@@ -7,6 +7,7 @@ data class ChatRoomUpsertEvent(
     val chatRoomId: Long,
     val targetId: Long,
     val memberId: Long,
+    val senderId: Long,
     val nickname: String,
     val profileUrl: String?,
     val lastMessagePreview: String,

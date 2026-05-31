@@ -12,11 +12,17 @@ struct RootTabView: View {
     @State private var chatRouter = AppRouter()
     @State private var settingRouter = AppRouter()
 
+    @State private var chatVM = ChatRoomViewModel()
+    @State private var chatBadgeManager = ChatBadgeManager.shared
+
     @State private var selectedTab: TabType = .main
     @State private var hideTabBar = false
 
     var body: some View {
         tabContent
+            .task {
+                chatVM.subscribe()
+            }
             .onChange(of: mainRouter.path) { _, path in
                 hideTabBar = path.last?.hideTabBar ?? false
             }
@@ -37,8 +43,10 @@ struct RootTabView: View {
 
             Tab("채팅", systemImage: "message", value: TabType.chat) {
                 ChatNavigationView(router: chatRouter)
+                    .environment(chatVM)
                     .toolbarVisibility(hideTabBar ? .hidden : .visible, for: .tabBar)
             }
+            .badge(chatBadgeManager.unreadCount)
 
             Tab("설정", systemImage: "gearshape", value: TabType.setting) {
                 SettingNavigationView(router: settingRouter)
