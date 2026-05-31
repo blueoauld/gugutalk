@@ -44,7 +44,7 @@ struct ChatRoomListRow: View {
                 }
 
                 HStack(alignment: .center) {
-                    Text(message)
+                    Text(message.byCharWrapping)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)

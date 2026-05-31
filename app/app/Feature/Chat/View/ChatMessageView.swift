@@ -2,18 +2,19 @@ import SwiftUI
 import Kingfisher
 
 struct ChatMessageView: View {
-    
+
     let chatRoomId: Int64
     let memberId: Int64
     let nickname: String
     let profileUrl: String?
-    
+
     @Environment(AppRouter.self) private var router
-    
+
     @State private var vm = ChatMessageViewModel()
-    
+    @State private var scrollToBottomTrigger = 0
+
     private let imageSize: CGFloat = 35
-    
+
     var body: some View {
         VStack {
             content
@@ -26,6 +27,8 @@ struct ChatMessageView: View {
                 message: $vm.message,
                 onSend: {
                     await vm.send(chatRoomId: chatRoomId)
+
+                    scrollToBottomTrigger += 1
                 },
                 isLoading: vm.isLoading
             )
@@ -37,7 +40,7 @@ struct ChatMessageView: View {
         }
         .task {
             vm.subscribe(chatRoomId: chatRoomId)
-            
+
             await vm.load(chatRoomId: chatRoomId)
             await vm.read(chatRoomId: chatRoomId)
         }
@@ -50,7 +53,7 @@ struct ChatMessageView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var content: some View {
         switch vm.state {
@@ -69,7 +72,8 @@ struct ChatMessageView: View {
                 hasNext: vm.hasNext,
                 onNext: {
                     await vm.loadNext(chatRoomId: chatRoomId)
-                }
+                },
+                scrollToBottomTrigger: scrollToBottomTrigger
             )
         case .error(let message):
             ErrorRetryView(message: message, retry: {
@@ -77,7 +81,7 @@ struct ChatMessageView: View {
             })
         }
     }
-    
+
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {

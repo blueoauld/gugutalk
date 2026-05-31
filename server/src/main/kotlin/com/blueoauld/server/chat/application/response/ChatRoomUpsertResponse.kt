@@ -3,7 +3,7 @@ package com.blueoauld.server.chat.application.response
 import com.blueoauld.server.chat.application.event.ChatRoomUpsertEvent
 import java.time.Instant
 
-data class ChatRoomCreateResponse(
+data class ChatRoomUpsertResponse(
 
     val chatRoomId: Long,
     val memberId: Long,
@@ -17,8 +17,8 @@ data class ChatRoomCreateResponse(
 ) {
 
     companion object {
-        fun from(event: ChatRoomUpsertEvent): ChatRoomCreateResponse {
-            return ChatRoomCreateResponse(
+        fun from(event: ChatRoomUpsertEvent): ChatRoomUpsertResponse {
+            return ChatRoomUpsertResponse(
                 chatRoomId = event.chatRoomId,
                 memberId = event.memberId,
                 targetId = event.targetId,

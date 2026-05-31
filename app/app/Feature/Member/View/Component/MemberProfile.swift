@@ -112,7 +112,7 @@ struct MemberProfile: View {
                 .padding(.bottom)
 
                 VStack {
-                    Text(member.bio)
+                    Text(member.bio.byCharWrapping)
                         .font(.subheadline)
                         .foregroundColor(.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)

@@ -22,7 +22,7 @@ struct ReviewListRow: View {
                 }
             }
 
-            Text(content)
+            Text(content.byCharWrapping)
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }

@@ -48,7 +48,7 @@ struct MemberListRow: View {
                     }
                 }
 
-                Text(comment)
+                Text(comment.byCharWrapping)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

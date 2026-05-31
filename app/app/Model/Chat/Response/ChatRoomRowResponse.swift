@@ -1,5 +1,5 @@
 struct ChatRoomRowResponse: Decodable, Identifiable {
-    
+
     let chatRoomId: Int64
     let memberId: Int64
     var nickname: String
@@ -7,13 +7,13 @@ struct ChatRoomRowResponse: Decodable, Identifiable {
     var unreadCount: Int64
     var lastMessagePreview: String
     var lastMessageAt: String
-    
+
     var id: Int64 { chatRoomId }
 }
 
 extension ChatRoomRowResponse {
-    
-    init(from r: ChatRoomCreateResponse) {
+
+    init(from r: ChatRoomUpsertResponse) {
         self.init(
             chatRoomId: r.chatRoomId,
             memberId: r.memberId,

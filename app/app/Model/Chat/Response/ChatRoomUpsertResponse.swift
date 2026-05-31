@@ -1,4 +1,4 @@
-struct ChatRoomCreateResponse: Decodable, Identifiable {
+struct ChatRoomUpsertResponse: Decodable, Identifiable {
 
     let chatRoomId: Int64
     let targetId: Int64

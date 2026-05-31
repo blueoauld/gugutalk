@@ -36,7 +36,7 @@ final class LoginViewModel {
             TokenStorage.shared.accessToken = response.accessToken
             TokenStorage.shared.refreshToken = response.refreshToken
 
-            ToastManager.shared.show("로그인이 완료되었습니다.", style: .success)
+            ToastManager.shared.show("로그인이 완료되었습니다.", style: .info)
             return true
         } catch let error as APIError {
             ToastManager.shared.show(error.message, style: .error)

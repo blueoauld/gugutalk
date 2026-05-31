@@ -40,7 +40,7 @@ final class SetupViewModel {
         do {
             try await authenticationService.setup(nickname: trimmedNickname, birthYear: birthYear, region: region, bio: bio)
 
-            ToastManager.shared.show("계정이 활성화되었습니다.", style: .success)
+            ToastManager.shared.show("계정이 활성화되었습니다.", style: .info)
             return true
         } catch let error as APIError {
             ToastManager.shared.show(error.message, style: .error)

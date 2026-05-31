@@ -4,47 +4,95 @@ struct ChatMessageBubble: View {
 
     let message: ChatMessageRowResponse
 
+    private var isMine: Bool {
+        message.senderId == TokenStorage.shared.memberId
+    }
+
     var body: some View {
-        if message.senderId == TokenStorage.shared.memberId {
-            VStack(alignment: .trailing) {
-                HStack(alignment: .bottom, spacing: 4) {
-                    Spacer()
+        HStack(alignment: .bottom, spacing: 4) {
+            if isMine {
+                Spacer(minLength: 40)
 
-                    if let date = message.createdAt.toISO8601Date() {
-                        Text(date.formatted(.dateTime.hour().minute()))
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
+                timeText
 
-                    Text(message.content)
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                }
+                bubbleText(background: Color.blue, foreground: .white)
+            } else {
+                bubbleText(background: Color(.systemGray5), foreground: .primary)
+
+                timeText
+
+                Spacer(minLength: 40)
             }
-        } else {
-            VStack(alignment: .trailing) {
-                HStack(alignment: .bottom, spacing: 4) {
-                    Text(message.content)
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(Color(.systemGray5))
-                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+    }
 
-                    if let date = message.createdAt.toISO8601Date() {
-                        Text(date.formatted(.dateTime.hour().minute()))
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
+    private func bubbleText(background: some ShapeStyle, foreground: Color) -> some View {
+        Text(attributedContent(foreground: foreground))
+            .font(.subheadline)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(background)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .onLongPressGesture {
+                UIPasteboard.general.string = message.content
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
 
-                    Spacer()
+                ToastManager.shared.show("내용이 복사되었습니다.", style: .success)
+            }
+    }
+
+    @ViewBuilder
+    private var timeText: some View {
+        if let date = message.createdAt.toISO8601Date() {
+            Text(date.formatted(.dateTime.hour().minute()))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func attributedContent(foreground: Color) -> AttributedString {
+        var attributed = AttributedString(message.content)
+        attributed.foregroundColor = foreground
+
+        let text = message.content
+
+        if let detector = try? NSDataDetector(
+            types: NSTextCheckingResult.CheckingType.link.rawValue
+        ) {
+            let nsRange = NSRange(text.startIndex..<text.endIndex, in: text)
+            for match in detector.matches(in: text, range: nsRange) {
+                guard let url = match.url, let range = Range(match.range, in: text) else { continue }
+
+                let lower = text.distance(from: text.startIndex, to: range.lowerBound)
+                let upper = text.distance(from: text.startIndex, to: range.upperBound)
+                let attrLower = attributed.index(attributed.startIndex, offsetByCharacters: lower)
+                let attrUpper = attributed.index(attributed.startIndex, offsetByCharacters: upper)
+
+                attributed[attrLower..<attrUpper].link = url
+                attributed[attrLower..<attrUpper].underlineStyle = .single
+                attributed[attrLower..<attrUpper].foregroundColor = foreground
+            }
+        }
+        return attributed.characterWrappable()
+    }
+}
+
+private extension AttributedString {
+
+    func characterWrappable() -> AttributedString {
+        var result = AttributedString()
+
+        for run in runs {
+            let attrs = run.attributes
+            let chars = Array(characters[run.range])
+
+            for (index, ch) in chars.enumerated() {
+                result.append(AttributedString(String(ch), attributes: attrs))
+                if index < chars.count - 1 {
+                    result.append(AttributedString("\u{200B}", attributes: attrs))
                 }
             }
         }
+        return result
     }
 }

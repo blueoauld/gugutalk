@@ -164,7 +164,7 @@ final class ChatRoomViewModel {
     func subscribe() {
         StompManager.shared.subscribe(
             to: upsertQueue,
-            as: ChatRoomCreateResponse.self
+            as: ChatRoomUpsertResponse.self
         ) { [weak self] room in
             guard let self else { return }
             
@@ -195,7 +195,7 @@ final class ChatRoomViewModel {
         StompManager.shared.unsubscribe(from: deleteQueue)
     }
     
-    private func receive(_ room: ChatRoomCreateResponse) {
+    private func receive(_ room: ChatRoomUpsertResponse) {
         let isMine = room.senderId == TokenStorage.shared.memberId
         
         if let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) {
