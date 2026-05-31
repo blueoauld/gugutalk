@@ -56,7 +56,7 @@ final class ChatRoomService {
         cursorId: Int64?,
         cursorDateAt: String?,
         size: Int = 20,
-    ) async throws -> CursorResponse<ChatRoomRowResponse> {
+    ) async throws -> CursorResponse<ChatRoomSearchRowResponse> {
         var parameters: [String: Any] = [
             "nickname": nickname,
             "size": size,
@@ -74,7 +74,7 @@ final class ChatRoomService {
             method: .get,
             parameters: parameters,
             encoding: URLEncoding.default,
-            as: CursorResponse<ChatRoomRowResponse>.self
+            as: CursorResponse<ChatRoomSearchRowResponse>.self
         )
     }
 }

@@ -3,6 +3,7 @@ package com.blueoauld.server.chat.presentation
 import com.blueoauld.server.chat.application.ChatRoomService
 import com.blueoauld.server.chat.application.request.ChatRoomCreateRequest
 import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
+import com.blueoauld.server.chat.application.response.ChatRoomSearchRowResponse
 import com.blueoauld.server.common.authentication.annotation.Login
 import com.blueoauld.server.common.dto.response.CursorResponse
 import jakarta.validation.Valid
@@ -64,7 +65,7 @@ class ChatRoomController(
         @RequestParam(required = false) cursorId: Long?,
         @RequestParam(required = false) cursorDateAt: Instant?,
         @RequestParam(defaultValue = "20") size: Int,
-    ): ResponseEntity<CursorResponse<ChatRoomRowResponse>> {
+    ): ResponseEntity<CursorResponse<ChatRoomSearchRowResponse>> {
         val response = chatRoomService.search(memberId, nickname, cursorId, cursorDateAt, size)
         return ResponseEntity.ok(response)
     }

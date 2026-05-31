@@ -1,6 +1,7 @@
 package com.blueoauld.server.chat.repository
 
 import com.blueoauld.server.chat.repository.result.ChatRoomResult
+import com.blueoauld.server.chat.repository.result.ChatRoomSearchResult
 import java.time.Instant
 
 interface ChatRoomCustomRepository {
@@ -19,5 +20,5 @@ interface ChatRoomCustomRepository {
         cursorId: Long?,
         cursorDateAt: Instant?,
         size: Int
-    ): List<ChatRoomResult>
+    ): List<ChatRoomSearchResult>
 }

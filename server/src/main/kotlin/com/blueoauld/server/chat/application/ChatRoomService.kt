@@ -2,6 +2,7 @@ package com.blueoauld.server.chat.application
 
 import com.blueoauld.server.chat.application.request.ChatRoomCreateRequest
 import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
+import com.blueoauld.server.chat.application.response.ChatRoomSearchRowResponse
 import com.blueoauld.server.chat.entity.ChatMessage
 import com.blueoauld.server.chat.entity.ChatRoom
 import com.blueoauld.server.chat.entity.type.MessageType
@@ -103,7 +104,7 @@ class ChatRoomService(
         cursorId: Long?,
         cursorDateAt: Instant?,
         size: Int
-    ): CursorResponse<ChatRoomRowResponse> {
+    ): CursorResponse<ChatRoomSearchRowResponse> {
         if (nickname.length < 2) {
             throw CustomException(SEARCH_01)
         }
@@ -115,7 +116,7 @@ class ChatRoomService(
             cursorDateAt = cursorDateAt,
             size = size + 1
         ).map {
-            ChatRoomRowResponse.from(it)
+            ChatRoomSearchRowResponse.from(it)
         }
 
         val hasNext = result.size > size

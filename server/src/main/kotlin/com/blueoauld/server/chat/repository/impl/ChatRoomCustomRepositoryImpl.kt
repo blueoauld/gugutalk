@@ -4,6 +4,7 @@ import com.blueoauld.server.chat.entity.ChatMessage
 import com.blueoauld.server.chat.entity.ChatRoom
 import com.blueoauld.server.chat.repository.ChatRoomCustomRepository
 import com.blueoauld.server.chat.repository.result.ChatRoomResult
+import com.blueoauld.server.chat.repository.result.ChatRoomSearchResult
 import com.blueoauld.server.member.entity.Member
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
@@ -97,24 +98,15 @@ class ChatRoomCustomRepositoryImpl(
         cursorId: Long?,
         cursorDateAt: Instant?,
         size: Int
-    ): List<ChatRoomResult> {
+    ): List<ChatRoomSearchResult> {
         val query = jpql {
-            val myLastReadMessageId = caseWhen(path(ChatRoom::member1Id).eq(memberId))
+            caseWhen(path(ChatRoom::member1Id).eq(memberId))
                 .then(path(ChatRoom::member1LastReadMessageId))
                 .`else`(path(ChatRoom::member2LastReadMessageId))
 
             val otherMemberId = caseWhen(path(ChatRoom::member1Id).eq(memberId))
                 .then(path(ChatRoom::member2Id))
                 .`else`(path(ChatRoom::member1Id))
-
-            val unreadCount = select(count(path(ChatMessage::id)))
-                .from(entity(ChatMessage::class))
-                .whereAnd(
-                    path(ChatMessage::chatRoomId).eq(path(ChatRoom::id)),
-                    path(ChatMessage::senderId).ne(memberId),
-                    path(ChatMessage::id).gt(myLastReadMessageId),
-                )
-                .asSubquery()
 
             val escaped = EscapeCharacter.DEFAULT.escape(nickname)
 
@@ -123,7 +115,6 @@ class ChatRoomCustomRepositoryImpl(
                 path(Member::id),
                 path(Member::nickname),
                 path(Member::profileUrl),
-                unreadCount,
                 path(ChatRoom::lastMessagePreview),
                 path(ChatRoom::lastMessageAt),
             ).from(
@@ -152,7 +143,7 @@ class ChatRoomCustomRepositoryImpl(
         }
 
         val rendered = jpqlRenderer.render(query, jpqlRenderContext)
-        val jpaQuery = entityManager.createQuery(rendered.query, ChatRoomResult::class.java).apply {
+        val jpaQuery = entityManager.createQuery(rendered.query, ChatRoomSearchResult::class.java).apply {
             rendered.params.forEach { (name, value) ->
                 setParameter(name, value)
             }

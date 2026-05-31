@@ -16,7 +16,7 @@ final class ChatRoomSearchViewModel {
     private let chatRoomService = ChatRoomService.shared
     
     var state: ChatRoomSearchViewState = .idle
-    var chatRooms: [ChatRoomRowResponse] = []
+    var chatRooms: [ChatRoomSearchRowResponse] = []
 
     var nickname = ""
     private var searchedNickname = ""

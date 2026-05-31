@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ChatRoomSearchList: View {
 
-    let chatRooms: [ChatRoomRowResponse]
+    let chatRooms: [ChatRoomSearchRowResponse]
     let hasNext: Bool
     var onNext: () async -> Void
 
@@ -15,7 +15,7 @@ struct ChatRoomSearchList: View {
                         profileUrl: it.profileUrl,
                         updatedAt: it.lastMessageAt,
                         message: it.lastMessagePreview,
-                        unreadCount: it.unreadCount
+                        unreadCount: 0
                     )
                 }
                 .listRowSeparator(.hidden)
