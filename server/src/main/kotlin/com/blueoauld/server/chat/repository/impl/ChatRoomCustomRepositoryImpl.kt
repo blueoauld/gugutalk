@@ -110,7 +110,7 @@ class ChatRoomCustomRepositoryImpl(
 
             val escaped = EscapeCharacter.DEFAULT.escape(nickname)
 
-            selectNew<ChatRoomResult>(
+            selectNew<ChatRoomSearchResult>(
                 path(ChatRoom::id),
                 path(Member::id),
                 path(Member::nickname),
