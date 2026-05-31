@@ -32,8 +32,8 @@ data class ChatRoomRowResponse(
             return ChatRoomRowResponse(
                 chatRoomId = event.chatRoomId,
                 memberId = event.memberId,
-                nickname = "",
-                profileUrl = null,
+                nickname = event.nickname,
+                profileUrl = event.profileUrl,
                 unreadCount = 0,
                 lastMessagePreview = event.lastMessagePreview,
                 lastMessageAt = event.lastMessageAt

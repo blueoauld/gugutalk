@@ -10,8 +10,8 @@ import com.blueoauld.server.chat.repository.ChatMessageRepository
 import com.blueoauld.server.chat.repository.ChatRoomRepository
 import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
-import com.blueoauld.server.common.exception.type.ErrorCode.CHAT_02
-import com.blueoauld.server.common.exception.type.ErrorCode.CHAT_03
+import com.blueoauld.server.common.exception.type.ErrorCode.*
+import com.blueoauld.server.member.repository.MemberRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -23,6 +23,7 @@ class ChatMessageService(
 
     private val chatMessageRepository: ChatMessageRepository,
     private val chatRoomRepository: ChatRoomRepository,
+    private val memberRepository: MemberRepository,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
@@ -70,6 +71,8 @@ class ChatMessageService(
             throw CustomException(CHAT_02)
         }
 
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+
         val chatMessage = ChatMessage(
             chatRoomId = chatRoomId,
             senderId = memberId,
@@ -94,7 +97,10 @@ class ChatMessageService(
         applicationEventPublisher.publishEvent(
             ChatRoomSendEvent(
                 chatRoomId = chatRoomId,
-                memberId = chatRoom.getOtherMemberId(memberId),
+                targetId = chatRoom.getOtherMemberId(memberId),
+                memberId = memberId,
+                nickname = member.nickname,
+                profileUrl = member.profileUrl,
                 lastMessagePreview = request.content.take(100),
                 lastMessageAt = chatMessage.createdAt,
             )

@@ -164,13 +164,25 @@ final class ChatRoomViewModel {
     }
 
     private func receive(_ room: ChatRoomRowResponse) {
-        guard let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) else { return }
+        if let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) {
+            var updated = chatRooms.remove(at: index)
 
-        var updated = chatRooms.remove(at: index)
-        updated.unreadCount += 1
-        updated.lastMessagePreview = room.lastMessagePreview
-        updated.lastMessageAt = room.lastMessageAt
-        
-        chatRooms.insert(updated, at: 0)
+            updated.nickname = room.nickname
+            updated.profileUrl = room.profileUrl
+            updated.unreadCount += 1
+            updated.lastMessagePreview = room.lastMessagePreview
+            updated.lastMessageAt = room.lastMessageAt
+
+            chatRooms.insert(updated, at: 0)
+        } else {
+            var newRoom = room
+
+            if newRoom.unreadCount == 0 {
+                newRoom.unreadCount = 1
+            }
+
+            chatRooms.insert(newRoom, at: 0)
+            state = .data
+        }
     }
 }

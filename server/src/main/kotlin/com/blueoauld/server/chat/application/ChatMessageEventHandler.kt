@@ -26,7 +26,7 @@ class ChatMessageEventHandler(
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handle(event: ChatRoomSendEvent) {
         simpMessagingTemplate.convertAndSendToUser(
-            event.memberId.toString(),
+            event.targetId.toString(),
             "/queue/chat-rooms",
             ChatRoomRowResponse.from(event)
         )
