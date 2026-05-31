@@ -87,6 +87,9 @@ struct MainView: View {
                     async let r: Void = vm.reload()
 
                     _ = await (b, r)
+                },
+                onSend: { memberId, message in
+                    await vm.createChatRoom(memberId: memberId, message: message)
                 }
             )
         case .error(let message):

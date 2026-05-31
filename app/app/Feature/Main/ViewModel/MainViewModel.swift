@@ -14,6 +14,7 @@ enum MainViewState {
 final class MainViewModel {
 
     private let memberService = MemberService.shared
+    private let chatRoomService = ChatRoomService.shared
 
     var state: MainViewState = .idle
     var members: [MemberRowResponse] = []
@@ -111,6 +112,23 @@ final class MainViewModel {
 
     func bump() async {
         try? await memberService.bump()
+    }
+
+    func createChatRoom(memberId: Int64, message: String) async {
+        guard !isLoading else { return }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await chatRoomService.create(targetId: memberId, content: message)
+
+            ToastManager.shared.show("쪽지를 보내셨습니다.", style: .info)
+        } catch let error as APIError {
+            ToastManager.shared.show(error.message, style: .error)
+        } catch {
+            ToastManager.shared.show(error.localizedDescription, style: .error)
+        }
     }
 
     private func fetch() async {

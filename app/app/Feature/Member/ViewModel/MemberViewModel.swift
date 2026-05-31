@@ -17,6 +17,7 @@ final class MemberViewModel {
     private let unlikeService = UnlikeService.shared
     private let blockService = BlockService.shared
     private let privateImageGrantService = PrivateImageGrantService.shared
+    private let chatRoomService = ChatRoomService.shared
 
     var state: MemberViewState = .idle
     var member: MemberGetResponse? = nil
@@ -198,6 +199,23 @@ final class MemberViewModel {
 
             member?.isPrivateImageGrant = false
             ToastManager.shared.show("비밀 사진을 닫으셨습니다.", style: .info)
+        } catch let error as APIError {
+            ToastManager.shared.show(error.message, style: .error)
+        } catch {
+            ToastManager.shared.show(error.localizedDescription, style: .error)
+        }
+    }
+
+    func createChatRoom(memberId: Int64, message: String) async {
+        guard !isLoading else { return }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await chatRoomService.create(targetId: memberId, content: message)
+
+            ToastManager.shared.show("쪽지를 보내셨습니다.", style: .info)
         } catch let error as APIError {
             ToastManager.shared.show(error.message, style: .error)
         } catch {

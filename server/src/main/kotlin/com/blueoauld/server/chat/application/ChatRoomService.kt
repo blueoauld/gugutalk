@@ -1,5 +1,7 @@
 package com.blueoauld.server.chat.application
 
+import com.blueoauld.server.chat.application.event.ChatMessageSendEvent
+import com.blueoauld.server.chat.application.event.ChatRoomSendEvent
 import com.blueoauld.server.chat.application.request.ChatRoomCreateRequest
 import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
 import com.blueoauld.server.chat.application.response.ChatRoomSearchRowResponse
@@ -12,6 +14,7 @@ import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.*
 import com.blueoauld.server.member.repository.MemberRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,29 +26,52 @@ class ChatRoomService(
     private val chatRoomRepository: ChatRoomRepository,
     private val chatMessageRepository: ChatMessageRepository,
     private val memberRepository: MemberRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
     @Transactional
     fun create(memberId: Long, targetId: Long, request: ChatRoomCreateRequest) {
-        if (!memberRepository.existsById(targetId)) {
-            throw CustomException(MEMBER_01)
-        }
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
 
-        val room = chatRoomRepository.findByMember1IdAndMember2Id(
+        val chatRoom = chatRoomRepository.findByMember1IdAndMember2Id(
             minOf(memberId, targetId),
             maxOf(memberId, targetId)
         ) ?: chatRoomRepository.save(ChatRoom.create(memberId, targetId))
 
-        val message = chatMessageRepository.save(
+        val chatMessage = chatMessageRepository.save(
             ChatMessage(
-                chatRoomId = room.id,
+                chatRoomId = chatRoom.id,
                 senderId = memberId,
                 type = MessageType.TEXT,
                 content = request.content,
             )
         )
 
-        room.onMessageSent(memberId, message)
+        chatRoom.onMessageSent(memberId, chatMessage)
+
+        // 이벤트
+        applicationEventPublisher.publishEvent(
+            ChatMessageSendEvent(
+                chatMessageId = chatMessage.id,
+                chatRoomId = chatRoom.id,
+                senderId = memberId,
+                content = request.content,
+                type = MessageType.TEXT,
+                createdAt = chatMessage.createdAt
+            )
+        )
+
+        applicationEventPublisher.publishEvent(
+            ChatRoomSendEvent(
+                chatRoomId = chatRoom.id,
+                targetId = targetId,
+                memberId = memberId,
+                nickname = member.nickname,
+                profileUrl = member.profileUrl,
+                lastMessagePreview = request.content.take(100),
+                lastMessageAt = chatMessage.createdAt,
+            )
+        )
     }
 
     @Transactional

@@ -6,6 +6,8 @@ struct MemberActionBar: View {
     let member: MemberGetResponse
     let vm: MemberViewModel
 
+    @AppStorage(StorageKey.message) private var savedMessage = ""
+
     @State private var showMessage = false
     @State private var showPrivateImageFullScreen = false
     @State private var showBlock = false
@@ -53,6 +55,7 @@ struct MemberActionBar: View {
                 }
 
                 Button {
+                    message = savedMessage
                     showMessage = true
                 } label: {
                     Image(systemName: "envelope.fill")
@@ -103,8 +106,14 @@ struct MemberActionBar: View {
         .alert("쪽지", isPresented: $showMessage) {
             TextField("내용 입력 (15P)", text: $message)
 
-            Button("전송") { }
+            Button("전송") {
+                Task {
+                    await vm.createChatRoom(memberId: memberId, message: message)
 
+                    savedMessage = message
+                }
+            }
+            
             Button("취소", role: .cancel) { }
         }
         .alert("차단", isPresented: $showBlock) {

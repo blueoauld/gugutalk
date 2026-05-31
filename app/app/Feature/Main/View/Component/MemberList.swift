@@ -6,9 +6,13 @@ struct MemberList: View {
     let hasNext: Bool
     var onNext: () async -> Void
     var onRefresh: () async -> Void
+    var onSend: (_ memberId: Int64, _ message: String) async -> Void
 
+    @AppStorage(StorageKey.message) private var savedMessage = ""
+    
     @State private var showMessage = false
     @State private var message = ""
+    @State private var targetId: Int64?
 
     var body: some View {
         List {
@@ -32,6 +36,8 @@ struct MemberList: View {
                 .listRowInsets(EdgeInsets())
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     Button {
+                        targetId = it.memberId
+                        message = savedMessage
                         showMessage = true
                     } label: {
                         Image(systemName: "envelope.fill")
@@ -61,7 +67,15 @@ struct MemberList: View {
         .alert("쪽지", isPresented: $showMessage) {
             TextField("내용 입력 (15P)", text: $message)
 
-            Button("전송") { }
+            Button("전송") {
+                guard let targetId = targetId else { return }
+
+                Task {
+                    await onSend(targetId, message)
+                    
+                    savedMessage = message
+                }
+            }
 
             Button("취소", role: .cancel) { }
         }
