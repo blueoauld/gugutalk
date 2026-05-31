@@ -1,7 +1,8 @@
 package com.blueoauld.server.chat.application
 
 import com.blueoauld.server.chat.application.event.ChatMessageSendEvent
-import com.blueoauld.server.chat.application.event.ChatRoomSendEvent
+import com.blueoauld.server.chat.application.event.ChatRoomDeleteEvent
+import com.blueoauld.server.chat.application.event.ChatRoomUpsertEvent
 import com.blueoauld.server.chat.application.request.ChatRoomCreateRequest
 import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
 import com.blueoauld.server.chat.application.response.ChatRoomSearchRowResponse
@@ -62,7 +63,7 @@ class ChatRoomService(
         )
 
         applicationEventPublisher.publishEvent(
-            ChatRoomSendEvent(
+            ChatRoomUpsertEvent(
                 chatRoomId = chatRoom.id,
                 targetId = targetId,
                 memberId = memberId,
@@ -83,6 +84,14 @@ class ChatRoomService(
         }
 
         chatRoomRepository.delete(chatRoom)
+
+        // 이벤트
+        applicationEventPublisher.publishEvent(
+            ChatRoomDeleteEvent(
+                chatRoomId = chatRoomId,
+                targetId = chatRoom.getOtherMemberId(memberId)
+            )
+        )
     }
 
     @Transactional

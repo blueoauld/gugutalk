@@ -1,7 +1,7 @@
 package com.blueoauld.server.chat.application
 
 import com.blueoauld.server.chat.application.event.ChatMessageSendEvent
-import com.blueoauld.server.chat.application.event.ChatRoomSendEvent
+import com.blueoauld.server.chat.application.event.ChatRoomUpsertEvent
 import com.blueoauld.server.chat.application.request.ChatMessageSendRequest
 import com.blueoauld.server.chat.application.response.ChatMessageRowResponse
 import com.blueoauld.server.chat.entity.ChatMessage
@@ -95,7 +95,7 @@ class ChatMessageService(
         )
 
         applicationEventPublisher.publishEvent(
-            ChatRoomSendEvent(
+            ChatRoomUpsertEvent(
                 chatRoomId = chatRoomId,
                 targetId = chatRoom.getOtherMemberId(memberId),
                 memberId = memberId,

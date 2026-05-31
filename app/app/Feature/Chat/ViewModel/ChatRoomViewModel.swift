@@ -15,7 +15,9 @@ final class ChatRoomViewModel {
 
     private let chatRoomService = ChatRoomService.shared
     private let memberService = MemberService.shared
-    private let queue = "/user/queue/chat-rooms"
+
+    private let upsertQueue = "/user/queue/chat-rooms/upsert"
+    private let deleteQueue = "/user/queue/chat-rooms/delete"
 
     var state: ChatRoomViewState = .idle
     var chatRooms: [ChatRoomRowResponse] = []
@@ -150,8 +152,17 @@ final class ChatRoomViewModel {
     // MARK: - STOMP
     func subscribe() {
         StompManager.shared.subscribe(
-            to: queue,
+            to: upsertQueue,
             as: ChatRoomRowResponse.self
+        ) { [weak self] room in
+            guard let self else { return }
+
+            self.receive(room)
+        }
+
+        StompManager.shared.subscribe(
+            to: deleteQueue,
+            as: ChatRoomDeleteResponse.self
         ) { [weak self] room in
             guard let self else { return }
 
@@ -160,7 +171,8 @@ final class ChatRoomViewModel {
     }
 
     func unsubscribe() {
-        StompManager.shared.unsubscribe(from: queue)
+        StompManager.shared.unsubscribe(from: upsertQueue)
+        StompManager.shared.unsubscribe(from: deleteQueue)
     }
 
     private func receive(_ room: ChatRoomRowResponse) {
@@ -184,5 +196,10 @@ final class ChatRoomViewModel {
             chatRooms.insert(newRoom, at: 0)
             state = .data
         }
+    }
+
+    private func receive(_ room: ChatRoomDeleteResponse) {
+        chatRooms.removeAll { $0.chatRoomId == room.chatRoomId }
+        state = chatRooms.isEmpty ? .empty : .data
     }
 }

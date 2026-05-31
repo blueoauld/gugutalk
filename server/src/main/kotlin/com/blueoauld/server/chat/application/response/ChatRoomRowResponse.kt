@@ -1,6 +1,6 @@
 package com.blueoauld.server.chat.application.response
 
-import com.blueoauld.server.chat.application.event.ChatRoomSendEvent
+import com.blueoauld.server.chat.application.event.ChatRoomUpsertEvent
 import com.blueoauld.server.chat.repository.result.ChatRoomResult
 import java.time.Instant
 
@@ -28,7 +28,7 @@ data class ChatRoomRowResponse(
             )
         }
 
-        fun from(event: ChatRoomSendEvent): ChatRoomRowResponse {
+        fun from(event: ChatRoomUpsertEvent): ChatRoomRowResponse {
             return ChatRoomRowResponse(
                 chatRoomId = event.chatRoomId,
                 memberId = event.memberId,

@@ -2,18 +2,18 @@ import SwiftUI
 import Kingfisher
 
 struct ChatMessageView: View {
-
+    
     let chatRoomId: Int64
     let memberId: Int64
     let nickname: String
     let profileUrl: String?
-
+    
     @Environment(AppRouter.self) private var router
-
+    
     @State private var vm = ChatMessageViewModel()
-
+    
     private let imageSize: CGFloat = 35
-
+    
     var body: some View {
         VStack {
             content
@@ -37,15 +37,20 @@ struct ChatMessageView: View {
         }
         .task {
             vm.subscribe(chatRoomId: chatRoomId)
-
+            
             await vm.load(chatRoomId: chatRoomId)
             await vm.read(chatRoomId: chatRoomId)
         }
         .onDisappear {
             vm.unsubscribe(chatRoomId: chatRoomId)
         }
+        .onChange(of: vm.shouldDismiss) { _, newValue in
+            if newValue {
+                router.pop()
+            }
+        }
     }
-
+    
     @ViewBuilder
     private var content: some View {
         switch vm.state {
@@ -72,7 +77,7 @@ struct ChatMessageView: View {
             })
         }
     }
-
+    
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
