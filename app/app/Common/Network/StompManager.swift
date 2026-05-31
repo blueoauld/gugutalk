@@ -8,8 +8,15 @@ class StompManager: SwiftStompDelegate {
 
     var stomp: SwiftStomp!
 
+    private var subscriptions: Set<String> = []
+    private var handlers: [String: (String) -> Void] = [:]
+
     func onConnect(swiftStomp : SwiftStomp, connectType : StompConnectType) {
         guard connectType == .toStomp else { return }
+
+        for destination in subscriptions {
+            swiftStomp.subscribe(to: destination)
+        }
     }
 
     func onDisconnect(swiftStomp : SwiftStomp, disconnectType : StompDisconnectType) {
@@ -17,7 +24,11 @@ class StompManager: SwiftStompDelegate {
     }
 
     func onMessageReceived(swiftStomp: SwiftStomp, message: Any?, messageId: String, destination: String, headers : [String : String]) {
+        guard let text = message as? String else { return }
 
+        Task { @MainActor in
+            self.handlers[destination]?(text)
+        }
     }
 
     func onReceipt(swiftStomp : SwiftStomp, receiptId : String) {
@@ -47,5 +58,37 @@ class StompManager: SwiftStompDelegate {
         stomp?.autoReconnect = false
         stomp?.disconnect()
         stomp = nil
+
+        subscriptions.removeAll()
+        handlers.removeAll()
+    }
+
+    func subscribe(to destination: String, onMessage: ((String) -> Void)? = nil) {
+        subscriptions.insert(destination)
+
+        if let onMessage {
+            handlers[destination] = onMessage
+        }
+
+        if let stomp, stomp.connectionStatus == .fullyConnected {
+            stomp.subscribe(to: destination)
+        }
+    }
+
+    func unsubscribe(from destination: String) {
+        subscriptions.remove(destination)
+        handlers[destination] = nil
+
+        if let stomp, stomp.connectionStatus == .fullyConnected {
+            stomp.unsubscribe(from: destination)
+        }
+    }
+
+    func subscribe<T: Decodable>(to destination: String, as type: T.Type, onMessage: @escaping (T) -> Void) {
+        subscribe(to: destination) { text in
+            guard let data = text.data(using: .utf8), let decoded = try? JSONDecoder().decode(T.self, from: data) else { return }
+
+            onMessage(decoded)
+        }
     }
 }

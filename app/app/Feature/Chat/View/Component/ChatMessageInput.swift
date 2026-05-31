@@ -3,6 +3,12 @@ import SwiftUI
 struct ChatMessageInput: View {
 
     @Binding var message: String
+    var onSend: () async -> Void
+    var isLoading: Bool
+
+    private var enabled: Bool {
+        !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isLoading
+    }
 
     var body: some View {
         TextField("메세지 입력", text: $message, axis: .vertical)
@@ -16,17 +22,25 @@ struct ChatMessageInput: View {
             .overlay(alignment: .bottomTrailing) {
                 Button {
                     Task {
+                        await onSend()
                     }
                 } label: {
-                    Image(systemName: "paperplane.fill")
-                        .foregroundColor(.white)
-                        .frame(width: 36, height: 36)
-                        .background(message.isEmpty ? Color(.systemGray3) : .blue)
-                        .clipShape(Circle())
+                    Group {
+                        if isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Image(systemName: "paperplane.fill")
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .frame(width: 36, height: 36)
+                    .background(enabled ? Color.blue : Color(.systemGray3))
+                    .clipShape(Circle())
                 }
                 .padding(.trailing, 4)
                 .padding(.bottom, 4)
-                .disabled(message.isEmpty)
+                .disabled(!enabled)
             }
             .glassEffect(
                 .regular.tint(.clear).interactive(),

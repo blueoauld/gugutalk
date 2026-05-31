@@ -1,9 +1,9 @@
 import Alamofire
 
 final class ChatMessageService {
-
+    
     static let shared = ChatMessageService()
-
+    
     func gets(
         chatRoomId: Int64,
         cursorId: Int64?,
@@ -13,20 +13,34 @@ final class ChatMessageService {
         var parameters: [String: Any] = [
             "size": size,
         ]
-
+        
         if let cursorId {
             parameters["cursorId"] = cursorId
         }
         if let cursorDateAt {
             parameters["cursorDateAt"] = cursorDateAt
         }
-
+        
         return try await PrivateNetworkManager.shared.request(
             "/chat-rooms/\(chatRoomId)/messages",
             method: .get,
             parameters: parameters,
             encoding: URLEncoding.default,
             as: CursorResponse<ChatMessageRowResponse>.self
+        )
+    }
+    
+    func send(
+        chatRoomId: Int64,
+        content: String,
+    ) async throws {
+        try await PrivateNetworkManager.shared.requestVoid(
+            "/chat-rooms/\(chatRoomId)/messages",
+            method: .post,
+            parameters: [
+                "content": content,
+            ],
+            encoding: JSONEncoding.default
         )
     }
 }

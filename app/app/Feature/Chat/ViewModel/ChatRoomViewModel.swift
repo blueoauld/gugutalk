@@ -32,7 +32,7 @@ final class ChatRoomViewModel {
     func load() async {
         guard !hasLoad else { return }
         hasLoad = true
-        
+
         state = .loading
         await fetch()
     }
@@ -73,10 +73,6 @@ final class ChatRoomViewModel {
 
         do {
             try await chatRoomService.read(chatRoomId: chatRoomId)
-
-            if let index = chatRooms.firstIndex(where: { $0.chatRoomId == chatRoomId }) {
-                chatRooms[index].unreadCount = 0
-            }
         } catch let error as APIError {
             ToastManager.shared.show(error.message, style: .error)
         } catch {

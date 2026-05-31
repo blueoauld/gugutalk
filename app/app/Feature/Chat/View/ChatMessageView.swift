@@ -22,7 +22,13 @@ struct ChatMessageView: View {
             hideKeyboard()
         }
         .safeAreaBar(edge: .bottom) {
-            ChatMessageInput(message: $vm.message)
+            ChatMessageInput(
+                message: $vm.message,
+                onSend: {
+                    await vm.send(chatRoomId: chatRoomId)
+                },
+                isLoading: vm.isLoading
+            )
         }
         .navigationTitle(nickname)
         .navigationBarTitleDisplayMode(.inline)
@@ -30,7 +36,13 @@ struct ChatMessageView: View {
             toolbarContent
         }
         .task {
+            vm.subscribe(chatRoomId: chatRoomId)
+
             await vm.load(chatRoomId: chatRoomId)
+            await vm.read(chatRoomId: chatRoomId)
+        }
+        .onDisappear {
+            vm.unsubscribe(chatRoomId: chatRoomId)
         }
     }
 

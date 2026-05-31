@@ -1,5 +1,6 @@
 package com.blueoauld.server.chat.application.response
 
+import com.blueoauld.server.chat.application.event.ChatMessageSendEvent
 import com.blueoauld.server.chat.entity.type.MessageType
 import com.blueoauld.server.chat.repository.result.ChatMessageResult
 import java.time.Instant
@@ -21,6 +22,16 @@ data class ChatMessageRowResponse(
                 content = result.content,
                 type = result.type,
                 createdAt = result.createdAt
+            )
+        }
+
+        fun from(event: ChatMessageSendEvent): ChatMessageRowResponse {
+            return ChatMessageRowResponse(
+                chatMessageId = event.chatMessageId,
+                senderId = event.senderId,
+                content = event.content,
+                type = event.type,
+                createdAt = event.createdAt
             )
         }
     }
