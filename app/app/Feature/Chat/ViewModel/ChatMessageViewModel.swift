@@ -62,10 +62,6 @@ final class ChatMessageViewModel {
         }
     }
 
-    func read(chatRoomId: Int64) async {
-        try? await chatRoomService.read(chatRoomId: chatRoomId)
-    }
-
     func send(chatRoomId: Int64) async {
         guard !isLoading else { return }
 
@@ -84,6 +80,10 @@ final class ChatMessageViewModel {
         } catch {
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
+    }
+
+    func read(chatRoomId: Int64) async {
+        try? await chatRoomService.read(chatRoomId: chatRoomId)
     }
 
     private func fetch(chatRoomId: Int64) async {
@@ -114,7 +114,12 @@ final class ChatMessageViewModel {
             to: topic(chatRoomId),
             as: ChatMessageRowResponse.self
         ) { [weak self] message in
-            self?.receive(message)
+            guard let self else { return }
+
+            self.receive(message)
+            Task {
+                await self.read(chatRoomId: chatRoomId)
+            }
         }
     }
 

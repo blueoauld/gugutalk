@@ -15,6 +15,7 @@ final class ChatRoomViewModel {
 
     private let chatRoomService = ChatRoomService.shared
     private let memberService = MemberService.shared
+    private let queue = "/user/queue/chat-rooms"
 
     var state: ChatRoomViewState = .idle
     var chatRooms: [ChatRoomRowResponse] = []
@@ -25,14 +26,10 @@ final class ChatRoomViewModel {
     private(set) var isLoading = false
     private(set) var isMutating = false
 
-    private var hasLoad = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
 
     func load() async {
-        guard !hasLoad else { return }
-        hasLoad = true
-
         state = .loading
         await fetch()
     }
@@ -148,5 +145,32 @@ final class ChatRoomViewModel {
         } catch {
             state = .error(error.localizedDescription)
         }
+    }
+
+    // MARK: - STOMP
+    func subscribe() {
+        StompManager.shared.subscribe(
+            to: queue,
+            as: ChatRoomRowResponse.self
+        ) { [weak self] room in
+            guard let self else { return }
+
+            self.receive(room)
+        }
+    }
+
+    func unsubscribe() {
+        StompManager.shared.unsubscribe(from: queue)
+    }
+
+    private func receive(_ room: ChatRoomRowResponse) {
+        guard let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) else { return }
+
+        var updated = chatRooms.remove(at: index)
+        updated.unreadCount += 1
+        updated.lastMessagePreview = room.lastMessagePreview
+        updated.lastMessageAt = room.lastMessageAt
+        
+        chatRooms.insert(updated, at: 0)
     }
 }

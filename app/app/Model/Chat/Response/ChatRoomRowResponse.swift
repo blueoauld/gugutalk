@@ -5,8 +5,8 @@ struct ChatRoomRowResponse: Decodable, Identifiable {
     let nickname: String
     let profileUrl: String?
     var unreadCount: Int64
-    let lastMessagePreview: String
-    let lastMessageAt: String
+    var lastMessagePreview: String
+    var lastMessageAt: String
 
     var id: Int64 { chatRoomId }
 }

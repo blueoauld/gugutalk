@@ -1,6 +1,7 @@
 package com.blueoauld.server.chat.application
 
 import com.blueoauld.server.chat.application.event.ChatMessageSendEvent
+import com.blueoauld.server.chat.application.event.ChatRoomSendEvent
 import com.blueoauld.server.chat.application.request.ChatMessageSendRequest
 import com.blueoauld.server.chat.application.response.ChatMessageRowResponse
 import com.blueoauld.server.chat.entity.ChatMessage
@@ -87,6 +88,15 @@ class ChatMessageService(
                 content = request.content,
                 type = MessageType.TEXT,
                 createdAt = chatMessage.createdAt
+            )
+        )
+
+        applicationEventPublisher.publishEvent(
+            ChatRoomSendEvent(
+                chatRoomId = chatRoomId,
+                memberId = chatRoom.getOtherMemberId(memberId),
+                lastMessagePreview = request.content.take(100),
+                lastMessageAt = chatMessage.createdAt,
             )
         )
     }

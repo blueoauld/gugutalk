@@ -19,10 +19,15 @@ struct ChatRoomView: View {
             toolbarContent
         }
         .task {
+            vm.subscribe()
+            
             async let i: Void = vm.isChat()
             async let l: Void = vm.load()
 
             _ = await (i, l)
+        }
+        .onDisappear {
+            vm.unsubscribe()
         }
         .onChange(of: vm.status) { _, newValue in
             Task {

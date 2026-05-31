@@ -69,4 +69,12 @@ class ChatRoom(
         this.lastMessagePreview = message.content.take(100)
         this.lastMessageAt = message.createdAt
     }
+
+    fun getOtherMemberId(memberId: Long): Long {
+        return when (memberId) {
+            member1Id -> member2Id
+            member2Id -> member1Id
+            else -> throw CustomException(CHAT_02)
+        }
+    }
 }
