@@ -11,7 +11,7 @@ struct ChatMessageBubble: View {
     var body: some View {
         HStack(alignment: .bottom, spacing: 4) {
             if isMine {
-                Spacer(minLength: 40)
+                Spacer()
 
                 timeText
 
@@ -21,7 +21,7 @@ struct ChatMessageBubble: View {
 
                 timeText
 
-                Spacer(minLength: 40)
+                Spacer()
             }
         }
     }
