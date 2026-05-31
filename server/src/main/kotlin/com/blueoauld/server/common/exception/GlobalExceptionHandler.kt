@@ -100,7 +100,7 @@ class GlobalExceptionHandler {
         val ip = IpExtractor.extract(servletRequest)
 
         log.warn {
-            "METHOD = ${servletRequest.method}, URI = ${servletRequest.requestURI}, IP = $ip, 메시지 = $message"
+            "METHOD = ${servletRequest.method}, URI = ${servletRequest.requestURI}, IP = $ip, 메세지 = $message"
         }
     }
 

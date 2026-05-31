@@ -5,7 +5,7 @@ struct ChatMessageInput: View {
     @Binding var message: String
 
     var body: some View {
-        TextField("메시지 입력", text: $message, axis: .vertical)
+        TextField("메세지 입력", text: $message, axis: .vertical)
             .font(.subheadline)
             .lineLimit(1...5)
             .multilineTextAlignment(.leading)
