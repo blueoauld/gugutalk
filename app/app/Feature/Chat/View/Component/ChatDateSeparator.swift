@@ -6,14 +6,13 @@ struct ChatDateSeparator: View {
 
     var body: some View {
         if let date = date.toISO8601Date() {
-            Text(date.formatted(.dateTime.year().month().day()))
+            Text(date.formatted(.dateTime.year().month().day().weekday(.wide)))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, 12)
+                .padding(.horizontal)
                 .padding(.vertical, 4)
-                .background(Color(.systemGray5), in: Capsule())
+                .background(Color(.systemGray6), in: Capsule())
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
         }
     }
 }
