@@ -52,8 +52,8 @@ struct LoginView: View {
             SubmitButton(title: "로그인", disabled: !vm.enabled) {
                 Task {
                     if await vm.login() {
+                        session.login()
                         focusedField = nil
-                        session.isLoggedIn = true
                     }
                 }
             }

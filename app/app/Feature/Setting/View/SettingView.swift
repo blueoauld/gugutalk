@@ -125,8 +125,8 @@ struct SettingView: View {
                 .confirmationDialog("메뉴", isPresented: $showMenu) {
                     Button("로그아웃") {
                         Task {
-                            session.isLoggedIn = false
-
+                            session.logout()
+                            
                             await vm.logout()
                         }
                     }

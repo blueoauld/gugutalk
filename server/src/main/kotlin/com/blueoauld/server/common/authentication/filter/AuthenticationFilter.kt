@@ -25,6 +25,9 @@ class AuthenticationFilter(
         HttpMethod.POST to "/api/authentications/signup",
         HttpMethod.POST to "/api/authentications/login",
     )
+    private val exclude = listOf(
+        HttpMethod.GET to "/ws/**",
+    )
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -52,6 +55,10 @@ class AuthenticationFilter(
 
         request.setAttribute("memberId", memberId)
         filterChain.doFilter(request, response)
+    }
+
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        return matches(exclude, request)
     }
 
     private fun matches(patterns: List<Pair<HttpMethod, String>>, request: HttpServletRequest): Boolean {

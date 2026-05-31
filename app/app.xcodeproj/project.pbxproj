@@ -11,6 +11,7 @@
 		9D5BA2312FBEB3CE00F1A101 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9D5BA2302FBEB3CE00F1A101 /* KeychainSwift */; };
 		9D95DEE02FC6F57700D96C14 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 9D95DEDF2FC6F57700D96C14 /* Kingfisher */; };
 		9D95DEE52FC7CC4400D96C14 /* LazyPager in Frameworks */ = {isa = PBXBuildFile; productRef = 9D95DEE42FC7CC4400D96C14 /* LazyPager */; };
+		9DD018502FCBEC9400979327 /* SwiftStomp in Frameworks */ = {isa = PBXBuildFile; productRef = 9DD0184F2FCBEC9400979327 /* SwiftStomp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 				9D95DEE52FC7CC4400D96C14 /* LazyPager in Frameworks */,
 				9D95DEE02FC6F57700D96C14 /* Kingfisher in Frameworks */,
 				9D5BA2312FBEB3CE00F1A101 /* KeychainSwift in Frameworks */,
+				9DD018502FCBEC9400979327 /* SwiftStomp in Frameworks */,
 				9D5BA2292FBEB05700F1A101 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -80,6 +82,7 @@
 				9D5BA2302FBEB3CE00F1A101 /* KeychainSwift */,
 				9D95DEDF2FC6F57700D96C14 /* Kingfisher */,
 				9D95DEE42FC7CC4400D96C14 /* LazyPager */,
+				9DD0184F2FCBEC9400979327 /* SwiftStomp */,
 			);
 			productName = app;
 			productReference = 9D7B0CA92FAFA6DC00EB381C /* app.app */;
@@ -115,6 +118,7 @@
 				9D5BA22F2FBEB3CE00F1A101 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				9D95DEDE2FC6F57700D96C14 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				9D95DEE32FC7CC4400D96C14 /* XCRemoteSwiftPackageReference "SwiftUI-LazyPager" */,
+				9DD0184E2FCBEC9400979327 /* XCRemoteSwiftPackageReference "SwiftStomp" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9D7B0CAA2FAFA6DC00EB381C /* Products */;
@@ -407,6 +411,14 @@
 				minimumVersion = 1.2.1;
 			};
 		};
+		9DD0184E2FCBEC9400979327 /* XCRemoteSwiftPackageReference "SwiftStomp" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Romixery/SwiftStomp.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -429,6 +441,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9D95DEE32FC7CC4400D96C14 /* XCRemoteSwiftPackageReference "SwiftUI-LazyPager" */;
 			productName = LazyPager;
+		};
+		9DD0184F2FCBEC9400979327 /* SwiftStomp */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9DD0184E2FCBEC9400979327 /* XCRemoteSwiftPackageReference "SwiftStomp" */;
+			productName = SwiftStomp;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

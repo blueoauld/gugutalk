@@ -2,7 +2,6 @@ package com.blueoauld.server.common.authentication.infrastructure
 
 import com.blueoauld.server.authentication.application.AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY
 import com.blueoauld.server.common.authentication.application.TokenProvider
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.http.HttpHeaders
 import org.springframework.messaging.Message
@@ -20,8 +19,6 @@ class StompChannelInterceptor(
     private val tokenProvider: TokenProvider,
     private val stringRedisTemplate: StringRedisTemplate
 ) : ChannelInterceptor {
-
-    private val log = KotlinLogging.logger {}
 
     override fun preSend(
         message: Message<*>,
@@ -41,9 +38,8 @@ class StompChannelInterceptor(
             if (stringRedisTemplate.hasKey(accessTokenBlacklistKey)) {
                 throw MessageDeliveryException(message, "이미 로그아웃된 토큰입니다.")
             }
-            accessor.setUser { memberId.toString() }
 
-            log.info { "STOMP = CONNECT, 회원 ID = $memberId" }
+            accessor.setUser { memberId.toString() }
         }
         return message
     }

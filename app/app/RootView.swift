@@ -14,5 +14,12 @@ struct RootView: View {
             }
         }
         .animation(.default, value: session.isLoggedIn)
+        .onChange(of: session.isLoggedIn, initial: true) { _, loggedIn in
+            if loggedIn {
+                StompManager.shared.connect()
+            } else {
+                StompManager.shared.disconnect()
+            }
+        }
     }
 }

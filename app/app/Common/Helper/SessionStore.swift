@@ -19,5 +19,6 @@ final class SessionStore {
     
     func logout() {
         isLoggedIn = false
+        StompManager.shared.disconnect()
     }
 }
