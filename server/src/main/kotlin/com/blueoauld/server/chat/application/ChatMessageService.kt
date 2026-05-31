@@ -71,7 +71,9 @@ class ChatMessageService(
             throw CustomException(CHAT_02)
         }
 
+        val targetId = chatRoom.getOtherMemberId(memberId)
         val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+        val target = memberRepository.findByIdOrNull(targetId) ?: throw CustomException(MEMBER_01)
 
         val chatMessage = ChatMessage(
             chatRoomId = chatRoomId,
@@ -97,11 +99,24 @@ class ChatMessageService(
         applicationEventPublisher.publishEvent(
             ChatRoomUpsertEvent(
                 chatRoomId = chatRoomId,
-                targetId = chatRoom.getOtherMemberId(memberId),
+                targetId = targetId,
                 memberId = memberId,
                 senderId = memberId,
                 nickname = member.nickname,
                 profileUrl = member.profileUrl,
+                lastMessagePreview = request.content.take(100),
+                lastMessageAt = chatMessage.createdAt,
+            )
+        )
+
+        applicationEventPublisher.publishEvent(
+            ChatRoomUpsertEvent(
+                chatRoomId = chatRoomId,
+                targetId = memberId,
+                memberId = targetId,
+                senderId = memberId,
+                nickname = target.nickname,
+                profileUrl = target.profileUrl,
                 lastMessagePreview = request.content.take(100),
                 lastMessageAt = chatMessage.createdAt,
             )

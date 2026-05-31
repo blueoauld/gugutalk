@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum ChatRoomViewState {
-
+    
     case idle
     case loading
     case empty
@@ -12,48 +12,48 @@ enum ChatRoomViewState {
 @MainActor
 @Observable
 final class ChatRoomViewModel {
-
+    
     private let chatRoomService = ChatRoomService.shared
     private let memberService = MemberService.shared
-
+    
     private let upsertQueue = "/user/queue/chat-rooms/upsert"
     private let deleteQueue = "/user/queue/chat-rooms/delete"
     private let readQueue = "/user/queue/chat-rooms/read"
-
+    
     var state: ChatRoomViewState = .idle
     var chatRooms: [ChatRoomRowResponse] = [] {
         didSet { syncBadge() }
     }
     var status: ChatRoomStatusFilter = .all
     var isChat = true
-
+    
     private(set) var isPaging = false
     private(set) var isLoading = false
     private(set) var isMutating = false
-
+    
     private var hasLoad = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
-
+    
     func load() async {
         guard !hasLoad else { return }
         hasLoad = true
-
+        
         state = .loading
         await fetch()
     }
-
+    
     func switchView() async {
         state = .loading
         await fetch()
     }
-
+    
     func loadNext() async {
         guard !isPaging, hasNext else { return }
-
+        
         isPaging = true
         defer { isPaging = false }
-
+        
         do {
             let response = try await chatRoomService.gets(
                 status: status.rawValue,
@@ -61,7 +61,7 @@ final class ChatRoomViewModel {
                 cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
-
+            
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatRooms.append(contentsOf: response.payload)
         } catch let error as APIError {
@@ -70,13 +70,13 @@ final class ChatRoomViewModel {
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
-
+    
     func read(chatRoomId: Int64) async {
         guard !isLoading else { return }
-
+        
         isLoading = true
         defer { isLoading = false }
-
+        
         do {
             try await chatRoomService.read(chatRoomId: chatRoomId)
         } catch let error as APIError {
@@ -85,20 +85,20 @@ final class ChatRoomViewModel {
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
-
+    
     func delete(chatRoomId: Int64) async {
         guard !isLoading else { return }
-
+        
         isLoading = true
         defer { isLoading = false }
-
+        
         do {
             try await chatRoomService.delete(chatRoomId: chatRoomId)
-
+            
             withAnimation {
                 chatRooms.removeAll { $0.chatRoomId == chatRoomId }
             }
-
+            
             state = chatRooms.isEmpty ? .empty : .data
         } catch let error as APIError {
             ToastManager.shared.show(error.message, style: .error)
@@ -106,38 +106,38 @@ final class ChatRoomViewModel {
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
-
+    
     func isChat() async {
         guard let response = try? await memberService.isChat() else { return }
-
+        
         isChat = response.isChat
     }
-
+    
     func toggleChat() async {
         guard !isMutating else { return }
-
+        
         isMutating = true
         defer { isMutating = false }
-
+        
         isChat.toggle()
-
+        
         do {
             try await memberService.toggleChat()
         } catch let error as APIError {
             isChat.toggle()
-
+            
             ToastManager.shared.show(error.message, style: .error)
         } catch {
             isChat.toggle()
-
+            
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
-
+    
     private func fetch() async {
         cursor.reset()
         chatRooms = []
-
+        
         do {
             let response = try await chatRoomService.gets(
                 status: status.rawValue,
@@ -145,7 +145,7 @@ final class ChatRoomViewModel {
                 cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
-
+            
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatRooms = response.payload
             state = chatRooms.isEmpty ? .empty : .data
@@ -155,11 +155,11 @@ final class ChatRoomViewModel {
             state = .error(error.localizedDescription)
         }
     }
-
+    
     private func syncBadge() {
         ChatBadgeManager.shared.unreadCount = chatRooms.filter { $0.unreadCount > 0 }.count
     }
-
+    
     // MARK: - STOMP
     func subscribe() {
         StompManager.shared.subscribe(
@@ -167,42 +167,40 @@ final class ChatRoomViewModel {
             as: ChatRoomCreateResponse.self
         ) { [weak self] room in
             guard let self else { return }
-
-            print(room)
-
+            
             self.receive(room)
         }
-
+        
         StompManager.shared.subscribe(
             to: deleteQueue,
             as: ChatRoomDeleteResponse.self
         ) { [weak self] room in
             guard let self else { return }
-
+            
             self.receive(room)
         }
-
+        
         StompManager.shared.subscribe(
             to: readQueue,
             as: ChatRoomReadResponse.self
         ) { [weak self] room in
             guard let self else { return }
-
+            
             self.receive(room)
         }
     }
-
+    
     func unsubscribe() {
         StompManager.shared.unsubscribe(from: upsertQueue)
         StompManager.shared.unsubscribe(from: deleteQueue)
     }
-
+    
     private func receive(_ room: ChatRoomCreateResponse) {
         let isMine = room.senderId == TokenStorage.shared.memberId
-
+        
         if let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) {
             var updated = chatRooms.remove(at: index)
-
+            
             updated.nickname = room.nickname
             updated.profileUrl = room.profileUrl
             if !isMine {
@@ -210,22 +208,22 @@ final class ChatRoomViewModel {
             }
             updated.lastMessagePreview = room.lastMessagePreview
             updated.lastMessageAt = room.lastMessageAt
-
+            
             chatRooms.insert(updated, at: 0)
         } else {
             var newRoom = ChatRoomRowResponse(from: room)
-
+            
             newRoom.unreadCount = isMine ? 0 : 1
             chatRooms.insert(newRoom, at: 0)
             state = .data
         }
     }
-
+    
     private func receive(_ room: ChatRoomDeleteResponse) {
         chatRooms.removeAll { $0.chatRoomId == room.chatRoomId }
         state = chatRooms.isEmpty ? .empty : .data
     }
-
+    
     private func receive(_ room: ChatRoomReadResponse) {
         if let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) {
             chatRooms[index].unreadCount = 0

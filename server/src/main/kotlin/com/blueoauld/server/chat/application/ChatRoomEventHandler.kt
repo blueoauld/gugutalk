@@ -19,6 +19,8 @@ class ChatRoomEventHandler(
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handle(event: ChatRoomUpsertEvent) {
+        println(event)
+
         simpMessagingTemplate.convertAndSendToUser(
             event.targetId.toString(),
             "/queue/chat-rooms/upsert",
