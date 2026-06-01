@@ -14,12 +14,7 @@ struct ChatMessageVideoView: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack {
-                if let player = vm.player {
-                    VideoPlayer(player: player)
-                }
-            }
-            .padding()
+            content
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -36,6 +31,8 @@ struct ChatMessageVideoView: View {
         .task {
             await vm.getVideo(chatMessageId: chatMessageId)
 
+            vm.player?.play()
+
             guard
                 let imageURL = URL(string: thumbnailUrl),
                 let result = try? await KingfisherManager.shared.retrieveImage(with: imageURL)
@@ -47,6 +44,28 @@ struct ChatMessageVideoView: View {
             if vm.isLoading {
                 ProgressView()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch vm.state {
+        case .idle:
+            Spacer()
+        case .loading:
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+                .tint(.white)
+        case .data:
+            VStack {
+                if let player = vm.player {
+                    VideoPlayer(player: player)
+                }
+            }
+            .padding()
+        case .error(let message):
+            ErrorRetryView(message: message, retry: {
+                await vm.getVideo(chatMessageId: chatMessageId)
+            })
         }
     }
 }

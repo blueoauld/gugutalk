@@ -65,7 +65,7 @@ struct ChatMessageBubble: View {
                 .retry(maxCount: 3, interval: .seconds(2))
                 .fade(duration: 0.2)
                 .resizable()
-                .blur(radius: 10)
+                .blur(radius: 6)
                 .scaledToFill()
                 .frame(width: imageSize, height: imageSize)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))

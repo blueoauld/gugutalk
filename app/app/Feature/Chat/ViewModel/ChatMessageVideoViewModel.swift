@@ -1,27 +1,40 @@
 import SwiftUI
 import AVKit
 
+enum ChatMessageVideoViewState {
+
+    case idle
+    case loading
+    case data
+    case error(String)
+}
+
 @MainActor
 @Observable
 final class ChatMessageVideoViewModel {
 
     private let chatMessageService = ChatMessageService.shared
 
+    var state: ChatMessageVideoViewState = .idle
+
     private(set) var player: AVPlayer? = nil
     private(set) var localURL: URL? = nil
     private(set) var isLoading = false
 
     func getVideo(chatMessageId: Int64) async {
-        guard !isLoading, player == nil else { return }
+        state = .loading
 
         let url = await loadVideoURL(chatMessageId: chatMessageId)
 
         if let url {
             await downloadForSharing(url: url)
         }
+        state = .data
     }
 
     private func loadVideoURL(chatMessageId: Int64) async -> URL? {
+        guard !isLoading else { return nil }
+
         isLoading = true
         defer { isLoading = false }
 
