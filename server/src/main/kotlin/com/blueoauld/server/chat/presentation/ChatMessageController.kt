@@ -3,6 +3,7 @@ package com.blueoauld.server.chat.presentation
 import com.blueoauld.server.chat.application.ChatMessageService
 import com.blueoauld.server.chat.application.request.ChatMessageMediaUploadRequest
 import com.blueoauld.server.chat.application.request.ChatMessageSendRequest
+import com.blueoauld.server.chat.application.response.ChatMessageGetVideoResponse
 import com.blueoauld.server.chat.application.response.ChatMessageRowResponse
 import com.blueoauld.server.common.authentication.annotation.Login
 import com.blueoauld.server.common.dto.response.CursorResponse
@@ -60,5 +61,13 @@ class ChatMessageController(
     ): ResponseEntity<UploadUrlResponses> {
         val responses = chatMessageService.createUploadUrls(memberId, chatRoomId, requests)
         return ResponseEntity.ok(responses)
+    }
+
+    @GetMapping("/chat-messages/{chatMessageId}/video", version = "1")
+    fun getVideo(
+        @PathVariable chatMessageId: Long
+    ): ResponseEntity<ChatMessageGetVideoResponse> {
+        val response = chatMessageService.getVideo(chatMessageId)
+        return ResponseEntity.ok(response)
     }
 }

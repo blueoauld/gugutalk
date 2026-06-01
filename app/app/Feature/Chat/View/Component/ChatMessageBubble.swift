@@ -5,9 +5,12 @@ struct ChatMessageBubble: View {
 
     let message: ChatMessageRowResponse
 
-    private let imageSize: CGFloat = 200
+    @Environment(AppRouter.self) private var router
 
     @State private var showImageFullScreen = false
+    @State private var showVideoFullScreen = false
+
+    private let imageSize: CGFloat = 200
 
     private var isMine: Bool {
         message.senderId == TokenStorage.shared.memberId
@@ -72,6 +75,9 @@ struct ChatMessageBubble: View {
                         .padding()
                         .foregroundColor(.primary)
                         .background(.ultraThinMaterial, in: Circle())
+                }
+                .onTapGesture {
+                    router.push(AppRoute.chatMessageVideo(message.chatMessageId, message.content))
                 }
         } else {
             Text(attributedContent(foreground: foreground))

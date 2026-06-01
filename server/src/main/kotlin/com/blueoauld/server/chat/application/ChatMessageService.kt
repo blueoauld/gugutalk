@@ -5,6 +5,7 @@ import com.blueoauld.server.chat.application.event.ChatMessageUploadMediaEvent
 import com.blueoauld.server.chat.application.event.ChatRoomUpsertEvent
 import com.blueoauld.server.chat.application.request.ChatMessageMediaUploadRequest
 import com.blueoauld.server.chat.application.request.ChatMessageSendRequest
+import com.blueoauld.server.chat.application.response.ChatMessageGetVideoResponse
 import com.blueoauld.server.chat.application.response.ChatMessageRowResponse
 import com.blueoauld.server.chat.entity.ChatMessage
 import com.blueoauld.server.chat.entity.ChatMessageMedia
@@ -236,6 +237,20 @@ class ChatMessageService(
                 lastMessagePreview = preview,
                 lastMessageAt = lastMessage.createdAt,
             )
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun getVideo(chatMessageId: Long): ChatMessageGetVideoResponse {
+        val chatMessageMedia = (chatMessageMediaRepository.findByChatMessageId(chatMessageId)
+            ?: throw CustomException(CHAT_MESSAGE_01))
+
+        if (chatMessageMedia.type != MessageType.VIDEO) {
+            throw CustomException(CHAT_MESSAGE_02)
+        }
+
+        return ChatMessageGetVideoResponse(
+            url = chatMessageMedia.url
         )
     }
 

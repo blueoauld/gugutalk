@@ -68,4 +68,15 @@ final class ChatMessageService {
             as: UploadUrlResponses.self
         )
     }
+
+    func getVideo(
+        chatMessageId: Int64
+    ) async throws -> ChatMessageGetVideoResponse {
+        return try await PrivateNetworkManager.shared.request(
+            "/chat-messages/\(chatMessageId)/video",
+            method: .get,
+            encoding: URLEncoding.default,
+            as: ChatMessageGetVideoResponse.self
+        )
+    }
 }

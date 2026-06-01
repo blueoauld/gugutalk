@@ -3,4 +3,7 @@ package com.blueoauld.server.chat.repository
 import com.blueoauld.server.chat.entity.ChatMessageMedia
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface ChatMessageMediaRepository : JpaRepository<ChatMessageMedia, Long>
+interface ChatMessageMediaRepository : JpaRepository<ChatMessageMedia, Long> {
+
+    fun findByChatMessageId(chatMessageId: Long): ChatMessageMedia?
+}

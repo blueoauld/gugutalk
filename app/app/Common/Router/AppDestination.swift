@@ -39,6 +39,8 @@ struct AppDestination: ViewModifier {
                     )
                 case .chatRoomSearch:
                     ChatRoomSearchView()
+                case .chatMessageVideo(let chatMessageId, let thumbnailUrl):
+                    ChatMessageVideoView(chatMessageId: chatMessageId, thumbnailUrl: thumbnailUrl)
                 }
             }
     }
