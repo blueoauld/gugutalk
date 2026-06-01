@@ -12,10 +12,19 @@ enum ChatMessageViewState {
 @MainActor
 @Observable
 final class ChatMessageViewModel {
-    
+
+    private struct ProcessedMedia {
+        let type: MessageType
+        let media: Data
+        let mediaContentType: String
+        let thumbnail: Data?
+        let thumbnailContentType: String?
+    }
+
     private let chatMessageService = ChatMessageService.shared
     private let chatRoomService = ChatRoomService.shared
-    
+    private let r2Service = R2Service.shared
+
     var state: ChatMessageViewState = .idle
     var chatMessages: [ChatMessageRowResponse] = []
     var message: String = ""
@@ -23,7 +32,8 @@ final class ChatMessageViewModel {
     
     private(set) var isPaging = false
     private(set) var isLoading = false
-    
+    private(set) var isUploading = false
+
     private var hasLoad = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
@@ -86,7 +96,114 @@ final class ChatMessageViewModel {
             ToastManager.shared.show(error.localizedDescription, style: .error)
         }
     }
-    
+
+    func upload(chatRoomId: Int64, media: [PickedMedia]) async {
+        guard !isUploading, !media.isEmpty else { return }
+
+        isUploading = true
+        defer { isUploading = false }
+
+        do {
+            // 1. 데이터 준비 (이미지 압축 / 비디오 데이터 + 썸네일 압축)
+            let pickedMedia = media
+            let processed: [ProcessedMedia] = try await Task.detached(priority: .userInitiated) {
+                try pickedMedia.map { item in
+                    switch item.kind {
+                    case .image(let image):
+                        let data = try Self.compressedJPEG(image)
+
+                        return ProcessedMedia(
+                            type: .image,
+                            media: data,
+                            mediaContentType: "image/jpeg",
+                            thumbnail: nil,
+                            thumbnailContentType: nil
+                        )
+
+                    case .video(let url, let thumbnail):
+                        let videoData = try Data(contentsOf: url)
+
+                        guard let thumbnail else {
+                            throw APIError.server(
+                                code: "INTERNAL_SERVER_ERROR",
+                                message: "비디오 썸네일이 없습니다.",
+                                statusCode: 500
+                            )
+                        }
+
+                        let thumbData = try Self.compressedJPEG(thumbnail)
+
+                        return ProcessedMedia(
+                            type: .video,
+                            media: videoData,
+                            mediaContentType: "video/mp4",
+                            thumbnail: thumbData,
+                            thumbnailContentType: "image/jpeg"
+                        )
+                    }
+                }
+            }.value
+
+            // 2. 업로드할 파트들로 평탄화하면서, 항목별 슬롯(영상/썸네일 인덱스) 기록
+            var parts: [(data: Data, contentType: String)] = []
+            var slots: [(mediaIndex: Int, thumbnailIndex: Int?)] = []
+
+            for item in processed {
+                let mediaIndex = parts.count
+                parts.append((item.media, item.mediaContentType))
+
+                var thumbnailIndex: Int? = nil
+                if let thumbnail = item.thumbnail, let ct = item.thumbnailContentType {
+                    thumbnailIndex = parts.count
+                    parts.append((thumbnail, ct))
+                }
+                slots.append((mediaIndex, thumbnailIndex))
+            }
+
+            // 3. 업로드 URL 생성
+            let requests = UploadUrlRequests(
+                urls: parts.map { UploadUrlRequest(contentType: $0.contentType) }
+            )
+            let responses = try await chatMessageService.createUploadUrls(chatRoomId: chatRoomId, urls: requests)
+
+            // 4. R2 병렬 업로드
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for (part, response) in zip(parts, responses.urls) {
+                    group.addTask {
+                        try await self.r2Service.upload(
+                            data: part.data,
+                            url: response.url,
+                            contentType: part.contentType
+                        )
+                    }
+                }
+                try await group.waitForAll()
+            }
+
+            // 5.슬롯으로 되짚어 항목별 요청 구성
+            let media = zip(processed, slots).map { item, slot -> ChatMessageMediaCreateRequest in
+                let main = responses.urls[slot.mediaIndex]
+                let thumbnail = slot.thumbnailIndex.map { responses.urls[$0] }
+
+                return ChatMessageMediaCreateRequest(
+                    type: item.type,
+                    url: main.url,
+                    key: main.key,
+                    thumbnailUrl: thumbnail?.url,
+                    thumbnailKey: thumbnail?.key
+                )
+            }
+
+            // 6. 요청
+            let request = ChatMessageMediaUploadRequest(media: media)
+            try await chatMessageService.upload(chatRoomId: chatRoomId, request: request)
+        } catch let error as APIError {
+            ToastManager.shared.show(error.message, style: .error)
+        } catch {
+            ToastManager.shared.show(error.localizedDescription, style: .error)
+        }
+    }
+
     func read(chatRoomId: Int64) async {
         try? await chatRoomService.read(chatRoomId: chatRoomId)
     }
@@ -112,7 +229,20 @@ final class ChatMessageViewModel {
             state = .error(error.localizedDescription)
         }
     }
-    
+
+    nonisolated private static func compressedJPEG(_ image: UIImage) throws -> Data {
+        let resized = image.resized(toMaxDimension: 1024)
+
+        guard let data = resized.jpegData(compressionQuality: 0.8) else {
+            throw APIError.server(
+                code: "INTERNAL_SERVER_ERROR",
+                message: "이미지 압축에 실패했습니다.",
+                statusCode: 500
+            )
+        }
+        return data
+    }
+
     // MARK: - STOMP
     func subscribe(chatRoomId: Int64) {
         StompManager.shared.subscribe(

@@ -35,10 +35,10 @@ struct ImagePicker: View {
                     }
                 }
 
-                if selectImages.count < 5 {
+                if selectImages.count < maxCount {
                     PhotosPicker(
                         selection: $pickerItems,
-                        maxSelectionCount: 5 - selectImages.count,
+                        maxSelectionCount: maxCount - selectImages.count,
                         matching: .images
                     ) {
                         Image(systemName: "plus")

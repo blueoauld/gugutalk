@@ -1,5 +1,6 @@
 package com.blueoauld.server.chat.entity
 
+import com.blueoauld.server.chat.entity.type.MessageType
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.CHAT_01
 import com.blueoauld.server.common.exception.type.ErrorCode.CHAT_02
@@ -66,7 +67,11 @@ class ChatRoom(
     fun onMessageSent(senderId: Long, message: ChatMessage) {
         markAsRead(senderId, message.id)
 
-        this.lastMessagePreview = message.content.take(100)
+        when (message.type) {
+            MessageType.IMAGE -> lastMessagePreview = "이미지"
+            MessageType.VIDEO -> lastMessagePreview = "동영상"
+            else -> message.content.take(100)
+        }
         this.lastMessageAt = message.createdAt
     }
 

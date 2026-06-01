@@ -30,7 +30,13 @@ struct ChatMessageView: View {
 
                     scrollToBottomTrigger += 1
                 },
-                isLoading: vm.isLoading
+                onSendMedia: { media in
+                    await vm.upload(chatRoomId: chatRoomId, media: media)
+
+                    scrollToBottomTrigger += 1
+                },
+                isLoading: vm.isLoading,
+                isUploading: vm.isUploading
             )
         }
         .navigationTitle(nickname)

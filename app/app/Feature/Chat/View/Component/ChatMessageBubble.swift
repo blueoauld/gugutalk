@@ -1,8 +1,11 @@
 import SwiftUI
+import Kingfisher
 
 struct ChatMessageBubble: View {
 
     let message: ChatMessageRowResponse
+
+    private let imageSize: CGFloat = 200
 
     private var isMine: Bool {
         message.senderId == TokenStorage.shared.memberId
@@ -26,19 +29,55 @@ struct ChatMessageBubble: View {
         }
     }
 
+    @ViewBuilder
     private func bubbleText(background: some ShapeStyle, foreground: Color) -> some View {
-        Text(attributedContent(foreground: foreground))
-            .font(.subheadline)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(background)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .onLongPressGesture {
-                UIPasteboard.general.string = message.content
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
-
-                ToastManager.shared.show("내용이 복사되었습니다.", style: .success)
-            }
+        if message.type == .image {
+            KFImage(URL(string: message.content))
+                .placeholder {
+                    ProgressView()
+                        .frame(width: imageSize, height: imageSize)
+                        .background(Color(.systemGray6))
+                }
+                .retry(maxCount: 3, interval: .seconds(2))
+                .fade(duration: 0.2)
+                .resizable()
+                .scaledToFill()
+                .frame(width: imageSize, height: imageSize)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        } else if message.type == .video {
+            KFImage(URL(string: message.content))
+                .placeholder {
+                    ProgressView()
+                        .frame(width: imageSize, height: imageSize)
+                        .background(Color(.systemGray6))
+                }
+                .retry(maxCount: 3, interval: .seconds(2))
+                .fade(duration: 0.2)
+                .resizable()
+                .blur(radius: 10)
+                .scaledToFill()
+                .frame(width: imageSize, height: imageSize)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay {
+                    Image(systemName: "play.fill")
+                        .font(.title2)
+                        .padding()
+                        .foregroundColor(.primary)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+        } else {
+            Text(attributedContent(foreground: foreground))
+                .font(.subheadline)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(background)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .onLongPressGesture {
+                    UIPasteboard.general.string = message.content
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    ToastManager.shared.show("내용이 복사되었습니다.", style: .success)
+                }
+        }
     }
 
     @ViewBuilder

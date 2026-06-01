@@ -1,9 +1,9 @@
 import Alamofire
 
 final class ChatMessageService {
-    
+
     static let shared = ChatMessageService()
-    
+
     func gets(
         chatRoomId: Int64,
         cursorId: Int64?,
@@ -13,14 +13,14 @@ final class ChatMessageService {
         var parameters: [String: Any] = [
             "size": size,
         ]
-        
+
         if let cursorId {
             parameters["cursorId"] = cursorId
         }
         if let cursorDateAt {
             parameters["cursorDateAt"] = cursorDateAt
         }
-        
+
         return try await PrivateNetworkManager.shared.request(
             "/chat-rooms/\(chatRoomId)/messages",
             method: .get,
@@ -29,7 +29,7 @@ final class ChatMessageService {
             as: CursorResponse<ChatMessageRowResponse>.self
         )
     }
-    
+
     func send(
         chatRoomId: Int64,
         content: String,
@@ -41,6 +41,31 @@ final class ChatMessageService {
                 "content": content,
             ],
             encoding: JSONEncoding.default
+        )
+    }
+
+    func upload(
+        chatRoomId: Int64,
+        request: ChatMessageMediaUploadRequest
+    ) async throws {
+        try await PrivateNetworkManager.shared.requestVoid(
+            "/chat-rooms/\(chatRoomId)/media",
+            method: .post,
+            parameters: request,
+            encoder: JSONParameterEncoder.default
+        )
+    }
+
+    func createUploadUrls(
+        chatRoomId: Int64,
+        urls: UploadUrlRequests
+    ) async throws -> UploadUrlResponses {
+        try await PrivateNetworkManager.shared.request(
+            "/chat-rooms/\(chatRoomId)/urls",
+            method: .post,
+            parameters: urls,
+            encoder: JSONParameterEncoder.default,
+            as: UploadUrlResponses.self
         )
     }
 }
