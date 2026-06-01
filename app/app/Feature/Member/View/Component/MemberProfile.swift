@@ -45,7 +45,7 @@ struct MemberProfile: View {
             .tabViewStyle(.page)
             .aspectRatio(4/3, contentMode: .fit)
             .fullScreenCover(isPresented: $showImageFullScreen) {
-                ImageFullScreenView(
+                ImagesFullScreenView(
                     images: member.images,
                     currentPage: $currentPage
                 )

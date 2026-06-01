@@ -6,7 +6,7 @@ struct Toast: Equatable, Identifiable {
     let id = UUID()
     let message: String
     var style: Style = .error
-    var duration: TimeInterval = 3.0
+    var duration: TimeInterval = 2.0
 
     enum Style {
         case error, success, info
@@ -94,7 +94,7 @@ struct ToastModifier: ViewModifier {
                     }
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .padding(.bottom, 72)
-                    .zIndex(1)
+                    .zIndex(10)
                 }
             }
             .animation(.spring(response: 0.35, dampingFraction: 0.85), value: manager.current)

@@ -3,19 +3,18 @@ import Kingfisher
 import LazyPager
 
 struct ImageFullScreenView: View {
-    
-    let images: [MemberImageResponse]
-    
-    @Binding var currentPage: Int
-    
+
+    let url: String
+
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var backgroundOpacity: CGFloat = 1
-    
+    @State private var shareImage: Image?
+
     var body: some View {
         ZStack(alignment: .topLeading) {
-            LazyPager(data: images, page: $currentPage) { image in
-                KFImage(URL(string: image.url))
+            LazyPager(data: [url]) { url in
+                KFImage(URL(string: url))
                     .placeholder {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -37,41 +36,46 @@ struct ImageFullScreenView: View {
             .background(.black.opacity(backgroundOpacity))
             .background(ClearFullScreenBackground())
             .ignoresSafeArea()
-            
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.foreground)
-                    .padding(11)
-                    .glassEffect()
-            }
-            .padding(.horizontal)
-            .opacity(backgroundOpacity)
-            
-            if images.count > 1 {
-                pageIndicator
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.foreground)
+                        .padding(11)
+                        .glassEffect(in: .circle)
+                }
+                .padding(.horizontal)
+                .opacity(backgroundOpacity)
+
+                Spacer()
+
+                if let shareImage {
+                    ShareLink(
+                        item: shareImage,
+                        preview: SharePreview("이미지", image: shareImage)
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.title2)
+                            .foregroundStyle(.foreground)
+                            .padding(11)
+                            .glassEffect(in: .circle)
+                    }
+                    .padding(.horizontal)
                     .opacity(backgroundOpacity)
-                    .allowsHitTesting(false)
+                }
             }
         }
-    }
-    
-    private var pageIndicator: some View {
-        HStack(spacing: 8) {
-            ForEach(0..<images.count, id: \.self) { index in
-                Circle()
-                    .fill(.white)
-                    .opacity(currentPage == index ? 1.0 : 0.4)
-                    .frame(width: 7, height: 7)
-                    .scaleEffect(currentPage == index ? 1.15 : 1.0)
-                    .animation(.easeInOut(duration: 0.2), value: currentPage)
-            }
+        .task {
+            guard
+                let imageURL = URL(string: url),
+                let result = try? await KingfisherManager.shared.retrieveImage(with: imageURL)
+            else { return }
+
+            shareImage = Image(uiImage: result.image)
         }
-        .compositingGroup()
-        .blendMode(.difference)
     }
 }

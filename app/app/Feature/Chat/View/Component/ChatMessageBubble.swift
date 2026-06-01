@@ -7,6 +7,8 @@ struct ChatMessageBubble: View {
 
     private let imageSize: CGFloat = 200
 
+    @State private var showImageFullScreen = false
+
     private var isMine: Bool {
         message.senderId == TokenStorage.shared.memberId
     }
@@ -44,6 +46,12 @@ struct ChatMessageBubble: View {
                 .scaledToFill()
                 .frame(width: imageSize, height: imageSize)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .onTapGesture {
+                    showImageFullScreen = true
+                }
+                .fullScreenCover(isPresented: $showImageFullScreen) {
+                    ImageFullScreenView(url: message.content)
+                }
         } else if message.type == .video {
             KFImage(URL(string: message.content))
                 .placeholder {
