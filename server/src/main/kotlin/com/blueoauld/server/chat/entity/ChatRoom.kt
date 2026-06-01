@@ -67,9 +67,9 @@ class ChatRoom(
     fun onMessageSent(senderId: Long, message: ChatMessage) {
         markAsRead(senderId, message.id)
 
-        when (message.type) {
-            MessageType.IMAGE -> lastMessagePreview = "이미지"
-            MessageType.VIDEO -> lastMessagePreview = "동영상"
+        lastMessagePreview = when (message.type) {
+            MessageType.IMAGE -> "이미지"
+            MessageType.VIDEO -> "동영상"
             else -> message.content.take(100)
         }
         this.lastMessageAt = message.createdAt
