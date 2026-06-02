@@ -2,15 +2,8 @@ import SwiftUI
 
 struct LoginView: View {
 
-    enum Field {
-        case phone
-        case password
-    }
-
     @Environment(AuthenticationRouter.self) private var router
     @Environment(SessionStore.self) private var session
-
-    @FocusState private var focusedField: Field?
 
     @State private var vm = LoginViewModel()
 
@@ -21,22 +14,17 @@ struct LoginView: View {
                     CustomTextField(
                         placeholder: "휴대폰",
                         text: $vm.phone,
-                        field: Field.phone,
-                        focusedField: $focusedField,
-                        keyboardType: .phonePad
+                        keyboardType: .phonePad,
                     )
 
                     CustomSecureField(
                         placeholder: "비밀번호",
                         text: $vm.password,
-                        field: Field.password,
-                        focusedField: $focusedField
                     )
                 }
                 .padding(.bottom)
 
                 Button {
-                    focusedField = nil
                     router.push(.signup)
                 } label: {
                     Text("회원가입")
@@ -46,19 +34,29 @@ struct LoginView: View {
             .padding()
         }
         .onTapGesture {
-            focusedField = nil
+            hideKeyboard()
         }
         .safeAreaBar(edge: .bottom) {
-            SubmitButton(title: "로그인", disabled: !vm.enabled) {
+            SubmitButton(title: "로그인", disabled: !vm.enabled || vm.isLoading) {
                 Task {
-                    if await vm.login() {
-                        session.login()
-                        focusedField = nil
+                    guard let result = await vm.login() else { return }
+
+                    switch result {
+                    case .success(let response):
+                        ToastManager.shared.show("로그인이 완료되었습니다.", style: .info)
+                        session.login(response)
+                    case .failure(let error):
+                        ToastManager.shared.show(error.userMessage, style: .error)
                     }
                 }
             }
         }
         .navigationTitle("로그인")
         .navigationBarTitleDisplayMode(.inline)
+        .overlay {
+            if vm.isLoading {
+                LoadingOverlay()
+            }
+        }
     }
 }

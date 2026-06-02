@@ -1,12 +1,10 @@
 import SwiftUI
 
-struct CustomSecureField<Field: Hashable>: View {
-
+struct CustomSecureField: View {
+    
     let placeholder: String
     @Binding var text: String
-    let field: Field
-    var focusedField: FocusState<Field>.Binding
-
+    
     var body: some View {
         SecureField(placeholder, text: $text)
             .padding(.horizontal, 14)
@@ -15,6 +13,5 @@ struct CustomSecureField<Field: Hashable>: View {
                 Color(.systemGray6),
                 in: RoundedRectangle(cornerRadius: 16)
             )
-            .focused(focusedField, equals: field)
     }
 }

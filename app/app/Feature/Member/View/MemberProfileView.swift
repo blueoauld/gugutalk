@@ -2,17 +2,9 @@ import SwiftUI
 
 struct MemberProfileView: View {
 
-    enum Field {
-        case nickname
-        case birthYear
-        case bio
-    }
-
     @Environment(AppRouter.self) private var router
 
     @State private var vm = MemberProfileViewModel()
-
-    @FocusState private var focusedField: Field?
 
     var body: some View {
         VStack {
@@ -65,16 +57,12 @@ struct MemberProfileView: View {
                         CustomTextField(
                             placeholder: "닉네임",
                             text: $vm.nickname,
-                            field: Field.nickname,
-                            focusedField: $focusedField,
                             keyboardType: .default
                         )
 
                         CustomTextField(
                             placeholder: "출생연도",
                             text: $vm.birthYear,
-                            field: Field.birthYear,
-                            focusedField: $focusedField,
                             keyboardType: .numberPad
                         )
 
@@ -83,8 +71,6 @@ struct MemberProfileView: View {
                         CustomTextEditor(
                             placeholder: "자기소개",
                             text: $vm.bio,
-                            field: Field.bio,
-                            focusedField: $focusedField,
                             keyboardType: .default
                         )
                     }

@@ -2,20 +2,9 @@ import SwiftUI
 
 struct SignupView: View {
 
-    enum Field {
-        case phone
-        case verificationCode
-        case password
-        case confirmPassword
-        case birthYear
-    }
-
     @Environment(AuthenticationRouter.self) private var router
 
-    @FocusState private var focusedField: Field?
-
     @State private var vm = SignupViewModel()
-
     @State private var showAlert = false
 
     var body: some View {
@@ -26,8 +15,6 @@ struct SignupView: View {
                         CustomTextField(
                             placeholder: "휴대폰",
                             text: $vm.phone,
-                            field: Field.phone,
-                            focusedField: $focusedField,
                             keyboardType: .phonePad
                         )
 
@@ -41,8 +28,6 @@ struct SignupView: View {
                     CustomTextField(
                         placeholder: "인증번호",
                         text: $vm.verificationCode,
-                        field: Field.verificationCode,
-                        focusedField: $focusedField,
                         keyboardType: .numberPad
                     )
                 }
@@ -51,15 +36,11 @@ struct SignupView: View {
                     CustomSecureField(
                         placeholder: "비밀번호",
                         text: $vm.password,
-                        field: Field.password,
-                        focusedField: $focusedField
                     )
 
                     CustomSecureField(
                         placeholder: "비밀번호 확인",
                         text: $vm.confirmPassword,
-                        field: Field.confirmPassword,
-                        focusedField: $focusedField
                     )
                 }
 
@@ -68,13 +49,12 @@ struct SignupView: View {
             .padding()
         }
         .onTapGesture {
-            focusedField = nil
+            hideKeyboard()
         }
         .safeAreaBar(edge: .bottom) {
             SubmitButton(title: "회원가입", disabled: !vm.enabled) {
                 Task {
                     if await vm.signup() {
-                        focusedField = nil
                         router.push(.setup)
                     }
                 }

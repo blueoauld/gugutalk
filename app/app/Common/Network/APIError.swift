@@ -1,11 +1,13 @@
-enum APIError: Error {
+import SwiftUI
 
+enum APIError: Error {
+    
     case network
     case unauthorized
     case server(code: String, message: String, statusCode: Int)
     case decoding
     case unknown(Error)
-
+    
     var message: String {
         switch self {
         case .network:
@@ -19,5 +21,12 @@ enum APIError: Error {
         case .unknown:
             return "알 수 없는 오류가 발생했습니다."
         }
+    }
+}
+
+extension Error {
+    
+    var userMessage: String {
+        (self as? APIError)?.message ?? localizedDescription
     }
 }

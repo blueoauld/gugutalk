@@ -1,16 +1,8 @@
 import SwiftUI
 
 struct SetupView: View {
-    
-    enum Field {
-        case nickname
-        case birthYear
-        case bio
-    }
 
     @Environment(SessionStore.self) private var session
-
-    @FocusState private var focusedField: Field?
     
     @State private var vm = SetupViewModel()
     
@@ -20,16 +12,12 @@ struct SetupView: View {
                 CustomTextField(
                     placeholder: "닉네임",
                     text: $vm.nickname,
-                    field: Field.nickname,
-                    focusedField: $focusedField,
                     keyboardType: .default
                 )
                 
                 CustomTextField(
                     placeholder: "출생연도",
                     text: $vm.birthYear,
-                    field: Field.birthYear,
-                    focusedField: $focusedField,
                     keyboardType: .numberPad
                 )
                 
@@ -38,21 +26,18 @@ struct SetupView: View {
                 CustomTextEditor(
                     placeholder: "자기소개",
                     text: $vm.bio,
-                    field: Field.bio,
-                    focusedField: $focusedField,
                     keyboardType: .default
                 )
             }
             .padding()
         }
         .onTapGesture {
-            focusedField = nil
+            hideKeyboard()
         }
         .safeAreaBar(edge: .bottom) {
             SubmitButton(title: "들어가기", disabled: !vm.enabled) {
                 Task {
                     if await vm.setup() {
-                        focusedField = nil
                         session.isLoggedIn = true
                     }
                 }

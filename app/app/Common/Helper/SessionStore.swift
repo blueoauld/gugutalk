@@ -3,22 +3,22 @@ import SwiftUI
 @Observable
 final class SessionStore {
     
-    var isLoggedIn: Bool {
-        didSet {
-            UserDefaults.standard.set(isLoggedIn, forKey: "isLoggedIn")
-        }
-    }
+    var isLoggedIn: Bool
     
     init() {
-        self.isLoggedIn = UserDefaults.standard.bool(forKey: "isLoggedIn")
+        isLoggedIn = TokenStorage.shared.accessToken != nil
     }
     
-    func login() {
+    func login(_ response: LoginResponse) {
+        TokenStorage.shared.memberId = response.memberId
+        TokenStorage.shared.accessToken = response.accessToken
+        TokenStorage.shared.refreshToken = response.refreshToken
         isLoggedIn = true
     }
     
     func logout() {
-        isLoggedIn = false
+        TokenStorage.shared.clearAll()
         StompManager.shared.disconnect()
+        isLoggedIn = false
     }
 }
