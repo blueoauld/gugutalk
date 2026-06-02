@@ -29,7 +29,7 @@ final class MemberProfileViewModel {
     private(set) var isLoading = false
     
     var enabled: Bool {
-        (2...10).contains(nickname.trimmingCharacters(in: .whitespaces).count) && birthYear.count == 4 && region != nil
+        (2...15).contains(nickname.trimmingCharacters(in: .whitespaces).count) && birthYear.count == 4 && region != nil
     }
     
     func getMe() async {
@@ -59,8 +59,8 @@ final class MemberProfileViewModel {
         guard !isLoading else { return false }
         
         let trimmedNickname = nickname.trimmingCharacters(in: .whitespaces)
-        guard (2...10).contains(trimmedNickname.count) else {
-            ToastManager.shared.show("닉네임은 2자 이상 10자 이하여야 합니다.", style: .error)
+        guard (2...15).contains(trimmedNickname.count) else {
+            ToastManager.shared.show("닉네임은 2자 이상 15자 이하여야 합니다.", style: .error)
             return false
         }
         guard let region else {

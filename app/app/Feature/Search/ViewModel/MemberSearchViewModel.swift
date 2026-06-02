@@ -27,8 +27,8 @@ final class MemberSearchViewModel {
 
     func search() async {
         let trimmedNickname = nickname.trimmingCharacters(in: .whitespaces)
-        guard (2...10).contains(trimmedNickname.count) else {
-            ToastManager.shared.show("닉네임 검색은 2자 이상 10자 이하여야 합니다.", style: .error)
+        guard (2...15).contains(trimmedNickname.count) else {
+            ToastManager.shared.show("닉네임 검색은 2자 이상 15자 이하여야 합니다.", style: .error)
             return
         }
 

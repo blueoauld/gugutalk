@@ -14,8 +14,8 @@ enum class ErrorCode(
     VERIFICATION_CODE_02(HttpStatus.BAD_REQUEST, "인증 번호를 다시 한번 확인해주시길 바랍니다."),
 
     MEMBER_01(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
-    MEMBER_02(HttpStatus.BAD_REQUEST, "이미 사용중인 휴대폰 번호입니다."),
-    MEMBER_03(HttpStatus.BAD_REQUEST, "이미 사용중인 닉네임입니다."),
+    MEMBER_02(HttpStatus.CONFLICT, "이미 사용중인 휴대폰 번호입니다."),
+    MEMBER_03(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
     MEMBER_04(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     MEMBER_05(HttpStatus.BAD_REQUEST, "휴대폰 또는 비밀번호가 일치하지 않습니다."),
 

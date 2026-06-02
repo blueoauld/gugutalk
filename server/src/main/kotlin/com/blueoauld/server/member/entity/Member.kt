@@ -28,7 +28,7 @@ class Member(
     @Column(name = "profile_url")
     var profileUrl: String? = null,
 
-    @Column(name = "nickname", length = 10, unique = true, nullable = false)
+    @Column(name = "nickname", length = 15, unique = true, nullable = false)
     var nickname: String = "닉네임_${UUID.randomUUID().toString().replace("-", "").take(6)}",
 
     @Enumerated(EnumType.STRING)

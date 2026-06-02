@@ -12,6 +12,7 @@ import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.repository.MemberRepository
 import com.blueoauld.server.point.entity.Point
 import com.blueoauld.server.point.repository.PointRepository
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -52,19 +53,23 @@ class AuthenticationService(
             deviceId = request.deviceId,
             gender = request.gender,
         )
-        memberRepository.save(member)
-
         val point = Point(memberId = member.id)
-        pointRepository.save(point)
 
-        return member
+        return try {
+            memberRepository.save(member)
+            pointRepository.save(point)
+
+            member
+        } catch (_: DataIntegrityViolationException) {
+            throw CustomException(MEMBER_02)
+        }
     }
 
     @Transactional
     fun updateProfile(memberId: Long, request: SetupRequest) {
         val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
 
-        if (memberRepository.existsByNickname(request.nickname)) {
+        if (member.nickname != request.nickname && memberRepository.existsByNickname(request.nickname)) {
             throw CustomException(MEMBER_03)
         }
 
@@ -74,6 +79,12 @@ class AuthenticationService(
             region = request.region,
             bio = request.bio,
         )
+
+        try {
+            memberRepository.saveAndFlush(member)
+        } catch (_: DataIntegrityViolationException) {
+            throw CustomException(MEMBER_03)
+        }
     }
 
     @Transactional

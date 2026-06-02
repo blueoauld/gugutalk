@@ -14,18 +14,18 @@ final class SetupViewModel {
     var bio = ""
 
     var enabled: Bool {
-        (2...10).contains(nickname.trimmingCharacters(in: .whitespaces).count) && birthYear.count == 4 && region != nil
+        (2...15).contains(nickname.trimmingCharacters(in: .whitespaces).count) && birthYear.count == 4 && region != nil
     }
 
     func setup() async -> Result<Void, Error>? {
         guard !isLoading else { return nil }
 
         let trimmedNickname = nickname.trimmingCharacters(in: .whitespaces)
-        guard (2...10).contains(trimmedNickname.count) else {
+        guard (2...15).contains(trimmedNickname.count) else {
             return .failure(
                 APIError.server(
                     code: "INTERNAL_CLIENT_ERROR",
-                    message: "닉네임은 2자 이상 10자 이하여야 합니다.",
+                    message: "닉네임은 2자 이상 15자 이하여야 합니다.",
                     statusCode: 400
                 )
             )
