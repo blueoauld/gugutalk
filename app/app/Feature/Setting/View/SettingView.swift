@@ -149,10 +149,11 @@ struct SettingView: View {
                             switch result {
                             case .success():
                                 ToastManager.shared.show("로그아웃이 완료되었습니다.", style: .info)
-                                session.logout()
                             case .failure(let error):
                                 ToastManager.shared.show(error.userMessage, style: .error)
                             }
+                            
+                            session.logout()
                         }
                     }
 

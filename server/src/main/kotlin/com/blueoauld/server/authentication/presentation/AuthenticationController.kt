@@ -1,6 +1,6 @@
 package com.blueoauld.server.authentication.presentation
 
-import com.blueoauld.server.authentication.application.AuthenticationService
+import com.blueoauld.server.authentication.application.AuthenticationFacade
 import com.blueoauld.server.authentication.application.request.*
 import com.blueoauld.server.authentication.application.response.LoginResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class AuthenticationController(
 
-    private val authenticationService: AuthenticationService,
+    private val authenticationFacade: AuthenticationFacade,
 ) {
 
     @PostMapping("/authentication/verify", version = "1")
@@ -22,7 +22,7 @@ class AuthenticationController(
         @Valid @RequestBody request: SendVerificationCodeRequest,
         servletRequest: HttpServletRequest,
     ): ResponseEntity<Unit> {
-        authenticationService.sendVerificationCode(request, servletRequest)
+        authenticationFacade.sendVerificationCode(request, servletRequest)
         return ResponseEntity.ok().build()
     }
 
@@ -30,7 +30,7 @@ class AuthenticationController(
     fun signup(
         @Valid @RequestBody request: SignupRequest,
     ): ResponseEntity<SignupResponse> {
-        val response = authenticationService.signup(request)
+        val response = authenticationFacade.signup(request)
         return ResponseEntity.ok(response)
     }
 
@@ -39,7 +39,7 @@ class AuthenticationController(
         @Login memberId: Long,
         @Valid @RequestBody request: SetupRequest,
     ): ResponseEntity<Unit> {
-        authenticationService.setup(memberId, request)
+        authenticationFacade.setup(memberId, request)
         return ResponseEntity.ok().build()
     }
 
@@ -47,7 +47,7 @@ class AuthenticationController(
     fun login(
         @Valid @RequestBody request: LoginRequest,
     ): ResponseEntity<LoginResponse> {
-        val response = authenticationService.login(request)
+        val response = authenticationFacade.login(request)
         return ResponseEntity.ok(response)
     }
 
@@ -56,7 +56,7 @@ class AuthenticationController(
         @Login memberId: Long,
         @Valid @RequestBody request: LogoutRequest,
     ): ResponseEntity<Unit> {
-        authenticationService.logout(memberId, request)
+        authenticationFacade.logout(memberId, request)
         return ResponseEntity.ok().build()
     }
 }
