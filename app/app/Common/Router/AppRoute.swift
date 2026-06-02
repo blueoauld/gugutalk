@@ -15,6 +15,7 @@ enum AppRoute: Hashable {
     case chatMessage(Int64, Int64, String, String?)
     case chatRoomSearch
     case chatMessageVideo(Int64, String)
+    case point
 
     var hideTabBar: Bool {
         switch self {
@@ -29,6 +30,7 @@ enum AppRoute: Hashable {
         case .chatMessage: return true
         case .chatRoomSearch: return true
         case .chatMessageVideo: return true
+        case .point: return true
         default: return false
         }
     }

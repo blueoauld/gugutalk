@@ -1,8 +1,10 @@
 package com.blueoauld.server.point.application
 
+import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.POINT_01
 import com.blueoauld.server.point.application.response.PointGetBalanceResponse
+import com.blueoauld.server.point.application.response.PointHistoryRowResponse
 import com.blueoauld.server.point.entity.PointHistory
 import com.blueoauld.server.point.entity.type.PointSource.ADVERTISEMENT
 import com.blueoauld.server.point.entity.type.PointSource.ATTENDANCE
@@ -12,6 +14,7 @@ import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
+import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -72,5 +75,33 @@ class PointService(
         pointHistoryRepository.save(pointHistory)
 
         point.earn(ADVERTISEMENT.point)
+    }
+
+    @Transactional(readOnly = true)
+    fun gets(
+        memberId: Long,
+        cursorId: Long?,
+        cursorDateAt: Instant?,
+        size: Int
+    ): CursorResponse<PointHistoryRowResponse> {
+        val result = pointHistoryRepository.findAllByCursor(
+            memberId = memberId,
+            cursorId = cursorId,
+            cursorDateAt = cursorDateAt,
+            size = size + 1
+        ).map {
+            PointHistoryRowResponse.from(it)
+        }
+
+        val hasNext = result.size > size
+        val items = if (hasNext) result.dropLast(1) else result
+        val last = items.lastOrNull()
+
+        return CursorResponse(
+            payload = items,
+            nextId = last?.pointHistoryId,
+            nextDateAt = last?.createdAt,
+            hasNext = hasNext
+        )
     }
 }

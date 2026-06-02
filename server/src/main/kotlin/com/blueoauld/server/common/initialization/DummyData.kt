@@ -12,6 +12,9 @@ import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.entity.type.Gender
 import com.blueoauld.server.member.repository.MemberRepository
 import com.blueoauld.server.point.entity.Point
+import com.blueoauld.server.point.entity.PointHistory
+import com.blueoauld.server.point.entity.type.PointSource
+import com.blueoauld.server.point.repository.PointHistoryRepository
 import com.blueoauld.server.point.repository.PointRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.boot.CommandLineRunner
@@ -41,6 +44,7 @@ class DummyData(
         chatRoomRepository: ChatRoomRepository,
         chatMessageRepository: ChatMessageRepository,
         pointRepository: PointRepository,
+        pointHistoryRepository: PointHistoryRepository,
     ): CommandLineRunner {
         return CommandLineRunner {
             if (memberRepository.count() == 0L) {
@@ -137,11 +141,22 @@ class DummyData(
                 chatMessageRepository.saveAll(chatMessages)
             }
             if (pointRepository.count() == 0L) {
-                val points = (0 until 100).map {
+                val points = (1 until 100).map {
                     Point(memberId = it.toLong())
                 }
 
                 pointRepository.saveAll(points)
+            }
+            if (pointHistoryRepository.count() == 0L) {
+                val pointHistories = (0 until 100).map {
+                    PointHistory(
+                        pointId = 2,
+                        source = PointSource.ADVERTISEMENT,
+                        balanceSnapshot = 0
+                    )
+                }
+
+                pointHistoryRepository.saveAll(pointHistories)
             }
 
             log.info { "회원 더미 데이터 ${memberRepository.count()}개 생성" }
@@ -153,6 +168,7 @@ class DummyData(
             log.info { "채팅방 더미 데이터 ${chatRoomRepository.count()}개 생성" }
             log.info { "메세지 더미 데이터 ${chatMessageRepository.count()}개 생성" }
             log.info { "포인트 더미 데이터 ${pointRepository.count()}개 생성" }
+            log.info { "포인트 기록 더미 데이터 ${pointHistoryRepository.count()}개 생성" }
         }
     }
 }

@@ -1,13 +1,13 @@
 package com.blueoauld.server.point.presentation
 
 import com.blueoauld.server.common.authentication.annotation.Login
+import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.point.application.PointService
 import com.blueoauld.server.point.application.response.PointGetBalanceResponse
+import com.blueoauld.server.point.application.response.PointHistoryRowResponse
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.time.Instant
 
 @RequestMapping("/api")
 @RestController
@@ -38,5 +38,16 @@ class PointController(
     ): ResponseEntity<Unit> {
         pointService.rewardAdvertisement(memberId)
         return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/points", version = "1")
+    fun gets(
+        @Login memberId: Long,
+        @RequestParam(required = false) cursorId: Long?,
+        @RequestParam(required = false) cursorDateAt: Instant?,
+        @RequestParam(defaultValue = "20") size: Int,
+    ): ResponseEntity<CursorResponse<PointHistoryRowResponse>> {
+        val response = pointService.gets(memberId, cursorId, cursorDateAt, size)
+        return ResponseEntity.ok(response)
     }
 }
