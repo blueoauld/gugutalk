@@ -56,10 +56,26 @@ struct SettingView: View {
                 Section("포인트") {
                     Label("포인트 내역", systemImage: "gift.fill")
                         .labelStyle(.settings(color: .cyan))
-                    Label("출석 체크", systemImage: "calendar.badge.checkmark")
-                        .labelStyle(.settings(color: .indigo))
-                    Label("광고 보상", systemImage: "play.rectangle.fill")
-                        .labelStyle(.settings(color: .pink))
+
+                    Button {
+                        Task {
+                            await vm.rewardAttendance()
+                        }
+                    } label: {
+                        Label("출석 체크", systemImage: "calendar.badge.checkmark")
+                            .labelStyle(.settings(color: .indigo))
+                    }
+                    .tint(.primary)
+
+                    Button {
+                        Task {
+                            await vm.rewardAdvertisement()
+                        }
+                    } label: {
+                        Label("광고 보상", systemImage: "play.rectangle.fill")
+                            .labelStyle(.settings(color: .pink))
+                    }
+                    .tint(.primary)
                 }
 
                 Section("기타") {
@@ -126,7 +142,7 @@ struct SettingView: View {
                     Button("로그아웃") {
                         Task {
                             session.logout()
-                            
+
                             await vm.logout()
                         }
                     }
@@ -178,6 +194,11 @@ struct SettingView: View {
                     ─────────────────
                 """,
             )
+        }
+        .overlay {
+            if vm.isLoading {
+                LoadingOverlay()
+            }
         }
     }
 
