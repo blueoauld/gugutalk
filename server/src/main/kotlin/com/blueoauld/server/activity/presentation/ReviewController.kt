@@ -2,10 +2,12 @@ package com.blueoauld.server.activity.presentation
 
 import com.blueoauld.server.activity.application.ReviewService
 import com.blueoauld.server.activity.application.request.ReviewCreateRequest
+import com.blueoauld.server.activity.application.response.RankRowResponse
 import com.blueoauld.server.activity.application.response.ReviewCreateResponse
 import com.blueoauld.server.activity.application.response.ReviewRowResponse
 import com.blueoauld.server.common.authentication.annotation.Login
 import com.blueoauld.server.common.dto.response.CursorResponse
+import com.blueoauld.server.common.dto.response.CursorScoreResponse
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -45,6 +47,16 @@ class ReviewController(
         @RequestParam(defaultValue = "20") size: Int,
     ): ResponseEntity<CursorResponse<ReviewRowResponse>> {
         val response = reviewService.gets(targetId, cursorId, cursorDateAt, size)
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/reviews/rank", version = "1")
+    fun getsByRank(
+        @RequestParam(required = false) cursorId: Long?,
+        @RequestParam(required = false) cursorScore: Long?,
+        @RequestParam(defaultValue = "20") size: Int,
+    ): ResponseEntity<CursorScoreResponse<RankRowResponse>> {
+        val response = reviewService.getsByRank(cursorId, cursorScore, size)
         return ResponseEntity.ok(response)
     }
 }

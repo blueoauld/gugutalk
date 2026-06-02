@@ -1,8 +1,12 @@
 package com.blueoauld.server.activity.repository.impl
 
+import com.blueoauld.server.activity.entity.Like
 import com.blueoauld.server.activity.entity.Review
+import com.blueoauld.server.activity.entity.Unlike
 import com.blueoauld.server.activity.repository.ReviewCustomRepository
+import com.blueoauld.server.activity.repository.result.RankResult
 import com.blueoauld.server.activity.repository.result.ReviewResult
+import com.blueoauld.server.member.entity.Member
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
@@ -54,6 +58,63 @@ class ReviewCustomRepositoryImpl(
 
         val rendered = jpqlRenderer.render(query, jpqlRenderContext)
         val jpaQuery = entityManager.createQuery(rendered.query, ReviewResult::class.java).apply {
+            rendered.params.forEach { (name, value) ->
+                setParameter(name, value)
+            }
+        }
+        return jpaQuery.setMaxResults(size).resultList
+    }
+
+    override fun findAllByRank(
+        cursorId: Long?,
+        cursorScore: Long?,
+        size: Int
+    ): List<RankResult> {
+        val query = jpql {
+            selectNew<RankResult>(
+                path(Member::id),
+                path(Member::nickname),
+                path(Member::profileUrl),
+                path(Member::gender),
+                path(Member::birthYear),
+                path(Member::region),
+                path(Member::comment),
+                path(Member::updatedAt),
+                countDistinct(path(Like::id)),
+                countDistinct(path(Unlike::id)),
+                countDistinct(path(Review::id)),
+            ).from(
+                entity(Member::class),
+                leftJoin(Like::class).on(path(Like::toId).eq(path(Member::id))),
+                leftJoin(Unlike::class).on(path(Unlike::toId).eq(path(Member::id))),
+                leftJoin(Review::class).on(path(Review::toId).eq(path(Member::id))),
+            ).groupBy(
+                path(Member::id),
+                path(Member::nickname),
+                path(Member::profileUrl),
+                path(Member::gender),
+                path(Member::birthYear),
+                path(Member::region),
+                path(Member::comment),
+                path(Member::updatedAt),
+            ).havingAnd(
+                if (cursorId != null && cursorScore != null) {
+                    or(
+                        countDistinct(path(Review::id)).lt(cursorScore),
+                        and(
+                            countDistinct(path(Review::id)).eq(cursorScore),
+                            path(Member::id).lt(cursorId),
+                        ),
+                    )
+                } else null,
+            ).orderBy(
+                countDistinct(path(Review::id)).desc(),
+                path(Member::id).desc(),
+            )
+        }
+
+        val rendered = jpqlRenderer.render(query, jpqlRenderContext)
+        val jpaQuery = entityManager.createQuery(rendered.query, RankResult::class.java).apply {
             rendered.params.forEach { (name, value) ->
                 setParameter(name, value)
             }
