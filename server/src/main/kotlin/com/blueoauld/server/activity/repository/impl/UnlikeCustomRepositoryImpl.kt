@@ -7,6 +7,7 @@ import com.blueoauld.server.activity.repository.UnlikeCustomRepository
 import com.blueoauld.server.activity.repository.result.ActivityResult
 import com.blueoauld.server.activity.repository.result.RankResult
 import com.blueoauld.server.member.entity.Member
+import com.blueoauld.server.member.entity.type.Gender
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
@@ -69,6 +70,7 @@ class UnlikeCustomRepositoryImpl(
     }
 
     override fun findAllByRank(
+        gender: String,
         cursorId: Long?,
         cursorScore: Long?,
         size: Int
@@ -91,6 +93,10 @@ class UnlikeCustomRepositoryImpl(
                 leftJoin(Like::class).on(path(Like::toId).eq(path(Member::id))),
                 leftJoin(Unlike::class).on(path(Unlike::toId).eq(path(Member::id))),
                 leftJoin(Review::class).on(path(Review::toId).eq(path(Member::id))),
+            ).whereAnd(
+                genderFilter(gender)?.let {
+                    path(Member::gender).eq(it)
+                },
             ).groupBy(
                 path(Member::id),
                 path(Member::nickname),
@@ -123,5 +129,9 @@ class UnlikeCustomRepositoryImpl(
             }
         }
         return jpaQuery.setMaxResults(size).resultList
+    }
+
+    private fun genderFilter(gender: String): Gender? = Gender.entries.find {
+        it.name.equals(gender, ignoreCase = true)
     }
 }

@@ -14,6 +14,7 @@ interface UnlikeCustomRepository {
     ): List<ActivityResult>
 
     fun findAllByRank(
+        gender: String,
         cursorId: Long?,
         cursorScore: Long?,
         size: Int

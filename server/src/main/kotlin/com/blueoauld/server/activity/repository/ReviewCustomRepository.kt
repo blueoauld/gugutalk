@@ -14,6 +14,7 @@ interface ReviewCustomRepository {
     ): List<ReviewResult>
 
     fun findAllByRank(
+        gender: String,
         cursorId: Long?,
         cursorScore: Long?,
         size: Int

@@ -52,11 +52,12 @@ class ReviewController(
 
     @GetMapping("/reviews/rank", version = "1")
     fun getsByRank(
+        @RequestParam(defaultValue = "ALL") gender: String,
         @RequestParam(required = false) cursorId: Long?,
         @RequestParam(required = false) cursorScore: Long?,
         @RequestParam(defaultValue = "20") size: Int,
     ): ResponseEntity<CursorScoreResponse<RankRowResponse>> {
-        val response = reviewService.getsByRank(cursorId, cursorScore, size)
+        val response = reviewService.getsByRank(gender, cursorId, cursorScore, size)
         return ResponseEntity.ok(response)
     }
 }

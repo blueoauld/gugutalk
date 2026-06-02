@@ -119,11 +119,13 @@ class ReviewService(
 
     @Transactional(readOnly = true)
     fun getsByRank(
+        gender: String,
         cursorId: Long?,
         cursorScore: Long?,
         size: Int
     ): CursorScoreResponse<RankRowResponse> {
         val result = reviewRepository.findAllByRank(
+            gender = gender,
             cursorId = cursorId,
             cursorScore = cursorScore,
             size = size + 1
@@ -138,7 +140,7 @@ class ReviewService(
         return CursorScoreResponse(
             payload = items,
             nextId = last?.memberId,
-            nextScore = last?.unlikes,
+            nextScore = last?.reviews,
             hasNext = hasNext
         )
     }

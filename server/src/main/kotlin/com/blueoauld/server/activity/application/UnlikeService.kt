@@ -71,11 +71,13 @@ class UnlikeService(
 
     @Transactional(readOnly = true)
     fun getsByRank(
+        gender: String,
         cursorId: Long?,
         cursorScore: Long?,
         size: Int
     ): CursorScoreResponse<RankRowResponse> {
         val result = unlikeRepository.findAllByRank(
+            gender = gender,
             cursorId = cursorId,
             cursorScore = cursorScore,
             size = size + 1
