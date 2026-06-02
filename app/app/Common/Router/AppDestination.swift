@@ -10,6 +10,8 @@ struct AppDestination: ViewModifier {
                     MainView()
                 case .chat:
                     ChatRoomView()
+                case .rank:
+                    RankView()
                 case .setting:
                     SettingView()
                 case .memberSearch:

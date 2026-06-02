@@ -2,6 +2,7 @@ enum AppRoute: Hashable {
     
     case main
     case chat
+    case rank
     case setting
     case memberSearch
     case member(Int64)

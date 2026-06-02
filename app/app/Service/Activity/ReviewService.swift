@@ -54,4 +54,31 @@ final class ReviewService {
             as: CursorResponse<ReviewRowResponse>.self
         )
     }
+
+    func getsByRank(
+        gender: String,
+        cursorId: Int64?,
+        cursorScore: Int64?,
+        size: Int = 20,
+    ) async throws -> CursorScoreResponse<RankRowResponse> {
+        var parameters: [String: Any] = [
+            "gender": gender,
+            "size": size,
+        ]
+
+        if let cursorId {
+            parameters["cursorId"] = cursorId
+        }
+        if let cursorScore {
+            parameters["cursorScore"] = cursorScore
+        }
+
+        return try await PrivateNetworkManager.shared.request(
+            "/reviews/rank",
+            method: .get,
+            parameters: parameters,
+            encoding: URLEncoding.default,
+            as: CursorScoreResponse<RankRowResponse>.self
+        )
+    }
 }

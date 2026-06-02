@@ -23,12 +23,10 @@ final class MainViewModel {
     var comment = ""
 
     private(set) var isLoading = false
-
-    private var isPaging = false
+    private(set) var isPaging = false
 
     private var fetchCount = 0
     private var isFetching: Bool { fetchCount > 0 }
-
     private var generation = 0
 
     private var hasLoad = false

@@ -5,11 +5,13 @@ struct RootTabView: View {
     enum TabType: Hashable {
         case main
         case chat
+        case rank
         case setting
     }
 
     @State private var mainRouter = AppRouter()
     @State private var chatRouter = AppRouter()
+    @State private var rankRouter = AppRouter()
     @State private var settingRouter = AppRouter()
 
     @State private var chatVM = ChatRoomViewModel()
@@ -27,6 +29,9 @@ struct RootTabView: View {
                 hideTabBar = path.last?.hideTabBar ?? false
             }
             .onChange(of: chatRouter.path) { _, path in
+                hideTabBar = path.last?.hideTabBar ?? false
+            }
+            .onChange(of: rankRouter.path) { _, path in
                 hideTabBar = path.last?.hideTabBar ?? false
             }
             .onChange(of: settingRouter.path) { _, path in
@@ -47,6 +52,11 @@ struct RootTabView: View {
                     .toolbarVisibility(hideTabBar ? .hidden : .visible, for: .tabBar)
             }
             .badge(chatBadgeManager.unreadCount)
+
+            Tab("랭킹", systemImage: "trophy", value: TabType.rank) {
+                RankNavigationView(router: rankRouter)
+                    .toolbarVisibility(hideTabBar ? .hidden : .visible, for: .tabBar)
+            }
 
             Tab("설정", systemImage: "gearshape", value: TabType.setting) {
                 SettingNavigationView(router: settingRouter)
