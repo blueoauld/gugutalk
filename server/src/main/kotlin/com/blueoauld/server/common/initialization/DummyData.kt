@@ -141,7 +141,7 @@ class DummyData(
                 chatMessageRepository.saveAll(chatMessages)
             }
             if (pointRepository.count() == 0L) {
-                val points = (1 until 100).map {
+                val points = (1 until 101).map {
                     Point(memberId = it.toLong())
                 }
 

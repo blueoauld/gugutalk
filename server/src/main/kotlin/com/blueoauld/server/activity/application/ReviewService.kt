@@ -9,6 +9,10 @@ import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.*
 import com.blueoauld.server.common.util.RandomNicknameGenerator
+import com.blueoauld.server.point.entity.PointHistory
+import com.blueoauld.server.point.entity.type.PointSource
+import com.blueoauld.server.point.repository.PointHistoryRepository
+import com.blueoauld.server.point.repository.PointRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,12 +22,19 @@ import java.time.Instant
 class ReviewService(
 
     private val reviewRepository: ReviewRepository,
+    private val pointRepository: PointRepository,
+    private val pointHistoryRepository: PointHistoryRepository,
 ) {
 
     @Transactional
     fun create(memberId: Long, targetId: Long, request: ReviewCreateRequest): ReviewCreateResponse {
         if (memberId == targetId) {
             throw CustomException(ACTIVITY_09)
+        }
+
+        val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(POINT_01)
+        if (point.balance < PointSource.REVIEW_WRITE.point) {
+            throw CustomException(POINT_03)
         }
 
         val review = Review(
@@ -33,6 +44,14 @@ class ReviewService(
             content = request.content
         )
         reviewRepository.save(review)
+
+        val pointHistory = PointHistory(
+            pointId = point.id,
+            source = PointSource.REVIEW_WRITE,
+            balanceSnapshot = point.balance,
+        )
+        pointHistoryRepository.save(pointHistory)
+        point.use(PointSource.REVIEW_WRITE.point)
 
         return ReviewCreateResponse(
             reviewId = review.id,
@@ -52,7 +71,20 @@ class ReviewService(
             throw CustomException(ACTIVITY_11)
         }
 
+        val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(POINT_01)
+        if (point.balance < PointSource.REVIEW_DELETE.point) {
+            throw CustomException(POINT_03)
+        }
+
         reviewRepository.delete(review)
+
+        val pointHistory = PointHistory(
+            pointId = point.id,
+            source = PointSource.REVIEW_DELETE,
+            balanceSnapshot = point.balance,
+        )
+        pointHistoryRepository.save(pointHistory)
+        point.use(PointSource.REVIEW_DELETE.point)
     }
 
     @Transactional(readOnly = true)

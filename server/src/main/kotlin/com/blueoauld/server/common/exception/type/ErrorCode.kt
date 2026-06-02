@@ -46,7 +46,9 @@ enum class ErrorCode(
     CHAT_MESSAGE_01(HttpStatus.BAD_REQUEST, "존재하지 않는 채팅 메세지입니다."),
     CHAT_MESSAGE_02(HttpStatus.BAD_REQUEST, "재생할 수 없는 채팅 메세지입니다."),
 
-    POINT_01(HttpStatus.BAD_REQUEST, "이미 출석 체크를 완료하셨습니다."),
+    POINT_01(HttpStatus.BAD_REQUEST, "존재하지 않는 포인트 정보입니다."),
+    POINT_02(HttpStatus.BAD_REQUEST, "이미 오늘 출석 체크를 완료하셨습니다."),
+    POINT_03(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
 
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),

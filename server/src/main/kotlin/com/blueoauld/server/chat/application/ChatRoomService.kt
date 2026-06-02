@@ -16,6 +16,10 @@ import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.*
 import com.blueoauld.server.member.repository.MemberRepository
+import com.blueoauld.server.point.entity.PointHistory
+import com.blueoauld.server.point.entity.type.PointSource
+import com.blueoauld.server.point.repository.PointHistoryRepository
+import com.blueoauld.server.point.repository.PointRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -28,6 +32,8 @@ class ChatRoomService(
     private val chatRoomRepository: ChatRoomRepository,
     private val chatMessageRepository: ChatMessageRepository,
     private val memberRepository: MemberRepository,
+    private val pointRepository: PointRepository,
+    private val pointHistoryRepository: PointHistoryRepository,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
@@ -35,6 +41,11 @@ class ChatRoomService(
     fun create(memberId: Long, targetId: Long, request: ChatRoomCreateRequest) {
         val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
         val target = memberRepository.findByIdOrNull(targetId) ?: throw CustomException(MEMBER_01)
+
+        val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(POINT_01)
+        if (point.balance < PointSource.MESSAGE_SEND.point) {
+            throw CustomException(POINT_03)
+        }
 
         val chatRoom = chatRoomRepository.findByMember1IdAndMember2Id(
             minOf(memberId, targetId),
@@ -51,6 +62,14 @@ class ChatRoomService(
         )
 
         chatRoom.onMessageSent(memberId, chatMessage)
+
+        val pointHistory = PointHistory(
+            pointId = point.id,
+            source = PointSource.MESSAGE_SEND,
+            balanceSnapshot = point.balance,
+        )
+        pointHistoryRepository.save(pointHistory)
+        point.use(PointSource.MESSAGE_SEND.point)
 
         // 이벤트
         applicationEventPublisher.publishEvent(
