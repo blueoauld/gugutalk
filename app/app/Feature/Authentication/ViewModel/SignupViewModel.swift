@@ -40,7 +40,7 @@ final class SignupViewModel {
 
         do {
             try await authenticationService.sendVerificationCode(phone: phone, deviceId: deviceId)
-            
+
             isSendCode = true
             return .success(())
         } catch {
@@ -48,11 +48,16 @@ final class SignupViewModel {
         }
     }
 
-    func signup() async -> Bool {
-        guard !isLoading, enabled else { return false }
+    func signup() async -> Result<Void, Error>? {
+        guard !isLoading, enabled else { return nil }
         guard let deviceId = TokenStorage.shared.deviceId else {
-            ToastManager.shared.show("앱을 다시 실행해주시길 바랍니다.", style: .error)
-            return false
+            return .failure(
+                APIError.server(
+                    code: "INTERNAL_CLIENT_ERROR",
+                    message: "앱을 다시 실행해주시길 바랍니다.",
+                    statusCode: 400
+                )
+            )
         }
 
         isLoading = true
@@ -71,15 +76,9 @@ final class SignupViewModel {
             TokenStorage.shared.memberId = response.memberId
             TokenStorage.shared.accessToken = response.accessToken
             TokenStorage.shared.refreshToken = response.refreshToken
-
-            ToastManager.shared.show("회원 가입이 완료되었습니다.", style: .info)
-            return true
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
-            return false
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
-            return false
+            return .failure(error)
         }
     }
 }

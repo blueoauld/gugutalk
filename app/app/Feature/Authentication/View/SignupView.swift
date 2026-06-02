@@ -3,6 +3,7 @@ import SwiftUI
 struct SignupView: View {
 
     @Environment(AuthenticationRouter.self) private var router
+    @Environment(SessionStore.self) private var session
 
     @State private var vm = SignupViewModel()
     @State private var showAlert = false
@@ -59,10 +60,16 @@ struct SignupView: View {
             hideKeyboard()
         }
         .safeAreaBar(edge: .bottom) {
-            SubmitButton(title: "회원가입", disabled: !vm.enabled) {
+            SubmitButton(title: "회원가입", disabled: !vm.enabled || vm.isLoading) {
                 Task {
-                    if await vm.signup() {
+                    guard let result = await vm.signup() else { return }
+
+                    switch result {
+                    case .success():
+                        ToastManager.shared.show("회원가입이 완료되었습니다.", style: .info)
                         router.push(.setup)
+                    case .failure(let error):
+                        ToastManager.shared.show(error.userMessage, style: .error)
                     }
                 }
             }

@@ -12,24 +12,15 @@ import com.blueoauld.server.authentication.repository.VerificationCodeRepository
 import com.blueoauld.server.common.authentication.application.TokenProvider
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.*
-import com.blueoauld.server.common.properties.JwtProperties
 import com.blueoauld.server.common.util.IpExtractor
 import com.blueoauld.server.common.util.RandomNumberGenerator
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.repository.MemberRepository
 import jakarta.servlet.http.HttpServletRequest
-import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
-import java.util.concurrent.TimeUnit
-
-private const val AUTHENTICATION_PHONE_CODE_KEY = "authentication:phone:code:"
-private const val AUTHENTICATION_DEVICE_ID_COUNT_KEY = "authentication:device_id:count:"
-private const val AUTHENTICATION_REFRESH_TOKEN_KEY = "authentication:refresh_token:"
 
 const val AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY = "authentication:access_token:blacklist:"
 
@@ -42,10 +33,8 @@ class AuthenticationService(
     private val verificationSendLimiter: VerificationSendLimiter,
     private val refreshTokenStore: RefreshTokenStore,
     private val accessTokenBlacklistStore: AccessTokenBlacklistStore,
-    private val stringRedisTemplate: StringRedisTemplate,
     private val tokenProvider: TokenProvider,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtProperties: JwtProperties,
 ) {
 
     @Transactional
@@ -71,16 +60,14 @@ class AuthenticationService(
 
     @Transactional
     fun signup(request: SignupRequest): SignupResponse {
-        val codeKey = AUTHENTICATION_PHONE_CODE_KEY + request.phone
-
-        if (stringRedisTemplate.opsForValue().get(codeKey) != request.verificationCode) {
+        if (verificationCodeStore.get(request.phone) != request.verificationCode) {
             throw CustomException(VERIFICATION_CODE_02)
-        }
-        if (memberRepository.existsByPhone(request.phone)) {
-            throw CustomException(MEMBER_02)
         }
         if (request.password != request.confirmPassword) {
             throw CustomException(MEMBER_04)
+        }
+        if (memberRepository.existsByPhone(request.phone)) {
+            throw CustomException(MEMBER_02)
         }
 
         val member = Member(
@@ -94,13 +81,8 @@ class AuthenticationService(
         val accessToken = tokenProvider.createAccessToken(member.id, member.nickname)
         val refreshToken = tokenProvider.createRefreshToken(member.id)
 
-        val refreshTokenKey = AUTHENTICATION_REFRESH_TOKEN_KEY + refreshToken
-
-        stringRedisTemplate.opsForValue().set(
-            refreshTokenKey, member.id.toString(), jwtProperties.refreshTokenExpireSeconds, TimeUnit.SECONDS
-        )
-        stringRedisTemplate.delete(codeKey)
-
+        refreshTokenStore.save(member.id, refreshToken)
+        verificationCodeStore.delete(request.phone)
         return SignupResponse(member.id, accessToken, refreshToken)
     }
 
@@ -147,12 +129,5 @@ class AuthenticationService(
 
         accessTokenBlacklistStore.save(memberId, request.accessToken)
         refreshTokenStore.delete(request.refreshToken)
-    }
-
-    private fun getSecondsUntilMidnight(): Long {
-        val now = LocalDateTime.now()
-        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
-
-        return ChronoUnit.SECONDS.between(now, midnight)
     }
 }
