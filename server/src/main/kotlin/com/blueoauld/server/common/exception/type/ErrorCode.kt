@@ -10,7 +10,7 @@ enum class ErrorCode(
 
     UNAUTHORIZED_02(HttpStatus.UNAUTHORIZED, "접근할 수 없는 리프레쉬 토큰입니다."),
 
-    VERIFICATION_CODE_01(HttpStatus.TOO_MANY_REQUESTS, "인증번호 요청 횟수를 초과했습니다."),
+    VERIFICATION_CODE_01(HttpStatus.TOO_MANY_REQUESTS, "인증 번호 요청 횟수를 초과했습니다."),
     VERIFICATION_CODE_02(HttpStatus.BAD_REQUEST, "인증 번호를 다시 한번 확인해주시길 바랍니다."),
 
     MEMBER_01(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),

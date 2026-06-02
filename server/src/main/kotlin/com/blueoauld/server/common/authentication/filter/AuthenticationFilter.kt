@@ -21,9 +21,9 @@ class AuthenticationFilter(
 
     private val antPathMatcher = AntPathMatcher()
     private val whitelist = listOf(
-        HttpMethod.POST to "/api/authentications/verification-code",
-        HttpMethod.POST to "/api/authentications/signup",
-        HttpMethod.POST to "/api/authentications/login",
+        HttpMethod.POST to "/api/authentication/verify",
+        HttpMethod.POST to "/api/authentication/signup",
+        HttpMethod.POST to "/api/authentication/login",
     )
     private val exclude = listOf(
         HttpMethod.GET to "/ws/**",

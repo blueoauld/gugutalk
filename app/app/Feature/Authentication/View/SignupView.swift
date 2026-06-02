@@ -18,9 +18,16 @@ struct SignupView: View {
                             keyboardType: .phonePad
                         )
 
-                        VerificationCodeSendButton(title: "전송", disabled: !vm.sendCodeEnabled) {
+                        VerificationCodeSendButton(title: "전송", disabled: !vm.sendCodeEnabled || vm.isLoading) {
                             Task {
-                                await vm.sendVerificationCode()
+                                guard let result = await vm.sendVerificationCode() else { return }
+
+                                switch result {
+                                case .success():
+                                    ToastManager.shared.show("인증 번호가 전송되었습니다.", style: .info)
+                                case .failure(let error):
+                                    ToastManager.shared.show(error.userMessage, style: .error)
+                                }
                             }
                         }
                     }
@@ -69,6 +76,11 @@ struct SignupView: View {
             Button("확인", role: .cancel) {}
         } message: {
             Text("미성년자는 이용할 수 없습니다.\n적발 시 서비스 이용이 제한됩니다.")
+        }
+        .overlay {
+            if vm.isLoading {
+                LoadingOverlay()
+            }
         }
     }
 }

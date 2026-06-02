@@ -2,6 +2,8 @@ package com.blueoauld.server.authentication.application
 
 import com.blueoauld.server.authentication.application.port.AccessTokenBlacklistStore
 import com.blueoauld.server.authentication.application.port.RefreshTokenStore
+import com.blueoauld.server.authentication.application.port.VerificationCodeStore
+import com.blueoauld.server.authentication.application.port.VerificationSendLimiter
 import com.blueoauld.server.authentication.application.request.*
 import com.blueoauld.server.authentication.application.response.LoginResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
@@ -36,6 +38,8 @@ class AuthenticationService(
 
     private val memberRepository: MemberRepository,
     private val verificationCodeRepository: VerificationCodeRepository,
+    private val verificationCodeStore: VerificationCodeStore,
+    private val verificationSendLimiter: VerificationSendLimiter,
     private val refreshTokenStore: RefreshTokenStore,
     private val accessTokenBlacklistStore: AccessTokenBlacklistStore,
     private val stringRedisTemplate: StringRedisTemplate,
@@ -46,31 +50,23 @@ class AuthenticationService(
 
     @Transactional
     fun sendVerificationCode(request: SendVerificationCodeRequest, servletRequest: HttpServletRequest) {
-        val countKey = AUTHENTICATION_DEVICE_ID_COUNT_KEY + request.deviceId
-        val count = stringRedisTemplate.opsForValue().get(countKey)?.toInt() ?: 0
-
-        if (count >= 3) {
+        if (verificationSendLimiter.isExceeded(request.deviceId)) {
             throw CustomException(VERIFICATION_CODE_01)
         }
 
-        val digitCode = RandomNumberGenerator.generateSixDigitCode()
+        val code = RandomNumberGenerator.generateSixDigitCode()
 
-        val verificationCode = VerificationCode(
-            phone = request.phone,
-            deviceId = request.deviceId,
-            ip = IpExtractor.extract(servletRequest),
-            code = digitCode,
+        verificationCodeRepository.save(
+            VerificationCode(
+                phone = request.phone,
+                deviceId = request.deviceId,
+                ip = IpExtractor.extract(servletRequest),
+                code = code,
+            )
         )
-        verificationCodeRepository.save(verificationCode)
 
-        val codeKey = AUTHENTICATION_PHONE_CODE_KEY + request.phone
-
-        stringRedisTemplate.opsForValue().set(codeKey, digitCode, 3, TimeUnit.MINUTES)
-        stringRedisTemplate.opsForValue().increment(countKey)
-
-        if (count == 0) {
-            stringRedisTemplate.expire(countKey, getSecondsUntilMidnight(), TimeUnit.SECONDS)
-        }
+        verificationCodeStore.save(request.phone, code)
+        verificationSendLimiter.record(request.deviceId)
     }
 
     @Transactional

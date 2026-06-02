@@ -17,7 +17,7 @@ class AuthenticationController(
     private val authenticationService: AuthenticationService,
 ) {
 
-    @PostMapping("/authentications/verification-code", version = "1")
+    @PostMapping("/authentication/verify", version = "1")
     fun sendVerificationCode(
         @Valid @RequestBody request: SendVerificationCodeRequest,
         servletRequest: HttpServletRequest,
@@ -26,7 +26,7 @@ class AuthenticationController(
         return ResponseEntity.ok().build()
     }
 
-    @PostMapping("/authentications/signup", version = "1")
+    @PostMapping("/authentication/signup", version = "1")
     fun signup(
         @Valid @RequestBody request: SignupRequest,
     ): ResponseEntity<SignupResponse> {
@@ -34,7 +34,7 @@ class AuthenticationController(
         return ResponseEntity.ok(response)
     }
 
-    @PutMapping("/authentications/setup", version = "1")
+    @PutMapping("/authentication/setup", version = "1")
     fun setup(
         @Login memberId: Long,
         @Valid @RequestBody request: SetupRequest,
@@ -43,7 +43,7 @@ class AuthenticationController(
         return ResponseEntity.ok().build()
     }
 
-    @PostMapping("/authentications/login", version = "1")
+    @PostMapping("/authentication/login", version = "1")
     fun login(
         @Valid @RequestBody request: LoginRequest,
     ): ResponseEntity<LoginResponse> {
@@ -51,7 +51,7 @@ class AuthenticationController(
         return ResponseEntity.ok(response)
     }
 
-    @DeleteMapping("/authentications/logout", version = "1")
+    @DeleteMapping("/authentication/logout", version = "1")
     fun logout(
         @Login memberId: Long,
         @Valid @RequestBody request: LogoutRequest,

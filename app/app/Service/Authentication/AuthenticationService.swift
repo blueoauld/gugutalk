@@ -6,7 +6,7 @@ final class AuthenticationService {
 
     func sendVerificationCode(phone: String, deviceId: String) async throws {
         try await PublicNetworkManager.shared.requestVoid(
-            "/authentications/verification-code",
+            "/authentication/verify",
             method: .post,
             parameters: ["phone": phone, "deviceId": deviceId],
             encoding: JSONEncoding.default
@@ -22,7 +22,7 @@ final class AuthenticationService {
         gender: Gender
     ) async throws -> SignupResponse {
         return try await PublicNetworkManager.shared.request(
-            "/authentications/signup",
+            "/authentication/signup",
             method: .post,
             parameters: [
                 "phone": phone,
@@ -44,7 +44,7 @@ final class AuthenticationService {
         bio: String,
     ) async throws {
         return try await PrivateNetworkManager.shared.requestVoid(
-            "/authentications/setup",
+            "/authentication/setup",
             method: .put,
             parameters: [
                 "nickname": nickname,
@@ -62,7 +62,7 @@ final class AuthenticationService {
         deviceId: String,
     ) async throws -> LoginResponse {
         return try await PublicNetworkManager.shared.request(
-            "/authentications/login",
+            "/authentication/login",
             method: .post,
             parameters: [
                 "phone": phone,
@@ -79,7 +79,7 @@ final class AuthenticationService {
         refreshToken: String,
     ) async throws {
         try await PrivateNetworkManager.shared.requestVoid(
-            "/authentications/logout",
+            "/authentication/logout",
             method: .delete,
             parameters: [
                 "accessToken": accessToken,
