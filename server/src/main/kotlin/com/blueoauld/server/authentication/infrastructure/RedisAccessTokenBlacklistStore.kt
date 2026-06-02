@@ -1,35 +1,29 @@
 package com.blueoauld.server.authentication.infrastructure
 
-import com.blueoauld.server.authentication.application.port.RefreshTokenStore
+import com.blueoauld.server.authentication.application.port.AccessTokenBlacklistStore
 import com.blueoauld.server.common.properties.JwtProperties
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Repository
 import java.time.Duration
 
 @Repository
-class RedisRefreshTokenStore(
+class RedisAccessTokenBlacklistStore(
 
     private val redisTemplate: StringRedisTemplate,
     private val jwtProperties: JwtProperties,
-) : RefreshTokenStore {
+) : AccessTokenBlacklistStore {
 
     companion object {
-        private const val KEY_PREFIX = "authentication:refresh_token:"
+        private const val KEY_PREFIX = "authentication:access_token:blacklist:"
     }
 
     override fun save(memberId: Long, token: String) {
         redisTemplate.opsForValue().set(
             keyOf(token),
             memberId.toString(),
-            Duration.ofSeconds(jwtProperties.refreshTokenExpireSeconds),
+            Duration.ofSeconds(jwtProperties.accessTokenExpireSeconds),
         )
     }
-
-    override fun delete(token: String) {
-        redisTemplate.delete(keyOf(token))
-    }
-
-    override fun getMemberId(token: String): Long? = redisTemplate.opsForValue().get(keyOf(token))?.toLongOrNull()
 
     private fun keyOf(token: String) = KEY_PREFIX + token
 }

@@ -1,5 +1,6 @@
 package com.blueoauld.server.authentication.application
 
+import com.blueoauld.server.authentication.application.port.AccessTokenBlacklistStore
 import com.blueoauld.server.authentication.application.port.RefreshTokenStore
 import com.blueoauld.server.authentication.application.request.*
 import com.blueoauld.server.authentication.application.response.LoginResponse
@@ -36,6 +37,7 @@ class AuthenticationService(
     private val memberRepository: MemberRepository,
     private val verificationCodeRepository: VerificationCodeRepository,
     private val refreshTokenStore: RefreshTokenStore,
+    private val accessTokenBlacklistStore: AccessTokenBlacklistStore,
     private val stringRedisTemplate: StringRedisTemplate,
     private val tokenProvider: TokenProvider,
     private val passwordEncoder: PasswordEncoder,
@@ -141,22 +143,14 @@ class AuthenticationService(
 
     @Transactional(readOnly = true)
     fun logout(memberId: Long, request: LogoutRequest) {
-        if (!memberRepository.existsById(memberId)) {
-            throw CustomException(MEMBER_01)
-        }
+        val foundMemberId = refreshTokenStore.getMemberId(request.refreshToken)
 
-        val refreshTokenKey = AUTHENTICATION_REFRESH_TOKEN_KEY + request.refreshToken
-        val value = stringRedisTemplate.opsForValue().get(refreshTokenKey)
-
-        if (value == null || value != memberId.toString()) {
+        if (foundMemberId == null || memberId != foundMemberId) {
             throw CustomException(UNAUTHORIZED_02)
         }
 
-        val accessTokenBlacklistKey = AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY + request.accessToken
-        stringRedisTemplate.opsForValue().set(
-            accessTokenBlacklistKey, memberId.toString(), jwtProperties.accessTokenExpireSeconds, TimeUnit.SECONDS
-        )
-        stringRedisTemplate.delete(refreshTokenKey)
+        accessTokenBlacklistStore.save(memberId, request.accessToken)
+        refreshTokenStore.delete(request.refreshToken)
     }
 
     private fun getSecondsUntilMidnight(): Long {

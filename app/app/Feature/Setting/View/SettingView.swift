@@ -144,9 +144,15 @@ struct SettingView: View {
                 .confirmationDialog("메뉴", isPresented: $showMenu) {
                     Button("로그아웃") {
                         Task {
-                            session.logout()
+                            guard let result = await vm.logout() else { return }
 
-                            await vm.logout()
+                            switch result {
+                            case .success():
+                                ToastManager.shared.show("로그아웃이 완료되었습니다.", style: .info)
+                                session.logout()
+                            case .failure(let error):
+                                ToastManager.shared.show(error.userMessage, style: .error)
+                            }
                         }
                     }
 
