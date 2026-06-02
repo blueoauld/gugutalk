@@ -6,7 +6,7 @@ final class SetupViewModel {
 
     private let authenticationService = AuthenticationService.shared
 
-    var isLoading = false
+    private(set) var isLoading = false
 
     var nickname = ""
     var birthYear = ""
@@ -17,21 +17,36 @@ final class SetupViewModel {
         (2...10).contains(nickname.trimmingCharacters(in: .whitespaces).count) && birthYear.count == 4 && region != nil
     }
 
-    func setup() async -> Bool {
-        guard !isLoading else { return false }
+    func setup() async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         let trimmedNickname = nickname.trimmingCharacters(in: .whitespaces)
         guard (2...10).contains(trimmedNickname.count) else {
-            ToastManager.shared.show("닉네임은 2자 이상 10자 이하여야 합니다.", style: .error)
-            return false
+            return .failure(
+                APIError.server(
+                    code: "INTERNAL_CLIENT_ERROR",
+                    message: "닉네임은 2자 이상 10자 이하여야 합니다.",
+                    statusCode: 400
+                )
+            )
         }
         guard let region else {
-            ToastManager.shared.show("지역을 선택해주시길 바랍니다.", style: .error)
-            return false
+            return .failure(
+                APIError.server(
+                    code: "INTERNAL_CLIENT_ERROR",
+                    message: "지역을 선택해주시길 바랍니다.",
+                    statusCode: 400
+                )
+            )
         }
         guard bio.count < 500 else {
-            ToastManager.shared.show("자기소개는 500자 이하여야 합니다.", style: .error)
-            return false
+            return .failure(
+                APIError.server(
+                    code: "INTERNAL_CLIENT_ERROR",
+                    message: "자기소개는 500자 이하여야 합니다.",
+                    statusCode: 400
+                )
+            )
         }
 
         isLoading = true
@@ -39,15 +54,9 @@ final class SetupViewModel {
 
         do {
             try await authenticationService.setup(nickname: trimmedNickname, birthYear: birthYear, region: region, bio: bio)
-
-            ToastManager.shared.show("계정이 활성화되었습니다.", style: .info)
-            return true
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
-            return false
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
-            return false
+            return .failure(error)
         }
     }
 }
