@@ -8,8 +8,10 @@ import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import jakarta.persistence.EntityManager
+import org.springframework.stereotype.Repository
 import java.time.Instant
 
+@Repository
 class PrivateImageGrantCustomRepositoryImpl(
 
     private val entityManager: EntityManager,
