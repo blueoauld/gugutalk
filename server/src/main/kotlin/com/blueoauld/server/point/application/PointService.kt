@@ -1,7 +1,8 @@
 package com.blueoauld.server.point.application
 
 import com.blueoauld.server.common.exception.CustomException
-import com.blueoauld.server.common.exception.type.ErrorCode
+import com.blueoauld.server.common.exception.type.ErrorCode.POINT_01
+import com.blueoauld.server.point.application.response.PointGetBalanceResponse
 import com.blueoauld.server.point.entity.PointHistory
 import com.blueoauld.server.point.entity.type.PointSource.ADVERTISEMENT
 import com.blueoauld.server.point.entity.type.PointSource.ATTENDANCE
@@ -24,15 +25,22 @@ class PointService(
     private val stringRedisTemplate: StringRedisTemplate,
 ) {
 
+    @Transactional(readOnly = true)
+    fun getBalance(memberId: Long): PointGetBalanceResponse {
+        val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(POINT_01)
+
+        return PointGetBalanceResponse(point.balance)
+    }
+
     @Transactional
     fun rewardAttendance(memberId: Long) {
         val attendanceKey = POINT_ATTENDANCE_KEY + memberId
 
         if (stringRedisTemplate.hasKey(attendanceKey)) {
-            throw CustomException(ErrorCode.POINT_01)
+            throw CustomException(POINT_01)
         }
 
-        val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(ErrorCode.POINT_01)
+        val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(POINT_01)
 
         val pointHistory = PointHistory(
             pointId = point.id,
@@ -54,7 +62,7 @@ class PointService(
 
     @Transactional
     fun rewardAdvertisement(memberId: Long) {
-        val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(ErrorCode.POINT_01)
+        val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(POINT_01)
 
         val pointHistory = PointHistory(
             pointId = point.id,
