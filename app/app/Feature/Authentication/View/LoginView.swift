@@ -28,7 +28,7 @@ struct LoginView: View {
                     router.push(.signup)
                 } label: {
                     Text("회원가입")
-                        .font(.default)
+                        .font(.subheadline)
                 }
             }
             .padding()

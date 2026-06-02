@@ -1,5 +1,6 @@
 package com.blueoauld.server.authentication.application
 
+import com.blueoauld.server.authentication.application.port.RefreshTokenStore
 import com.blueoauld.server.authentication.application.request.*
 import com.blueoauld.server.authentication.application.response.LoginResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
@@ -34,6 +35,7 @@ class AuthenticationService(
 
     private val memberRepository: MemberRepository,
     private val verificationCodeRepository: VerificationCodeRepository,
+    private val refreshTokenStore: RefreshTokenStore,
     private val stringRedisTemplate: StringRedisTemplate,
     private val tokenProvider: TokenProvider,
     private val passwordEncoder: PasswordEncoder,
@@ -133,11 +135,7 @@ class AuthenticationService(
         val accessToken = tokenProvider.createAccessToken(member.id, member.nickname)
         val refreshToken = tokenProvider.createRefreshToken(member.id)
 
-        val refreshTokenKey = AUTHENTICATION_REFRESH_TOKEN_KEY + refreshToken
-
-        stringRedisTemplate.opsForValue().set(
-            refreshTokenKey, member.id.toString(), jwtProperties.refreshTokenExpireSeconds, TimeUnit.SECONDS
-        )
+        refreshTokenStore.save(member.id, refreshToken)
         return LoginResponse(member.id, accessToken, refreshToken)
     }
 
