@@ -1,9 +1,11 @@
 package com.blueoauld.server.activity.application
 
 import com.blueoauld.server.activity.application.response.ActivityRowResponse
+import com.blueoauld.server.activity.application.response.RankRowResponse
 import com.blueoauld.server.activity.entity.Like
 import com.blueoauld.server.activity.repository.LikeRepository
 import com.blueoauld.server.common.dto.response.CursorResponse
+import com.blueoauld.server.common.dto.response.CursorScoreResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.ACTIVITY_01
 import com.blueoauld.server.common.exception.type.ErrorCode.ACTIVITY_02
@@ -63,6 +65,32 @@ class LikeService(
             payload = items,
             nextId = last?.activityId,
             nextDateAt = last?.createdAt,
+            hasNext = hasNext
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun getsByRank(
+        cursorId: Long?,
+        cursorScore: Long?,
+        size: Int
+    ): CursorScoreResponse<RankRowResponse> {
+        val result = likeRepository.findAllByRank(
+            cursorId = cursorId,
+            cursorScore = cursorScore,
+            size = size + 1
+        ).map {
+            RankRowResponse.from(it)
+        }
+
+        val hasNext = result.size > size
+        val items = if (hasNext) result.dropLast(1) else result
+        val last = items.lastOrNull()
+
+        return CursorScoreResponse(
+            payload = items,
+            nextId = last?.memberId,
+            nextScore = last?.likes,
             hasNext = hasNext
         )
     }
