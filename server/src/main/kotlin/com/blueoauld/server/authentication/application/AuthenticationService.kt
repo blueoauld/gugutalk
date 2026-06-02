@@ -22,8 +22,8 @@ const val AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY = "authentication:access_tok
 @Service
 class AuthenticationService(
 
-    private val memberRepository: MemberRepository,
     private val verificationCodeRepository: VerificationCodeRepository,
+    private val memberRepository: MemberRepository,
     private val pointRepository: PointRepository,
     private val passwordEncoder: PasswordEncoder,
 ) {

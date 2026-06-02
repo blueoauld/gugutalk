@@ -20,10 +20,10 @@ class AuthenticationFacade(
 
     private val authenticationService: AuthenticationService,
     private val tokenProvider: TokenProvider,
-    private val refreshTokenStore: RefreshTokenStore,
-    private val accessTokenBlacklistStore: AccessTokenBlacklistStore,
     private val verificationCodeStore: VerificationCodeStore,
     private val verificationSendLimiter: VerificationSendLimiter,
+    private val refreshTokenStore: RefreshTokenStore,
+    private val accessTokenBlacklistStore: AccessTokenBlacklistStore,
 ) {
 
     fun sendVerificationCode(request: SendVerificationCodeRequest, servletRequest: HttpServletRequest) {
