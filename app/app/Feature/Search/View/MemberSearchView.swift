@@ -19,7 +19,9 @@ struct MemberSearchView: View {
         )
         .onSubmit(of: .search) {
             Task {
-                await vm.search()
+                if case .failure(let error) = await vm.search() {
+                    ToastManager.shared.show(error.userMessage, style: .error)
+                }
             }
         }
     }
@@ -37,9 +39,21 @@ struct MemberSearchView: View {
                     .containerRelativeFrame([.horizontal, .vertical])
             }
         case .data:
-            MemberSearchList(items: vm.members, hasNext: vm.hasNext, onNext: vm.loadNext)
+            MemberSearchList(
+                items: vm.members,
+                hasNext: vm.hasNext,
+                onNext: {
+                    if case .failure(let error) = await vm.loadNext() {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                }
+            )
         case .error(let message):
-            ErrorRetryView(message: message, retry: vm.search)
+            ErrorRetryView(message: message, retry: {
+                if case .failure(let error) = await vm.search() {
+                    ToastManager.shared.show(error.userMessage, style: .error)
+                }
+            })
         }
     }
 }
