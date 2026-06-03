@@ -13,64 +13,65 @@ struct ChatRoomListRow: View {
     private let imageSize: CGFloat = 60
     
     var body: some View {
-        HStack {
-            KFImage(profileUrl.flatMap { URL(string: $0) })
-                .placeholder {
-                    Image(systemName: "person.fill")
-                        .font(.largeTitle)
-                        .foregroundStyle(Color(.systemGray4))
-                        .frame(width: imageSize, height: imageSize)
-                        .background(Color(.systemGray6))
-                        .clipShape(Circle())
-                }
-                .retry(maxCount: 3, interval: .seconds(2))
-                .fade(duration: 0.25)
-                .resizable()
-                .scaledToFill()
-                .frame(width: imageSize, height: imageSize)
-                .clipShape(Circle())
-            
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(nickname)
-                        .font(.subheadline.bold())
-                    
-                    Spacer()
-                    
-                    if let date = updatedAt.toISO8601Date() {
-                        Text(display(for: date))
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+        Button(action: onTap) {
+            HStack {
+                KFImage(profileUrl.flatMap { URL(string: $0) })
+                    .placeholder {
+                        Image(systemName: "person.fill")
+                            .font(.largeTitle)
+                            .foregroundStyle(Color(.systemGray4))
+                            .frame(width: imageSize, height: imageSize)
+                            .background(Color(.systemGray6))
+                            .clipShape(Circle())
                     }
-                }
-                
-                HStack(alignment: .center) {
-                    Text(message.byCharWrapping)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                    
-                    Spacer()
-                    
-                    if unreadCount > 0 {
-                        let label = unreadCount > 99 ? "+99" : "\(unreadCount)"
-                        
-                        Text(label)
-                            .font(.caption2.bold())
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, unreadCount < 10 ? 0 : 6)
-                            .padding(.vertical, 3)
-                            .frame(minWidth: 20, minHeight: 20)
-                            .background(.red, in: Capsule())
+                    .retry(maxCount: 3, interval: .seconds(2))
+                    .fade(duration: 0.25)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: imageSize, height: imageSize)
+                    .clipShape(Circle())
+
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(nickname)
+                            .font(.subheadline.bold())
+
+                        Spacer()
+
+                        if let date = updatedAt.toISO8601Date() {
+                            Text(display(for: date))
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    HStack(alignment: .center) {
+                        Text(message.byCharWrapping)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+
+                        Spacer()
+
+                        if unreadCount > 0 {
+                            let label = unreadCount > 99 ? "+99" : "\(unreadCount)"
+
+                            Text(label)
+                                .font(.caption2.bold())
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, unreadCount < 10 ? 0 : 6)
+                                .padding(.vertical, 3)
+                                .frame(minWidth: 20, minHeight: 20)
+                                .background(.red, in: Capsule())
+                        }
                     }
                 }
             }
+            .padding(.vertical, 4)
+            .padding(.horizontal)
+            .contentShape(Rectangle())
         }
-        .padding(.vertical, 4)
-        .padding(.horizontal)
-        .onTapGesture {
-            onTap()
-        }
+        .buttonStyle(.plain)
     }
     
     private func display(for date: Date) -> String {

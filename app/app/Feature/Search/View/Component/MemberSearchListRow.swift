@@ -15,61 +15,57 @@ struct MemberSearchListRow: View {
     private let imageSize: CGFloat = 60
 
     var body: some View {
-        VStack {
-            Button {
-                onTap()
-            } label: {
-                HStack {
-                    KFImage(profileUrl.flatMap { URL(string: $0) })
-                        .placeholder {
-                            Image(systemName: "person.fill")
-                                .font(.largeTitle)
-                                .foregroundStyle(Color(.systemGray4))
-                                .frame(width: imageSize, height: imageSize)
-                                .background(Color(.systemGray6))
-                                .clipShape(Circle())
-                        }
-                        .retry(maxCount: 3, interval: .seconds(2))
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: imageSize, height: imageSize)
-                        .clipShape(Circle())
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(nickname)
-                                .font(.subheadline.bold())
-
-                            Spacer()
-
-                            if let date = updatedAt.toISO8601Date() {
-                                Text(date.formatted(.relative(presentation: .named)))
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-
-                        HStack {
-                            Text(gender.label)
-                            
-                            Text("·")
-                            
-                            Text("\(age)살")
-                            
-                            Text("·")
-                            
-                            Text(region.label)
-                        }
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+        Button(action: onTap) {
+            HStack {
+                KFImage(profileUrl.flatMap { URL(string: $0) })
+                    .placeholder {
+                        Image(systemName: "person.fill")
+                            .font(.largeTitle)
+                            .foregroundStyle(Color(.systemGray4))
+                            .frame(width: imageSize, height: imageSize)
+                            .background(Color(.systemGray6))
+                            .clipShape(Circle())
                     }
+                    .retry(maxCount: 3, interval: .seconds(2))
+                    .fade(duration: 0.25)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: imageSize, height: imageSize)
+                    .clipShape(Circle())
+
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(nickname)
+                            .font(.subheadline.bold())
+
+                        Spacer()
+
+                        if let date = updatedAt.toISO8601Date() {
+                            Text(date.formatted(.relative(presentation: .named)))
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    HStack {
+                        Text(gender.label)
+
+                        Text("·")
+
+                        Text("\(age)살")
+
+                        Text("·")
+
+                        Text(region.label)
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
                 }
-                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .padding(.vertical, 4)
+            .padding(.horizontal)
+            .contentShape(Rectangle())
         }
-        .padding(.vertical, 4)
-        .padding(.horizontal)
+        .buttonStyle(.plain)
     }
 }

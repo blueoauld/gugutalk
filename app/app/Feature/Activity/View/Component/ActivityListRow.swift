@@ -18,9 +18,7 @@ struct ActivityListRow: View {
 
     var body: some View {
         HStack {
-            Button {
-                onTap()
-            } label: {
+            Button(action: onTap) {
                 HStack {
                     KFImage(profileUrl.flatMap { URL(string: $0) })
                         .placeholder {
