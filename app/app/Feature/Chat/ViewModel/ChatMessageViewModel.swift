@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum ChatMessageViewState {
-    
+
     case idle
     case loading
     case empty
@@ -14,6 +14,7 @@ enum ChatMessageViewState {
 final class ChatMessageViewModel {
 
     private struct ProcessedMedia {
+
         let type: MessageType
         let media: Data
         let mediaContentType: String
@@ -28,8 +29,7 @@ final class ChatMessageViewModel {
     var state: ChatMessageViewState = .idle
     var chatMessages: [ChatMessageRowResponse] = []
     var message: String = ""
-    var shouldDismiss = false
-    
+
     private(set) var isPaging = false
     private(set) var isLoading = false
     private(set) var isUploading = false
@@ -37,25 +37,25 @@ final class ChatMessageViewModel {
     private var hasLoad = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
-    
+
     private func topic(_ chatRoomId: Int64) -> String {
         "/topic/chat-rooms/\(chatRoomId)"
     }
-    
+
     func load(chatRoomId: Int64) async {
         guard !hasLoad else { return }
         hasLoad = true
-        
+
         state = .loading
         await fetch(chatRoomId: chatRoomId)
     }
-    
-    func loadNext(chatRoomId: Int64) async {
-        guard !isPaging, hasNext else { return }
-        
+
+    func loadNext(chatRoomId: Int64) async -> Result<Void, Error>? {
+        guard !isPaging, hasNext else { return nil }
+
         isPaging = true
         defer { isPaging = false }
-        
+
         do {
             let response = try await chatMessageService.gets(
                 chatRoomId: chatRoomId,
@@ -63,42 +63,36 @@ final class ChatMessageViewModel {
                 cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
-            
+
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatMessages.append(contentsOf: response.payload)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
-    
-    func send(chatRoomId: Int64) async {
-        guard !isLoading else { return }
-        
+
+    func send(chatRoomId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
+
         isLoading = true
         defer { isLoading = false }
-        
+
         do {
             try await chatMessageService.send(
                 chatRoomId: chatRoomId,
                 content: message,
             )
-            
+
             message = ""
-        } catch let error as APIError {
-            if case .server(let code, _, _) = error, code == "CHAT_03" {
-                shouldDismiss = true
-            }
-            
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func upload(chatRoomId: Int64, media: [PickedMedia]) async {
-        guard !isUploading, !media.isEmpty else { return }
+    func upload(chatRoomId: Int64, media: [PickedMedia]) async -> Result<Void, Error>? {
+        guard !isUploading, !media.isEmpty else { return nil }
 
         isUploading = true
         defer { isUploading = false }
@@ -125,9 +119,9 @@ final class ChatMessageViewModel {
 
                         guard let thumbnail else {
                             throw APIError.server(
-                                code: "INTERNAL_SERVER_ERROR",
+                                code: "INTERNAL_CLIENT_ERROR",
                                 message: "비디오 썸네일이 없습니다.",
-                                statusCode: 500
+                                statusCode: 400
                             )
                         }
 
@@ -197,21 +191,20 @@ final class ChatMessageViewModel {
             // 6. 요청
             let request = ChatMessageMediaUploadRequest(media: media)
             try await chatMessageService.upload(chatRoomId: chatRoomId, request: request)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
     func read(chatRoomId: Int64) async {
         try? await chatRoomService.read(chatRoomId: chatRoomId)
     }
-    
+
     private func fetch(chatRoomId: Int64) async {
         cursor.reset()
         chatMessages = []
-        
+
         do {
             let response = try await chatMessageService.gets(
                 chatRoomId: chatRoomId,
@@ -219,7 +212,7 @@ final class ChatMessageViewModel {
                 cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
-            
+
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatMessages = response.payload
             state = chatMessages.isEmpty ? .empty : .data
@@ -235,9 +228,9 @@ final class ChatMessageViewModel {
 
         guard let data = resized.jpegData(compressionQuality: 0.8) else {
             throw APIError.server(
-                code: "INTERNAL_SERVER_ERROR",
+                code: "INTERNAL_CLIENT_ERROR",
                 message: "이미지 압축에 실패했습니다.",
-                statusCode: 500
+                statusCode: 400
             )
         }
         return data
@@ -257,16 +250,16 @@ final class ChatMessageViewModel {
             }
         }
     }
-    
+
     func unsubscribe(chatRoomId: Int64) {
         StompManager.shared.unsubscribe(from: topic(chatRoomId))
     }
-    
+
     private func receive(_ message: ChatMessageRowResponse) {
         guard !chatMessages.contains(where: { $0.chatMessageId == message.chatMessageId }) else { return }
-        
+
         chatMessages.insert(message, at: 0)
-        
+
         if case .empty = state {
             state = .data
         }

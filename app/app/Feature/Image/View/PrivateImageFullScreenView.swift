@@ -9,7 +9,6 @@ struct PrivateImageFullScreenView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var vm = PrivateImageFullScreenViewModel()
-
     @State private var currentPage = 0
     @State private var backgroundOpacity: CGFloat = 1
 

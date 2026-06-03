@@ -37,9 +37,10 @@ final class ChatRoomViewModel {
     
     func load() async {
         guard !hasLoad else { return }
+
         hasLoad = true
-        
         state = .loading
+
         await fetch()
     }
     
@@ -48,9 +49,9 @@ final class ChatRoomViewModel {
         await fetch()
     }
     
-    func loadNext() async {
-        guard !isPaging, hasNext else { return }
-        
+    func loadNext() async -> Result<Void, Error>? {
+        guard !isPaging, hasNext else { return nil }
+
         isPaging = true
         defer { isPaging = false }
         
@@ -64,31 +65,29 @@ final class ChatRoomViewModel {
             
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatRooms.append(contentsOf: response.payload)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
     
-    func read(chatRoomId: Int64) async {
-        guard !isLoading else { return }
-        
+    func read(chatRoomId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
+
         isLoading = true
         defer { isLoading = false }
         
         do {
             try await chatRoomService.read(chatRoomId: chatRoomId)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
     
-    func delete(chatRoomId: Int64) async {
-        guard !isLoading else { return }
-        
+    func delete(chatRoomId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
+
         isLoading = true
         defer { isLoading = false }
         
@@ -100,10 +99,9 @@ final class ChatRoomViewModel {
             }
             
             state = chatRooms.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
     
@@ -113,8 +111,8 @@ final class ChatRoomViewModel {
         isChat = response.isChat
     }
     
-    func toggleChat() async {
-        guard !isMutating else { return }
+    func toggleChat() async -> Result<Void, Error>? {
+        guard !isMutating else { return nil }
         
         isMutating = true
         defer { isMutating = false }
@@ -123,14 +121,10 @@ final class ChatRoomViewModel {
         
         do {
             try await memberService.toggleChat()
-        } catch let error as APIError {
-            isChat.toggle()
-            
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
             isChat.toggle()
-            
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
     

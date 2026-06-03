@@ -8,7 +8,6 @@ struct ReportView: View {
     @Environment(AppRouter.self) private var router
 
     @State private var vm = ReportViewModel()
-
     @State private var showAlert = false
 
     var body: some View {
@@ -23,10 +22,16 @@ struct ReportView: View {
             .padding()
         }
         .safeAreaBar(edge: .bottom) {
-            SubmitButton(title: "신고하기", disabled: vm.reportType == nil) {
+            SubmitButton(title: "신고하기", disabled: vm.reportType == nil || vm.isLoading) {
                 Task {
-                    if await vm.create(memberId: memberId) {
+                    guard let result = await vm.create(memberId: memberId) else { return }
+
+                    switch result {
+                    case .success():
+                        ToastManager.shared.show("신고가 접수되었습니다.", style: .info)
                         router.pop()
+                    case .failure(let error):
+                        ToastManager.shared.show(error.userMessage, style: .error)
                     }
                 }
             }

@@ -1,13 +1,11 @@
 package com.blueoauld.server.member.repository.impl
 
-import com.blueoauld.server.activity.entity.Block
-import com.blueoauld.server.activity.entity.Like
-import com.blueoauld.server.activity.entity.Review
-import com.blueoauld.server.activity.entity.Unlike
+import com.blueoauld.server.activity.entity.*
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.entity.type.Gender
 import com.blueoauld.server.member.entity.type.Region
 import com.blueoauld.server.member.repository.MemberCustomRepository
+import com.blueoauld.server.member.repository.result.MemberDetailResult
 import com.blueoauld.server.member.repository.result.MemberResult
 import com.blueoauld.server.member.repository.result.MemberSearchResult
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
@@ -158,6 +156,76 @@ class MemberCustomRepositoryImpl(
             }
         }
         return jpaQuery.setMaxResults(size).resultList
+    }
+
+    override fun findDetailById(memberId: Long, targetId: Long): MemberDetailResult? {
+        val query = jpql {
+            selectNew<MemberDetailResult>(
+                path(Member::id),
+                path(Member::nickname),
+                path(Member::profileUrl),
+                path(Member::gender),
+                path(Member::birthYear),
+                path(Member::region),
+                path(Member::bio),
+                path(Member::isChat),
+                path(Member::updatedAt),
+                select<Long>(count(Like::id))
+                    .from(entity(Like::class))
+                    .where(path(Like::toId).eq(targetId))
+                    .asSubquery(),
+                select<Long>(count(Unlike::id))
+                    .from(entity(Unlike::class))
+                    .where(path(Unlike::toId).eq(targetId))
+                    .asSubquery(),
+                select<Long>(count(Review::id))
+                    .from(entity(Review::class))
+                    .where(path(Review::toId).eq(targetId))
+                    .asSubquery(),
+                select<Long>(count(Like::id))
+                    .from(entity(Like::class))
+                    .where(and(path(Like::fromId).eq(memberId), path(Like::toId).eq(targetId)))
+                    .asSubquery(),
+                select<Long>(count(Unlike::id))
+                    .from(entity(Unlike::class))
+                    .where(and(path(Unlike::fromId).eq(memberId), path(Unlike::toId).eq(targetId)))
+                    .asSubquery(),
+                select<Long>(count(Block::id))
+                    .from(entity(Block::class))
+                    .where(and(path(Block::fromId).eq(memberId), path(Block::toId).eq(targetId)))
+                    .asSubquery(),
+                select<Long>(count(PrivateImageGrant::id))
+                    .from(entity(PrivateImageGrant::class))
+                    .where(
+                        and(
+                            path(PrivateImageGrant::fromId).eq(memberId),
+                            path(PrivateImageGrant::toId).eq(targetId)
+                        )
+                    )
+                    .asSubquery(),
+                select<Long>(count(PrivateImageGrant::id))
+                    .from(entity(PrivateImageGrant::class))
+                    .where(
+                        and(
+                            path(PrivateImageGrant::fromId).eq(targetId),
+                            path(PrivateImageGrant::toId).eq(memberId)
+                        )
+                    )
+                    .asSubquery(),
+            ).from(
+                entity(Member::class),
+            ).where(
+                path(Member::id).eq(targetId),
+            )
+        }
+
+        val rendered = jpqlRenderer.render(query, jpqlRenderContext)
+        val jpaQuery = entityManager.createQuery(rendered.query, MemberDetailResult::class.java).apply {
+            rendered.params.forEach { (name, value) ->
+                setParameter(name, value)
+            }
+        }
+        return jpaQuery.resultList.firstOrNull()
     }
 
     private fun genderFilter(gender: String): Gender? = Gender.entries.find {

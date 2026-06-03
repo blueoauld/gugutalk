@@ -1,7 +1,7 @@
 import SwiftUI
 import PhotosUI
 
-struct ChatMessageInput: View {
+struct ChatMessageInputBar: View {
 
     @Binding var message: String
     var onSend: () async -> Void

@@ -1,6 +1,7 @@
 package com.blueoauld.server.member.repository
 
 import com.blueoauld.server.member.entity.type.Region
+import com.blueoauld.server.member.repository.result.MemberDetailResult
 import com.blueoauld.server.member.repository.result.MemberResult
 import com.blueoauld.server.member.repository.result.MemberSearchResult
 import java.time.Instant
@@ -23,4 +24,9 @@ interface MemberCustomRepository {
         cursorDateAt: Instant?,
         size: Int
     ): List<MemberSearchResult>
+
+    fun findDetailById(
+        memberId: Long,
+        targetId: Long
+    ): MemberDetailResult?
 }

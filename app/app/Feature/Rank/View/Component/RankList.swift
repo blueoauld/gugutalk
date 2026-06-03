@@ -3,16 +3,15 @@ import SwiftUI
 struct RankList: View {
 
     let members: [RankRowResponse]
+    let message: String
     let hasNext: Bool
     let onNext: () async -> Void
     let onTap: (Int64) -> Void
     let onSend: (_ memberId: Int64, _ message: String) async -> Void
 
-    @AppStorage(StorageKey.message) private var savedMessage = ""
-
-    @State private var targetId: Int64?
-    @State private var message = ""
     @State private var showMessage = false
+    @State private var targetId: Int64?
+    @State private var draft = ""
 
     var body: some View {
         List {
@@ -35,10 +34,11 @@ struct RankList: View {
                 )
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets())
+                .listRowBackground(TokenStorage.shared.memberId == it.memberId ? Color.blue.opacity(0.1) : Color.clear)
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     Button {
                         targetId = it.memberId
-                        message = savedMessage
+                        draft = message
                         showMessage = true
                     } label: {
                         Image(systemName: "envelope.fill")
@@ -63,15 +63,13 @@ struct RankList: View {
         .scrollContentBackground(.hidden)
         .navigationLinkIndicatorVisibility(.hidden)
         .alert("쪽지", isPresented: $showMessage) {
-            TextField("내용 입력 (15P)", text: $message)
+            TextField("내용 입력 (15P)", text: $draft)
 
             Button("전송") {
                 guard let targetId = targetId else { return }
 
                 Task {
-                    await onSend(targetId, message)
-
-                    savedMessage = message
+                    await onSend(targetId, draft)
                 }
             }
 

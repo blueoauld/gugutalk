@@ -13,5 +13,7 @@ struct ReportReason: View {
                 Color(.systemGray6),
                 in: RoundedRectangle(cornerRadius: 20)
             )
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
     }
 }

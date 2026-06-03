@@ -19,9 +19,13 @@ struct MemberActionBar: View {
                 Button {
                     Task {
                         if member.isLike {
-                            await vm.deleteLike(memberId: memberId)
+                            if case .failure(let error) = await vm.deleteLike(memberId: memberId) {
+                                ToastManager.shared.show(error.userMessage, style: .error)
+                            }
                         } else {
-                            await vm.createLike(memberId: memberId)
+                            if case .failure(let error) = await vm.createLike(memberId: memberId) {
+                                ToastManager.shared.show(error.userMessage, style: .error)
+                            }
                         }
                     }
                 } label: {
@@ -35,9 +39,13 @@ struct MemberActionBar: View {
                 Button {
                     Task {
                         if member.isUnlike {
-                            await vm.deleteUnlike(memberId: memberId)
+                            if case .failure(let error) = await vm.deleteUnlike(memberId: memberId) {
+                                ToastManager.shared.show(error.userMessage, style: .error)
+                            }
                         } else {
-                            await vm.createUnlike(memberId: memberId)
+                            if case .failure(let error) = await vm.createUnlike(memberId: memberId) {
+                                ToastManager.shared.show(error.userMessage, style: .error)
+                            }
                         }
                     }
                 } label: {
@@ -108,21 +116,31 @@ struct MemberActionBar: View {
 
             Button("전송") {
                 Task {
-                    await vm.createChatRoom(memberId: memberId, message: message)
+                    guard let result = await vm.createChatRoom(memberId: memberId, message: message) else { return }
 
-                    savedMessage = message
+                    switch result {
+                    case .success():
+                        ToastManager.shared.show("쪽지를 보내셨습니다.", style: .info)
+                        savedMessage = message
+                    case .failure(let error):
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
                 }
             }
-            
+
             Button("취소", role: .cancel) { }
         }
         .alert("차단", isPresented: $showBlock) {
             Button(member.isBlock ? "해제" : "차단") {
                 Task {
                     if member.isBlock {
-                        await vm.deleteBlock(memberId: memberId)
+                        if case .failure(let error) = await vm.deleteBlock(memberId: memberId) {
+                            ToastManager.shared.show(error.userMessage, style: .error)
+                        }
                     } else {
-                        await vm.createBlock(memberId: memberId)
+                        if case .failure(let error) = await vm.createBlock(memberId: memberId) {
+                            ToastManager.shared.show(error.userMessage, style: .error)
+                        }
                     }
                 }
             }

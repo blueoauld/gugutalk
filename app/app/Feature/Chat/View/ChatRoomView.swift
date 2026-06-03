@@ -52,12 +52,24 @@ struct ChatRoomView: View {
             ChatRoomList(
                 chatRooms: vm.chatRooms,
                 hasNext: vm.hasNext,
-                onNext: vm.loadNext,
+                onNext: {
+                    if case .failure(let error) = await vm.loadNext() {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                },
                 onTap: {
                     router.push(.chatMessage($0, $1, $2, $3))
                 },
-                onRead: vm.read,
-                onDelete: vm.delete,
+                onRead: {
+                    if case .failure(let error) = await vm.read(chatRoomId: $0) {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                },
+                onDelete: {
+                    if case .failure(let error) = await vm.delete(chatRoomId: $0) {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                },
             )
         case .error(let message):
             ErrorRetryView(message: message, retry: vm.switchView)
@@ -81,7 +93,9 @@ struct ChatRoomView: View {
                 toggleChatTrigger.toggle()
 
                 Task {
-                    await vm.toggleChat()
+                    if case .failure(let error) = await vm.toggleChat() {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
                 }
             } label: {
                 Image(systemName: vm.isChat ? "bell" : "bell.slash")

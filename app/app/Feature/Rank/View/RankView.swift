@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RankView: View {
 
+    @AppStorage(StorageKey.message) private var savedMessage = ""
     @AppStorage(StorageKey.rank) private var savedRank: RankFilter = .like
     @AppStorage(StorageKey.rankGender) private var savedGender: GenderFilter = .all
 
@@ -59,6 +60,7 @@ struct RankView: View {
         case .data:
             RankList(
                 members: vm.members,
+                message: savedMessage,
                 hasNext: vm.hasNext,
                 onNext: {
                     if case .failure(let error) = await vm.loadNext() {
@@ -74,13 +76,14 @@ struct RankView: View {
                     switch result {
                     case .success():
                         ToastManager.shared.show("쪽지를 보내셨습니다.", style: .info)
+                        savedMessage = message
                     case .failure(let error):
                         ToastManager.shared.show(error.userMessage, style: .error)
                     }
                 }
             )
         case .error(let message):
-            ErrorRetryView(message: message, retry: vm.load)
+            ErrorRetryView(message: message, retry: vm.switchView)
         }
     }
 

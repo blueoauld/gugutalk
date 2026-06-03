@@ -23,6 +23,7 @@ struct RootTabView: View {
     var body: some View {
         tabContent
             .task {
+                await chatVM.load()
                 chatVM.subscribe()
             }
             .onChange(of: mainRouter.path) { _, path in

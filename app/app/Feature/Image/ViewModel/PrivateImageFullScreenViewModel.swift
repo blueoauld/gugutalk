@@ -29,10 +29,8 @@ final class PrivateImageFullScreenViewModel {
             phone = response.phone
             images = response.images
             state = .data
-        } catch let error as APIError {
-            state = .error(error.message)
         } catch {
-            state = .error(error.localizedDescription)
+            state = .error(error.userMessage)
         }
     }
 }

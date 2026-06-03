@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainView: View {
 
+    @AppStorage(StorageKey.message) private var savedMessage = ""
     @AppStorage(StorageKey.comment) private var savedComment = ""
     @AppStorage(StorageKey.view) private var savedView: ViewFilter = .recent
     @AppStorage(StorageKey.gender) private var savedGender: GenderFilter = .all
@@ -85,6 +86,7 @@ struct MainView: View {
         case .data:
             MemberList(
                 members: vm.members,
+                message: savedMessage,
                 hasNext: vm.hasNext,
                 onNext: {
                     if case .failure(let error) = await vm.loadNext() {
@@ -106,6 +108,7 @@ struct MainView: View {
                     switch result {
                     case .success():
                         ToastManager.shared.show("쪽지를 보내셨습니다.", style: .info)
+                        savedMessage = message
                     case .failure(let error):
                         ToastManager.shared.show(error.userMessage, style: .error)
                     }

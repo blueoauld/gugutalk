@@ -148,14 +148,10 @@ final class MainViewModel {
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members = response.payload
             state = members.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            guard token == generation else { return }
-
-            state = .error(error.message)
         } catch {
             guard token == generation else { return }
 
-            state = .error(error.localizedDescription)
+            state = .error(error.userMessage)
         }
     }
 

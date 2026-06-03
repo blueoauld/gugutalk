@@ -23,15 +23,25 @@ struct ChatMessageView: View {
             hideKeyboard()
         }
         .safeAreaBar(edge: .bottom) {
-            ChatMessageInput(
+            ChatMessageInputBar(
                 message: $vm.message,
                 onSend: {
-                    await vm.send(chatRoomId: chatRoomId)
+                    if case .failure(let error) = await vm.send(chatRoomId: chatRoomId) {
+                        if let apiError = error as? APIError, case .server(let code, _, _) = apiError, code == "CHAT_03" {
+                            router.pop()
+                        }
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
 
                     scrollToBottomTrigger += 1
                 },
                 onSendMedia: { media in
-                    await vm.upload(chatRoomId: chatRoomId, media: media)
+                    if case .failure(let error) = await vm.upload(chatRoomId: chatRoomId, media: media) {
+                        if let apiError = error as? APIError, case .server(let code, _, _) = apiError, code == "CHAT_03" {
+                            router.pop()
+                        }
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
 
                     scrollToBottomTrigger += 1
                 },
@@ -53,11 +63,6 @@ struct ChatMessageView: View {
         .onDisappear {
             vm.unsubscribe(chatRoomId: chatRoomId)
         }
-        .onChange(of: vm.shouldDismiss) { _, newValue in
-            if newValue {
-                router.pop()
-            }
-        }
     }
 
     @ViewBuilder
@@ -77,7 +82,9 @@ struct ChatMessageView: View {
                 chatMessage: vm.chatMessages,
                 hasNext: vm.hasNext,
                 onNext: {
-                    await vm.loadNext(chatRoomId: chatRoomId)
+                    if case .failure(let error) = await vm.loadNext(chatRoomId: chatRoomId) {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
                 },
                 scrollToBottomTrigger: scrollToBottomTrigger
             )

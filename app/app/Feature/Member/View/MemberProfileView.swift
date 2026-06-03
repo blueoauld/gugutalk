@@ -78,10 +78,16 @@ struct MemberProfileView: View {
                 .padding()
             }
             .safeAreaBar(edge: .bottom) {
-                SubmitButton(title: "편집하기", disabled: !vm.enabled) {
+                SubmitButton(title: "편집하기", disabled: !vm.enabled || vm.isLoading) {
                     Task {
-                        if await vm.update() {
+                        guard let result = await vm.update() else { return }
+
+                        switch result {
+                        case .success():
+                            ToastManager.shared.show("프로필 편집이 완료되었습니다.", style: .info)
                             router.pop()
+                        case .failure(let error):
+                            ToastManager.shared.show(error.userMessage, style: .error)
                         }
                     }
                 }

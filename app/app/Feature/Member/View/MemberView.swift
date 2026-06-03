@@ -7,8 +7,6 @@ struct MemberView: View {
     @Environment(AppRouter.self) private var router
 
     @State private var vm = MemberViewModel()
-
-    @State private var currentPage = 0
     @State private var showMenu = false
 
     private var isMe: Bool {
@@ -94,9 +92,13 @@ struct MemberView: View {
                         Button(member.isPrivateImageGrant ? "비밀 사진 닫기" : "비밀 사진 공개") {
                             Task {
                                 if member.isPrivateImageGrant {
-                                    await vm.deletePrivateImageGrant(memberId: memberId)
+                                    if case .failure(let error) = await vm.deletePrivateImageGrant(memberId: memberId) {
+                                        ToastManager.shared.show(error.userMessage, style: .error)
+                                    }
                                 } else {
-                                    await vm.createPrivateImageGrant(memberId: memberId)
+                                    if case .failure(let error) = await vm.createPrivateImageGrant(memberId: memberId) {
+                                        ToastManager.shared.show(error.userMessage, style: .error)
+                                    }
                                 }
                             }
                         }

@@ -16,6 +16,8 @@ struct CustomTextField: View {
                 in: RoundedRectangle(cornerRadius: 16)
             )
             .keyboardType(keyboardType)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
             .overlay(alignment: .trailing) {
                 if !text.isEmpty {
                     Button {

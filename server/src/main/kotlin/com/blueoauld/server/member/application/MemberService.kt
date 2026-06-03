@@ -1,6 +1,6 @@
 package com.blueoauld.server.member.application
 
-import com.blueoauld.server.activity.repository.*
+import com.blueoauld.server.activity.repository.PrivateImageGrantRepository
 import com.blueoauld.server.common.dto.response.CursorResponse
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.*
@@ -21,18 +21,13 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
-import java.time.Year
 
 @Service
 class MemberService(
 
     private val memberRepository: MemberRepository,
     private val memberImageRepository: MemberImageRepository,
-    private val likeRepository: LikeRepository,
-    private val unlikeRepository: UnlikeRepository,
-    private val reviewRepository: ReviewRepository,
     private val privateImageGrantRepository: PrivateImageGrantRepository,
-    private val blockRepository: BlockRepository,
     private val applicationEventPublisher: ApplicationEventPublisher,
     private val r2Properties: R2Properties,
 ) {
@@ -60,28 +55,13 @@ class MemberService(
 
     @Transactional(readOnly = true)
     fun get(memberId: Long, targetId: Long): MemberGetResponse {
-        val target = memberRepository.findByIdOrNull(targetId) ?: throw CustomException(MEMBER_01)
+        val result = memberRepository.findDetailById(memberId, targetId) ?: throw CustomException(MEMBER_01)
         val memberImages = memberImageRepository.findAllByMemberId(targetId).map { MemberImageResponse.from(it) }
 
-        return MemberGetResponse(
-            memberId = target.id,
+        return MemberGetResponse.from(
+            result = result,
             images = memberImages.filter { it.type == PUBLIC },
-            nickname = target.nickname,
-            gender = target.gender,
-            age = Year.now().value - target.birthYear,
-            region = target.region,
-            bio = target.bio,
-            isChat = target.isChat,
-            updatedAt = target.updatedAt,
-            likes = likeRepository.countByToId(targetId),
-            unlikes = unlikeRepository.countByToId(targetId),
-            reviews = reviewRepository.countByToId(targetId),
             privateImages = memberImages.count { it.type == PRIVATE },
-            isLike = likeRepository.existsByFromIdAndToId(memberId, targetId),
-            isUnlike = unlikeRepository.existsByFromIdAndToId(memberId, targetId),
-            isPrivateImageGrant = privateImageGrantRepository.existsByFromIdAndToId(memberId, targetId),
-            hasPrivateImageGrant = privateImageGrantRepository.existsByFromIdAndToId(targetId, memberId),
-            isBlock = blockRepository.existsByFromIdAndToId(memberId, targetId),
         )
     }
 

@@ -31,15 +31,13 @@ final class MemberViewModel {
         do {
             member = try await memberService.get(memberId: memberId)
             state = .data
-        } catch let error as APIError {
-            state = .error(error.message)
         } catch {
-            state = .error(error.localizedDescription)
+            state = .error(error.userMessage)
         }
     }
 
-    func createLike(memberId: Int64) async {
-        guard !isMutating else { return }
+    func createLike(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isMutating else { return nil }
 
         isMutating = true
         defer { isMutating = false }
@@ -49,21 +47,16 @@ final class MemberViewModel {
 
         do {
             try await likeService.create(memberId: memberId)
-        } catch let error as APIError {
-            member?.isLike = false
-            member?.likes -= 1
-
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
             member?.isLike = false
             member?.likes -= 1
-
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func deleteLike(memberId: Int64) async {
-        guard !isMutating else { return }
+    func deleteLike(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isMutating else { return nil }
 
         isMutating = true
         defer { isMutating = false }
@@ -73,21 +66,16 @@ final class MemberViewModel {
 
         do {
             try await likeService.delete(memberId: memberId)
-        } catch let error as APIError {
-            member?.isLike = true
-            member?.likes += 1
-
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
             member?.isLike = true
             member?.likes += 1
-
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func createUnlike(memberId: Int64) async {
-        guard !isMutating else { return }
+    func createUnlike(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isMutating else { return nil }
 
         isMutating = true
         defer { isMutating = false }
@@ -97,21 +85,16 @@ final class MemberViewModel {
 
         do {
             try await unlikeService.create(memberId: memberId)
-        } catch let error as APIError {
-            member?.isUnlike = false
-            member?.unlikes -= 1
-
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
             member?.isUnlike = false
             member?.unlikes -= 1
-
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func deleteUnlike(memberId: Int64) async {
-        guard !isMutating else { return }
+    func deleteUnlike(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isMutating else { return nil }
 
         isMutating = true
         defer { isMutating = false }
@@ -121,21 +104,16 @@ final class MemberViewModel {
 
         do {
             try await unlikeService.delete(memberId: memberId)
-        } catch let error as APIError {
-            member?.isUnlike = false
-            member?.unlikes += 1
-
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            member?.isUnlike = false
+            member?.isUnlike = true
             member?.unlikes += 1
-
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func createBlock(memberId: Int64) async {
-        guard !isLoading else { return }
+    func createBlock(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
@@ -144,16 +122,14 @@ final class MemberViewModel {
             try await blockService.create(memberId: memberId)
 
             member?.isBlock = true
-            ToastManager.shared.show("차단하셨습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func deleteBlock(memberId: Int64) async {
-        guard !isLoading else { return }
+    func deleteBlock(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
@@ -162,16 +138,14 @@ final class MemberViewModel {
             try await blockService.delete(memberId: memberId)
 
             member?.isBlock = false
-            ToastManager.shared.show("차단을 해제하셨습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func createPrivateImageGrant(memberId: Int64) async {
-        guard !isLoading else { return }
+    func createPrivateImageGrant(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
@@ -180,16 +154,14 @@ final class MemberViewModel {
             try await privateImageGrantService.create(memberId: memberId)
 
             member?.isPrivateImageGrant = true
-            ToastManager.shared.show("비밀 사진을 공개하셨습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func deletePrivateImageGrant(memberId: Int64) async {
-        guard !isLoading else { return }
+    func deletePrivateImageGrant(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
@@ -198,28 +170,23 @@ final class MemberViewModel {
             try await privateImageGrantService.delete(memberId: memberId)
 
             member?.isPrivateImageGrant = false
-            ToastManager.shared.show("비밀 사진을 닫으셨습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func createChatRoom(memberId: Int64, message: String) async {
-        guard !isLoading else { return }
+    func createChatRoom(memberId: Int64, message: String) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
-
+        
         do {
             try await chatRoomService.create(targetId: memberId, content: message)
-
-            ToastManager.shared.show("쪽지를 보내셨습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 }
