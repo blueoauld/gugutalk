@@ -14,7 +14,7 @@ enum ChatRoomSearchViewState {
 final class ChatRoomSearchViewModel {
 
     private let chatRoomService = ChatRoomService.shared
-    
+
     var state: ChatRoomSearchViewState = .idle
     var chatRooms: [ChatRoomSearchRowResponse] = []
 
@@ -25,20 +25,27 @@ final class ChatRoomSearchViewModel {
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
 
-    func search() async {
+    func search() async -> Result<Void, Error> {
         let trimmedNickname = nickname.trimmingCharacters(in: .whitespaces)
         guard (2...15).contains(trimmedNickname.count) else {
-            ToastManager.shared.show("닉네임 검색은 2자 이상 15자 이하여야 합니다.", style: .error)
-            return
+            return .failure(
+                APIError.server(
+                    code: "INTERNAL_CLIENT_ERROR",
+                    message: "닉네임은 2자 이상 15자 이하여야 합니다.",
+                    statusCode: 400
+                )
+            )
         }
 
         searchedNickname = trimmedNickname
         state = .loading
         await fetch()
+
+        return .success(())
     }
 
-    func loadNext() async {
-        guard !isPaging, hasNext else { return }
+    func loadNext() async -> Result<Void, Error>? {
+        guard !isPaging, hasNext else { return nil }
 
         isPaging = true
         defer { isPaging = false }
@@ -53,10 +60,9 @@ final class ChatRoomSearchViewModel {
 
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatRooms.append(contentsOf: response.payload)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
@@ -75,10 +81,8 @@ final class ChatRoomSearchViewModel {
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatRooms = response.payload
             state = chatRooms.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            state = .error(error.message)
         } catch {
-            state = .error(error.localizedDescription)
+            state = .error(error.userMessage)
         }
     }
 }

@@ -67,7 +67,6 @@ class ChatRoomCustomRepositoryImpl(
                 if (status == "UNREAD") {
                     unreadCount.gt(0L)
                 } else null,
-
                 if (cursorId != null && cursorDateAt != null) {
                     or(
                         path(ChatRoom::lastMessageAt).lt(cursorDateAt),
@@ -126,7 +125,6 @@ class ChatRoomCustomRepositoryImpl(
                     path(ChatRoom::member2Id).eq(memberId),
                 ),
                 path(Member::nickname).like("$escaped%", escape = '\\'),
-
                 if (cursorId != null && cursorDateAt != null) {
                     or(
                         path(ChatRoom::lastMessageAt).lt(cursorDateAt),

@@ -19,7 +19,9 @@ struct ChatRoomSearchView: View {
         )
         .onSubmit(of: .search) {
             Task {
-                await vm.search()
+                if case .failure(let error) = await vm.search() {
+                    ToastManager.shared.show(error.userMessage, style: .error)
+                }
             }
         }
     }
@@ -37,9 +39,21 @@ struct ChatRoomSearchView: View {
                     .containerRelativeFrame([.horizontal, .vertical])
             }
         case .data:
-            ChatRoomSearchList(chatRooms: vm.chatRooms, hasNext: vm.hasNext, onNext: vm.loadNext)
+            ChatRoomSearchList(
+                chatRooms: vm.chatRooms,
+                hasNext: vm.hasNext,
+                onNext: {
+                    if case .failure(let error) = await vm.loadNext() {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                }
+            )
         case .error(let message):
-            ErrorRetryView(message: message, retry: vm.search)
+            ErrorRetryView(message: message, retry: {
+                if case .failure(let error) = await vm.search() {
+                    ToastManager.shared.show(error.userMessage, style: .error)
+                }
+            })
         }
     }
 }
