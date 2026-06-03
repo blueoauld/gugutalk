@@ -43,14 +43,15 @@ final class MainViewModel {
 
     func load() async {
         guard !hasLoad else { return }
-        hasLoad = true
 
+        hasLoad = true
         state = .loading
+
         await fetch()
     }
 
-    func loadNext() async {
-        guard !isPaging, !isFetching, hasNext else { return }
+    func loadNext() async -> Result<Void, Error>? {
+        guard !isPaging, !isFetching, hasNext else { return nil }
 
         let token = generation
 
@@ -60,14 +61,13 @@ final class MainViewModel {
         do {
             let response = try await requestMembers()
 
-            guard token == generation else { return }
+            guard token == generation else { return nil }
 
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             members.append(contentsOf: response.payload)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
@@ -80,15 +80,25 @@ final class MainViewModel {
         await fetch()
     }
 
-    func updateComment() async -> Bool {
-        guard !isLoading else { return false }
+    func updateComment() async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
         guard !comment.isEmpty else {
-            ToastManager.shared.show("코멘트 내용을 작성해주시길 바랍니다.", style: .error)
-            return false
+            return .failure(
+                APIError.server(
+                    code: "INTERNAL_CLIENT_ERROR",
+                    message: "코멘트 내용을 작성해주시길 바랍니다.",
+                    statusCode: 400
+                )
+            )
         }
         guard comment.count < 50 else {
-            ToastManager.shared.show("코멘트는 50자 이하여야 합니다.", style: .error)
-            return false
+            return .failure(
+                APIError.server(
+                    code: "INTERNAL_CLIENT_ERROR",
+                    message: "코멘트는 50자 이하여야 합니다.",
+                    statusCode: 400
+                )
+            )
         }
 
         isLoading = true
@@ -96,15 +106,9 @@ final class MainViewModel {
 
         do {
             try await memberService.updateComment(content: comment)
-            
-            ToastManager.shared.show("코멘트를 작성하셨습니다.", style: .info)
-            return true
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
-            return false
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
-            return false
+            return .failure(error)
         }
     }
 
@@ -112,20 +116,17 @@ final class MainViewModel {
         try? await memberService.bump()
     }
 
-    func createChatRoom(memberId: Int64, message: String) async {
-        guard !isLoading else { return }
+    func createChatRoom(memberId: Int64, message: String) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
 
         do {
             try await chatRoomService.create(targetId: memberId, content: message)
-
-            ToastManager.shared.show("쪽지를 보내셨습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 

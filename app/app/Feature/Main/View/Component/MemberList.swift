@@ -4,12 +4,13 @@ struct MemberList: View {
 
     let members: [MemberRowResponse]
     let hasNext: Bool
-    var onNext: () async -> Void
-    var onRefresh: () async -> Void
-    var onSend: (_ memberId: Int64, _ message: String) async -> Void
+    let onNext: () async -> Void
+    let onRefresh: () async -> Void
+    let onTap: (Int64) -> Void
+    let onSend: (_ memberId: Int64, _ message: String) async -> Void
 
     @AppStorage(StorageKey.message) private var savedMessage = ""
-    
+
     @State private var showMessage = false
     @State private var message = ""
     @State private var targetId: Int64?
@@ -17,21 +18,21 @@ struct MemberList: View {
     var body: some View {
         List {
             ForEach(members) { it in
-                NavigationLink(value: AppRoute.member(it.memberId)) {
-                    MemberListRow(
-                        profileUrl: it.profileUrl,
-                        nickname: it.nickname,
-                        updatedAt: it.updatedAt,
-                        comment: it.comment,
-                        gender: it.gender,
-                        age: it.age,
-                        likes: it.likes,
-                        unlikes: it.unlikes,
-                        reviews: it.reviews,
-                        region: it.region
-                    )
-                }
-                .buttonStyle(.plain)
+                MemberListRow(
+                    profileUrl: it.profileUrl,
+                    nickname: it.nickname,
+                    updatedAt: it.updatedAt,
+                    comment: it.comment,
+                    gender: it.gender,
+                    age: it.age,
+                    likes: it.likes,
+                    unlikes: it.unlikes,
+                    reviews: it.reviews,
+                    region: it.region,
+                    onTap: {
+                        onTap(it.memberId)
+                    },
+                )
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets())
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -72,7 +73,7 @@ struct MemberList: View {
 
                 Task {
                     await onSend(targetId, message)
-                    
+
                     savedMessage = message
                 }
             }
