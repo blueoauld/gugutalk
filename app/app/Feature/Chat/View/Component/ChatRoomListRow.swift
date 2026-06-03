@@ -2,15 +2,16 @@ import SwiftUI
 import Kingfisher
 
 struct ChatRoomListRow: View {
-
+    
     let nickname: String
     let profileUrl: String?
     let updatedAt: String
     let message: String
     let unreadCount: Int64
-
+    let onTap: () -> Void
+    
     private let imageSize: CGFloat = 60
-
+    
     var body: some View {
         HStack {
             KFImage(profileUrl.flatMap { URL(string: $0) })
@@ -28,32 +29,32 @@ struct ChatRoomListRow: View {
                 .scaledToFill()
                 .frame(width: imageSize, height: imageSize)
                 .clipShape(Circle())
-
+            
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(nickname)
                         .font(.subheadline.bold())
-
+                    
                     Spacer()
-
+                    
                     if let date = updatedAt.toISO8601Date() {
                         Text(display(for: date))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
-
+                
                 HStack(alignment: .center) {
                     Text(message.byCharWrapping)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
-
+                    
                     Spacer()
-
+                    
                     if unreadCount > 0 {
                         let label = unreadCount > 99 ? "+99" : "\(unreadCount)"
-
+                        
                         Text(label)
                             .font(.caption2.bold())
                             .foregroundStyle(.white)
@@ -67,11 +68,14 @@ struct ChatRoomListRow: View {
         }
         .padding(.vertical, 4)
         .padding(.horizontal)
+        .onTapGesture {
+            onTap()
+        }
     }
-
+    
     private func display(for date: Date) -> String {
         let now = Calendar.current
-
+        
         if now.isDateInToday(date) {
             return date.formatted(.dateTime.hour().minute())
         } else if now.isDate(date, equalTo: Date(), toGranularity: .year) {

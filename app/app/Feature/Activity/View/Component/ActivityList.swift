@@ -4,9 +4,9 @@ struct ActivityList: View {
 
     let items: [ActivityRowResponse]
     let hasNext: Bool
-    var onNext: () async -> Void
-    var onTap: (Int64) -> Void
-    var onDelete: (Int64) async -> Void
+    let onNext: () async -> Void
+    let onTap: (Int64) -> Void
+    let onDelete: (Int64) async -> Void
 
     var body: some View {
         List {

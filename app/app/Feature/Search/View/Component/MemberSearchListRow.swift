@@ -10,15 +10,14 @@ struct MemberSearchListRow: View {
     let age: Int
     let region: Region
     let updatedAt: String
-
-    @Environment(AppRouter.self) private var router
+    let onTap: () -> Void
 
     private let imageSize: CGFloat = 60
 
     var body: some View {
         VStack {
             Button {
-                router.push(.member(memberId))
+                onTap()
             } label: {
                 HStack {
                     KFImage(profileUrl.flatMap { URL(string: $0) })

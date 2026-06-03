@@ -42,6 +42,9 @@ struct ChatRoomSearchView: View {
             ChatRoomSearchList(
                 chatRooms: vm.chatRooms,
                 hasNext: vm.hasNext,
+                onTap: {
+                    router.push(.chatMessage($0, $1, $2, $3))
+                },
                 onNext: {
                     if case .failure(let error) = await vm.loadNext() {
                         ToastManager.shared.show(error.userMessage, style: .error)

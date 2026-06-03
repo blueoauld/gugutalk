@@ -53,6 +53,9 @@ struct ChatRoomView: View {
                 chatRooms: vm.chatRooms,
                 hasNext: vm.hasNext,
                 onNext: vm.loadNext,
+                onTap: {
+                    router.push(.chatMessage($0, $1, $2, $3))
+                },
                 onRead: vm.read,
                 onDelete: vm.delete,
             )

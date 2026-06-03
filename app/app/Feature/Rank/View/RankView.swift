@@ -61,6 +61,9 @@ struct RankView: View {
                 members: vm.members,
                 hasNext: vm.hasNext,
                 onNext: vm.loadNext,
+                onTap: {
+                    router.push(.member($0))
+                },
                 onSend: { memberId, message in
                     await vm.createChatRoom(memberId: memberId, message: message)
                 }

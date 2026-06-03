@@ -9,8 +9,8 @@ struct ActivityListRow: View {
     let gender: Gender
     let age: Int
     let region: Region
-    var onTap: () -> Void
-    var onDelete: () async -> Void
+    let onTap: () -> Void
+    let onDelete: () async -> Void
 
     @State private var deleteTrigger = false
 

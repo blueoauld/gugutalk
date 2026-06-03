@@ -4,7 +4,8 @@ struct MemberSearchList: View {
 
     let items: [MemberSearchRowResponse]
     let hasNext: Bool
-    var onNext: () async -> Void
+    let onTap: (Int64) -> Void
+    let onNext: () async -> Void
 
     var body: some View {
         List {
@@ -16,7 +17,10 @@ struct MemberSearchList: View {
                     gender: it.gender,
                     age: it.age,
                     region: it.region,
-                    updatedAt: it.updatedAt
+                    updatedAt: it.updatedAt,
+                    onTap: {
+                        onTap(it.memberId)
+                    }
                 )
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets())

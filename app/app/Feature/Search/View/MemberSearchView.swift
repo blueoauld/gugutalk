@@ -42,6 +42,9 @@ struct MemberSearchView: View {
             MemberSearchList(
                 items: vm.members,
                 hasNext: vm.hasNext,
+                onTap: {
+                    router.push(.member($0))
+                },
                 onNext: {
                     if case .failure(let error) = await vm.loadNext() {
                         ToastManager.shared.show(error.userMessage, style: .error)

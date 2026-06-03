@@ -14,6 +14,7 @@ struct RankListRow: View {
     let unlikes: Int64
     let reviews: Int64
     let region: Region
+    let onTap: () -> Void
 
     private let imageSize: CGFloat = 60
 
@@ -112,6 +113,9 @@ struct RankListRow: View {
         }
         .padding(.vertical, 4)
         .padding(.horizontal)
+        .onTapGesture {
+            onTap()
+        }
     }
 
     @ViewBuilder
@@ -121,7 +125,7 @@ struct RankListRow: View {
                 .font(.title3)
         }
     }
-    
+
     private var medalEmoji: String {
         switch rank {
         case 1: "🥇"
