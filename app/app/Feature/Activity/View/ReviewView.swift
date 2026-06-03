@@ -5,10 +5,7 @@ struct ReviewView: View {
     let memberId: Int64
     let nickname: String
 
-    @Environment(AppRouter.self) private var router
-
     @State private var vm = ReviewViewModel()
-
     @State private var showAlert = false
 
     var body: some View {
@@ -20,15 +17,22 @@ struct ReviewView: View {
         }
         .safeAreaBar(edge: .bottom) {
             ReviewInputBar(review: $vm.review) {
-                await vm.createReview(memberId: memberId)
+                guard let result = await vm.create(memberId: memberId) else { return }
+
+                switch result {
+                case .success():
+                    ToastManager.shared.show("리뷰를 작성하셨습니다.", style: .info)
+                case .failure(let error):
+                    ToastManager.shared.show(error.userMessage, style: .error)
+                }
             }
         }
         .navigationTitle("리뷰 (\(nickname))")
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            showAlert = true
-
             await vm.load(memberId: memberId)
+
+            showAlert = true
         }
         .alert("경고", isPresented: $showAlert) {
             Button("확인", role: .cancel) {}
@@ -59,10 +63,14 @@ struct ReviewView: View {
                 reviews: vm.reviews,
                 hasNext: vm.hasNext,
                 onNext: {
-                    await vm.loadNext(memberId: memberId)
+                    if case .failure(let error) = await vm.loadNext(memberId: memberId) {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
                 },
                 onDelete: { reviewId in
-                    await vm.deleteReview(reviewId: reviewId)
+                    if case .failure(let error) = await vm.delete(reviewId: reviewId) {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
                 }
             )
         case .error(let message):

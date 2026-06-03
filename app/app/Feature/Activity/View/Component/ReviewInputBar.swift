@@ -32,7 +32,7 @@ struct ReviewInputBar: View {
                 .disabled(review.isEmpty)
             }
             .glassEffect(
-                .regular.tint(.clear).interactive(),
+                .regular.tint(.clear),
                 in: .rect(cornerRadius: 20)
             )
             .autocorrectionDisabled(true)

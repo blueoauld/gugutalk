@@ -19,8 +19,8 @@ final class ReviewViewModel {
     var reviews: [ReviewRowResponse] = []
     var review = ""
 
-    private(set) var isPaging = false
     private(set) var isLoading = false
+    private(set) var isPaging = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
 
@@ -29,8 +29,8 @@ final class ReviewViewModel {
         await fetch(memberId: memberId)
     }
 
-    func loadNext(memberId: Int64) async {
-        guard !isPaging, hasNext else { return }
+    func loadNext(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isPaging, hasNext else { return nil }
 
         isPaging = true
         defer { isPaging = false }
@@ -45,15 +45,14 @@ final class ReviewViewModel {
 
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             reviews.append(contentsOf: response.payload)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func createReview(memberId: Int64) async {
-        guard !isLoading else { return }
+    func create(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
@@ -66,17 +65,14 @@ final class ReviewViewModel {
                 review = ""
             }
             state = .data
-
-            ToastManager.shared.show("리뷰를 작성하셨습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func deleteReview(reviewId: Int64) async {
-        guard !isLoading else { return }
+    func delete(reviewId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
@@ -88,19 +84,16 @@ final class ReviewViewModel {
                 reviews.removeAll { $0.reviewId == reviewId }
             }
             state = reviews.isEmpty ? .empty : .data
-
-            ToastManager.shared.show("리뷰를 삭제하셨습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
     private func fetch(memberId: Int64) async {
         cursor.reset()
         reviews = []
-
+        
         do {
             let response = try await reviewService.gets(
                 memberId: memberId,
@@ -112,10 +105,8 @@ final class ReviewViewModel {
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             reviews = response.payload
             state = reviews.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            state = .error(error.message)
         } catch {
-            state = .error(error.localizedDescription)
+            state = .error(error.userMessage)
         }
     }
 }

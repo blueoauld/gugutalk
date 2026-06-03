@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct PrivateImageGrantListView: View {
-
+    
+    @Environment(AppRouter.self) private var router
+    
     @State private var vm = PrivateImageGrantListViewModel()
-
+    
     var body: some View {
         VStack {
             content
@@ -19,7 +21,7 @@ struct PrivateImageGrantListView: View {
             }
         }
     }
-
+    
     @ViewBuilder
     private var content: some View {
         switch vm.state {
@@ -36,8 +38,19 @@ struct PrivateImageGrantListView: View {
             ActivityList(
                 items: vm.privateImageGrants,
                 hasNext: vm.hasNext,
-                onNext: vm.loadNext,
-                onDelete: vm.delete
+                onNext: {
+                    if case .failure(let error) = await vm.loadNext() {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                },
+                onTap: {
+                    router.push(.member($0))
+                },
+                onDelete: { memberId in
+                    if case .failure(let error) = await vm.delete(memberId: memberId) {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                }
             )
         case .error(let message):
             ErrorRetryView(message: message, retry: {

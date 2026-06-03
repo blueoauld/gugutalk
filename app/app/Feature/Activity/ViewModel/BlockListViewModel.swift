@@ -18,8 +18,8 @@ final class BlockListViewModel {
     var state: BlockListViewState = .idle
     var blocks: [ActivityRowResponse] = []
 
-    private(set) var isPaging = false
     private(set) var isLoading = false
+    private(set) var isPaging = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
 
@@ -28,8 +28,8 @@ final class BlockListViewModel {
         await fetch()
     }
 
-    func loadNext() async {
-        guard !isPaging, hasNext else { return }
+    func loadNext() async -> Result<Void, Error>? {
+        guard !isPaging, hasNext else { return nil }
 
         isPaging = true
         defer { isPaging = false }
@@ -43,15 +43,14 @@ final class BlockListViewModel {
 
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             blocks.append(contentsOf: response.payload)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func delete(memberId: Int64) async {
-        guard !isLoading else { return }
+    func delete(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
@@ -62,12 +61,10 @@ final class BlockListViewModel {
             withAnimation {
                 blocks.removeAll { $0.toId == memberId }
             }
-
             state = blocks.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
@@ -85,10 +82,8 @@ final class BlockListViewModel {
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             blocks = response.payload
             state = blocks.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            state = .error(error.message)
         } catch {
-            state = .error(error.localizedDescription)
+            state = .error(error.userMessage)
         }
     }
 }

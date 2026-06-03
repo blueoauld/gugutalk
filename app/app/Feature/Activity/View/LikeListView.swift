@@ -2,6 +2,8 @@ import SwiftUI
 
 struct LikeListView: View {
 
+    @Environment(AppRouter.self) private var router
+
     @State private var vm = LikeListViewModel()
 
     var body: some View {
@@ -36,8 +38,19 @@ struct LikeListView: View {
             ActivityList(
                 items: vm.likes,
                 hasNext: vm.hasNext,
-                onNext: vm.loadNext,
-                onDelete: vm.delete
+                onNext: {
+                    if case .failure(let error) = await vm.loadNext() {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                },
+                onTap: {
+                    router.push(.member($0))
+                },
+                onDelete: { memberId in
+                    if case .failure(let error) = await vm.delete(memberId: memberId) {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                }
             )
         case .error(let message):
             ErrorRetryView(message: message, retry: {

@@ -5,6 +5,7 @@ struct ActivityList: View {
     let items: [ActivityRowResponse]
     let hasNext: Bool
     var onNext: () async -> Void
+    var onTap: (Int64) -> Void
     var onDelete: (Int64) async -> Void
 
     var body: some View {
@@ -17,6 +18,9 @@ struct ActivityList: View {
                     gender: it.gender,
                     age: it.age,
                     region: it.region,
+                    onTap: {
+                        onTap(it.toId)
+                    },
                     onDelete: {
                         await onDelete(it.toId)
                     }

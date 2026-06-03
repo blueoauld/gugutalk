@@ -9,18 +9,17 @@ struct ActivityListRow: View {
     let gender: Gender
     let age: Int
     let region: Region
+    var onTap: () -> Void
     var onDelete: () async -> Void
-
-    @Environment(AppRouter.self) private var router
 
     @State private var deleteTrigger = false
 
     private let imageSize: CGFloat = 60
-    
+
     var body: some View {
         HStack {
             Button {
-                router.push(.member(memberId))
+                onTap()
             } label: {
                 HStack {
                     KFImage(profileUrl.flatMap { URL(string: $0) })

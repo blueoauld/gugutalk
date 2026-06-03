@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum LikeListViewState {
-
+    
     case idle
     case loading
     case empty
@@ -12,83 +12,78 @@ enum LikeListViewState {
 @MainActor
 @Observable
 final class LikeListViewModel {
-
+    
     private let likeService = LikeService.shared
-
+    
     var state: LikeListViewState = .idle
     var likes: [ActivityRowResponse] = []
-
-    private(set) var isPaging = false
+    
     private(set) var isLoading = false
+    private(set) var isPaging = false
     private var cursor = CursorRequest()
     var hasNext: Bool { cursor.hasNext }
-
+    
     func load() async {
         state = .loading
         await fetch()
     }
-
-    func loadNext() async {
-        guard !isPaging, hasNext else { return }
-
+    
+    func loadNext() async -> Result<Void, Error>? {
+        guard !isPaging, hasNext else { return nil }
+        
         isPaging = true
         defer { isPaging = false }
-
+        
         do {
             let response = try await likeService.gets(
                 cursorId: cursor.cursorId,
                 cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
-
+            
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             likes.append(contentsOf: response.payload)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
-
-    func delete(memberId: Int64) async {
-        guard !isLoading else { return }
-
+    
+    func delete(memberId: Int64) async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
+        
         isLoading = true
         defer { isLoading = false }
-
+        
         do {
             try await likeService.delete(memberId: memberId)
-
+            
             withAnimation {
                 likes.removeAll { $0.toId == memberId }
             }
-
             state = likes.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
-
+    
     private func fetch() async {
         cursor.reset()
         likes = []
-
+        
         do {
             let response = try await likeService.gets(
                 cursorId: cursor.cursorId,
                 cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
-
+            
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             likes = response.payload
             state = likes.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            state = .error(error.message)
         } catch {
-            state = .error(error.localizedDescription)
+            state = .error(error.userMessage)
         }
     }
 }
