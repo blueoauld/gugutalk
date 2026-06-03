@@ -60,12 +60,23 @@ struct RankView: View {
             RankList(
                 members: vm.members,
                 hasNext: vm.hasNext,
-                onNext: vm.loadNext,
+                onNext: {
+                    if case .failure(let error) = await vm.loadNext() {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                },
                 onTap: {
                     router.push(.member($0))
                 },
                 onSend: { memberId, message in
-                    await vm.createChatRoom(memberId: memberId, message: message)
+                    guard let result = await vm.createChatRoom(memberId: memberId, message: message) else { return }
+
+                    switch result {
+                    case .success():
+                        ToastManager.shared.show("쪽지를 보내셨습니다.", style: .info)
+                    case .failure(let error):
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
                 }
             )
         case .error(let message):
