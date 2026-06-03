@@ -32,37 +32,31 @@ final class SettingViewModel {
         }
     }
 
-    func rewardAttendance() async {
-        guard !isLoading else { return }
+    func rewardAttendance() async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
 
         do {
             try await pointService.rewardAttendance()
-
-            ToastManager.shared.show("출석 체크가 완료되었습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 
-    func rewardAdvertisement() async {
-        guard !isLoading else { return }
+    func rewardAdvertisement() async -> Result<Void, Error>? {
+        guard !isLoading else { return nil }
 
         isLoading = true
         defer { isLoading = false }
 
         do {
             try await pointService.rewardAdvertisement()
-
-            ToastManager.shared.show("광고 보상이 지급되었습니다.", style: .info)
-        } catch let error as APIError {
-            ToastManager.shared.show(error.message, style: .error)
+            return .success(())
         } catch {
-            ToastManager.shared.show(error.localizedDescription, style: .error)
+            return .failure(error)
         }
     }
 }
