@@ -1,28 +1,13 @@
 import SwiftUI
 
 struct PointView: View {
-
+    
     @State private var vm = PointViewModel()
-
+    
     var body: some View {
         VStack(alignment: .leading) {
-            VStack(alignment: .leading) {
-                Text("보유 포인트")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("\(vm.balance)")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-
-                    Text("P")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .padding()
-
+            PointHeader(balance: vm.balance)
+            
             content
         }
         .navigationTitle("포인트")
@@ -30,11 +15,11 @@ struct PointView: View {
         .task {
             async let b: Void = vm.getBalance()
             async let l: Void = vm.load()
-
+            
             _ = await (b, l)
         }
     }
-
+    
     @ViewBuilder
     private var content: some View {
         switch vm.state {
@@ -48,13 +33,15 @@ struct PointView: View {
                     .containerRelativeFrame([.horizontal, .vertical])
             }
         case .data:
-            VStack {
-                PointHistoryList(
-                    items: vm.pointHistories,
-                    hasNext: vm.hasNext,
-                    onNext: vm.loadNext
-                )
-            }
+            PointHistoryList(
+                items: vm.pointHistories,
+                hasNext: vm.hasNext,
+                onNext: {
+                    if case .failure(let error) = await vm.loadNext() {
+                        ToastManager.shared.show(error.userMessage, style: .error)
+                    }
+                }
+            )
         case .error(let message):
             ErrorRetryView(message: message, retry: vm.load)
         }
