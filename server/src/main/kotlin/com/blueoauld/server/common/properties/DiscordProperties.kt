@@ -1,4 +1,4 @@
-package com.blueoauld.server.common.configuration
+package com.blueoauld.server.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -7,4 +7,5 @@ data class DiscordProperties(
 
     val botToken: String,
     val guildId: String,
+    val reportChannelId: String,
 )

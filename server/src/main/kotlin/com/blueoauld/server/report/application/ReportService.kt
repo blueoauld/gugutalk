@@ -6,6 +6,7 @@ import com.blueoauld.server.common.exception.type.ErrorCode.REPORT_01
 import com.blueoauld.server.common.properties.R2Properties
 import com.blueoauld.server.member.repository.MemberRepository
 import com.blueoauld.server.report.application.event.ReportCreateEvent
+import com.blueoauld.server.report.application.event.ReportNotifyEvent
 import com.blueoauld.server.report.application.request.ReportCreateRequest
 import com.blueoauld.server.report.entity.Report
 import com.blueoauld.server.report.entity.ReportImage
@@ -64,6 +65,10 @@ class ReportService(
                 reportId = report.id,
                 keys = request.images.map { it.key }
             )
+        )
+
+        applicationEventPublisher.publishEvent(
+            ReportNotifyEvent.from(report, reportImages)
         )
     }
 }

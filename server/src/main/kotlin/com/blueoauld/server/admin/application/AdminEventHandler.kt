@@ -29,7 +29,7 @@ class AdminEventHandler(
                     runCatching {
                         r2Provider.deleteFile(key)
                     }.onFailure { e ->
-                        log.error(e) { "어드민 프로필 이미지 삭제에 실패했습니다. 키 = $key" }
+                        log.error(e) { "관리자 - 프로필 이미지 삭제에 실패했습니다. 키 = $key" }
                     }
                 }
             }.awaitAll()

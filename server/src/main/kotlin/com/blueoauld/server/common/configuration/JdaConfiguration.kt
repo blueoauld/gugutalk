@@ -1,5 +1,6 @@
 package com.blueoauld.server.common.configuration
 
+import com.blueoauld.server.common.properties.DiscordProperties
 import com.blueoauld.server.discord.infrastructure.CommandDispatcher
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -9,20 +10,20 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class JdaConfig(
 
-    private val properties: DiscordProperties,
-    private val dispatcher: CommandDispatcher,
+    private val discordProperties: DiscordProperties,
+    private val commandDispatcher: CommandDispatcher,
 ) {
 
     @Bean(destroyMethod = "shutdown")
     fun jda(): JDA {
-        val jda = JDABuilder.createLight(properties.botToken, emptyList())
-            .addEventListeners(dispatcher)
+        val jda = JDABuilder.createLight(discordProperties.botToken, emptyList())
+            .addEventListeners(commandDispatcher)
             .build()
             .awaitReady()
 
-        val commandData = dispatcher.allCommands.map { it.data() }
+        val commandData = commandDispatcher.allCommands.map { it.data() }
 
-        jda.getGuildById(properties.guildId)
+        jda.getGuildById(discordProperties.guildId)
             ?.updateCommands()
             ?.addCommands(commandData)
             ?.queue()

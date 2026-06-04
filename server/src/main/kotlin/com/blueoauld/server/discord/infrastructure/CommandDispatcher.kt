@@ -1,6 +1,6 @@
 package com.blueoauld.server.discord.infrastructure
 
-import com.blueoauld.server.common.configuration.DiscordProperties
+import com.blueoauld.server.common.properties.DiscordProperties
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter

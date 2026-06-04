@@ -42,31 +42,31 @@ class AdminMemberSearchCommand(
         event.hook.sendMessageEmbeds(buildEmbed(response)).queue()
     }
 
-    private fun buildEmbed(m: AdminGetMemberResponse): MessageEmbed {
+    private fun buildEmbed(response: AdminGetMemberResponse): MessageEmbed {
         val builder = EmbedBuilder()
             .setColor(Color(0x5865F2))
-            .setTitle(m.nickname)
-            .addField("ID", m.memberId.toString(), false)
-            .addField("성별", m.gender.name, false)
-            .addField("지역", m.region.name, false)
-            .addField("출생연도", m.birthYear.toString(), false)
-            .addField("전화번호", m.phone, false)
-            .addField("디바이스 ID", m.deviceId, false)
-            .addField("코멘트", m.comment.ifBlank { "-" }, false)
-            .addField("자기소개", m.bio.ifBlank { "-" }, false)
-            .addField("가입일", "<t:${m.createdAt.epochSecond}:f>", false)
-            .addField("수정일", "<t:${m.updatedAt.epochSecond}:f>", false)
+            .setTitle(response.nickname)
+            .addField("ID", "`${response.memberId}`", false)
+            .addField("성별", response.gender.name, false)
+            .addField("지역", response.region.name, false)
+            .addField("출생연도", response.birthYear.toString(), false)
+            .addField("전화번호", "`${response.phone}`", false)
+            .addField("디바이스 ID", "`${response.deviceId}`", false)
+            .addField("코멘트", response.comment.ifBlank { "-" }, false)
+            .addField("자기소개", response.bio.ifBlank { "-" }, false)
+            .addField("가입일", "<t:${response.createdAt.epochSecond}:f>", false)
+            .addField("수정일", "<t:${response.updatedAt.epochSecond}:f>", false)
 
-        if (m.publicImages.isNotEmpty()) {
+        if (response.publicImages.isNotEmpty()) {
             builder.addField(
-                "공개 이미지 (${m.publicImages.size})",
-                m.publicImages.joinToString("\n").take(1024), false
+                "공개 이미지 (${response.publicImages.size})",
+                response.publicImages.joinToString("\n").take(1024), false
             )
         }
-        if (m.privateImages.isNotEmpty()) {
+        if (response.privateImages.isNotEmpty()) {
             builder.addField(
-                "비공개 이미지 (${m.privateImages.size})",
-                m.privateImages.joinToString("\n").take(1024), false
+                "비공개 이미지 (${response.privateImages.size})",
+                response.privateImages.joinToString("\n").take(1024), false
             )
         }
         return builder.build()
