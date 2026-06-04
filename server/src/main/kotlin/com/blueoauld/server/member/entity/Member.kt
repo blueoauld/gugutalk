@@ -69,6 +69,7 @@ class Member(
 
     fun updateDeviceId(deviceId: String) {
         this.deviceId = deviceId
+        this.updatedAt = Instant.now()
     }
 
     fun updateComment(comment: String) {

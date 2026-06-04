@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 import java.awt.Color
 
 @Component
-class AdminSearchCommand(
+class AdminMemberSearchCommand(
 
     private val adminService: AdminService,
 ) : SlashCommand {
