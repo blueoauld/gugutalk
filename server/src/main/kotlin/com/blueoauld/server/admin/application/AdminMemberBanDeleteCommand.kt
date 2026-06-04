@@ -30,7 +30,6 @@ class AdminMemberBanDeleteCommand(
 
     override fun execute(event: SlashCommandInteractionEvent) {
         val uuid = event.getOption("uuid")?.asString
-
         if (uuid.isNullOrBlank()) {
             event.reply("UUID를 입력해주시길 바랍니다.").setEphemeral(true).queue()
             return

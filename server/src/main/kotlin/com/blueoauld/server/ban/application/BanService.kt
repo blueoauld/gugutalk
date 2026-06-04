@@ -2,6 +2,7 @@ package com.blueoauld.server.ban.application
 
 import com.blueoauld.server.ban.application.request.BanCreateRequest
 import com.blueoauld.server.ban.application.response.BanCreateResponse
+import com.blueoauld.server.ban.application.response.BanGetResponse
 import com.blueoauld.server.ban.entity.Ban
 import com.blueoauld.server.ban.repository.BanRepository
 import com.blueoauld.server.common.exception.CustomException
@@ -34,7 +35,7 @@ class BanService(
 
         return BanCreateResponse(
             banId = ban.id,
-            uuid = ban.uuid.toString(),
+            uuid = ban.uuid,
             type = ban.type,
             target = ban.target,
             reason = ban.reason,
@@ -48,5 +49,21 @@ class BanService(
         val ban = banRepository.findByUuid(uuid) ?: throw CustomException(BAN_02)
 
         banRepository.delete(ban)
+    }
+
+    @Transactional(readOnly = true)
+    fun get(uuid: String): BanGetResponse {
+        val ban = banRepository.findByUuid(uuid) ?: throw CustomException(BAN_02)
+
+        return BanGetResponse(
+            banId = ban.id,
+            uuid = ban.uuid,
+            type = ban.type,
+            target = ban.target,
+            reason = ban.reason,
+            days = Duration.between(ban.createdAt, ban.expiredAt).toDays().toInt() + 1,
+            createdAt = ban.createdAt,
+            expiredAt = ban.expiredAt
+        )
     }
 }
