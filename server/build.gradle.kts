@@ -59,6 +59,12 @@ dependencies {
     // jackson
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // jda
+    implementation("net.dv8tion:JDA:6.4.1") {
+        exclude(module = "opus-java")
+        exclude(module = "tink")
+    }
 }
 
 kotlin {
