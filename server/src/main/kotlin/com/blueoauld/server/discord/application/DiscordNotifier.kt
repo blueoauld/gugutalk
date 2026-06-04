@@ -20,7 +20,7 @@ class DiscordNotifier(
     fun sendReportAlert(event: ReportNotifyEvent) {
         val channel = jda.getTextChannelById(discordProperties.reportChannelId)
         if (channel == null) {
-            log.warn { "신고 알림 채널을 찾을 수 없습니다. 채널 ID = ${discordProperties.reportChannelId}" }
+            log.warn { "신고 채널을 찾을 수 없습니다. 채널 ID = ${discordProperties.reportChannelId}" }
             return
         }
 

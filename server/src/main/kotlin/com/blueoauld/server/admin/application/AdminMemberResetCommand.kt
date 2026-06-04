@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class AdminMemberResetCommand(
+
     private val adminService: AdminService,
 ) : SlashCommand {
 

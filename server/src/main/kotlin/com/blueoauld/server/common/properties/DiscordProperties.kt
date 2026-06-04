@@ -8,4 +8,5 @@ data class DiscordProperties(
     val botToken: String,
     val guildId: String,
     val reportChannelId: String,
+    val banChannelId: String,
 )
