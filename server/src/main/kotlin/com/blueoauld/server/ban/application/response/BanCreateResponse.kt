@@ -6,6 +6,7 @@ import java.time.Instant
 data class BanCreateResponse(
 
     val banId: Long,
+    val uuid: String,
     val type: BanType,
     val target: String,
     val reason: String,

@@ -49,8 +49,8 @@ class AdminMemberBanCommand(
             return
         }
 
-        if (days <= 0) {
-            event.reply("정지 일수는 1일 이상이어야 합니다.").setEphemeral(true).queue()
+        if (days !in 1..365) {
+            event.reply("정지 일수는 1일 이상 365일 이하여야 합니다.").setEphemeral(true).queue()
             return
         }
 
@@ -79,6 +79,7 @@ class AdminMemberBanCommand(
         val embed = EmbedBuilder()
             .setTitle("정지")
             .addField("ID", "`${response.banId}`", false)
+            .addField("UUID", "`${response.uuid}`", false)
             .addField("항목", response.type.name, false)
             .addField("타겟", "`${response.target}`", false)
             .addField("정지 일수", "${days}일", false)

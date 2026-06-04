@@ -33,6 +33,7 @@ class BanService(
 
         return BanCreateResponse(
             banId = ban.id,
+            uuid = ban.uuid.toString(),
             type = ban.type,
             target = ban.target,
             reason = ban.reason,

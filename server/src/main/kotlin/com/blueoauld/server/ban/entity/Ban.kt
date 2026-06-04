@@ -3,6 +3,7 @@ package com.blueoauld.server.ban.entity
 import com.blueoauld.server.ban.entity.type.BanType
 import jakarta.persistence.*
 import java.time.Instant
+import java.util.*
 
 @Entity
 class Ban(
@@ -10,6 +11,9 @@ class Ban(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
+
+    @Column(name = "uuid", unique = true, nullable = false)
+    val uuid: UUID = UUID.randomUUID(),
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
