@@ -1,11 +1,14 @@
 package com.blueoauld.server.common.authentication.filter
 
-import com.blueoauld.server.authentication.application.AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY
+import com.blueoauld.server.authentication.application.port.AccessTokenBlacklistStore
+import com.blueoauld.server.ban.entity.type.BanType.*
+import com.blueoauld.server.ban.repository.BanRepository
 import com.blueoauld.server.common.authentication.application.TokenProvider
+import com.blueoauld.server.member.repository.MemberRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
@@ -15,8 +18,10 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Component
 class AuthenticationFilter(
 
+    private val memberRepository: MemberRepository,
+    private val banRepository: BanRepository,
     private val tokenProvider: TokenProvider,
-    private val stringRedisTemplate: StringRedisTemplate,
+    private val accessTokenBlacklistStore: AccessTokenBlacklistStore
 ) : OncePerRequestFilter() {
 
     private val antPathMatcher = AntPathMatcher()
@@ -34,6 +39,16 @@ class AuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
+        val deviceId = resolveDeviceId(request)
+        if (deviceId == null) {
+            exception(response, "존재하지 않는 디바이스 ID입니다.")
+            return
+        }
+        if (banRepository.existsByTypeAndTarget(DEVICE, deviceId)) {
+            exception(response)
+            return
+        }
+
         if (matches(whitelist, request)) {
             filterChain.doFilter(request, response)
             return
@@ -43,12 +58,17 @@ class AuthenticationFilter(
         val memberId = accessToken?.let { tokenProvider.parseAndValidate(it) }
 
         if (accessToken == null || memberId == null) {
-            exception(response)
+            exception(response, "유효하지 않은 토큰입니다.")
+            return
+        }
+        if (accessTokenBlacklistStore.contain(accessToken)) {
+            exception(response, "이미 로그아웃된 토큰입니다.")
             return
         }
 
-        val accessTokenBlacklistKey = AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY + accessToken
-        if (stringRedisTemplate.hasKey(accessTokenBlacklistKey)) {
+        val member = memberRepository.findByIdOrNull(memberId) ?: return exception(response, "존재하지 않는 회원입니다.")
+
+        if (banRepository.existsAccountOrPhone(ACCOUNT, memberId.toString(), PHONE, member.phone)) {
             exception(response)
             return
         }
@@ -75,10 +95,21 @@ class AuthenticationFilter(
         return if (authorizationHeader.startsWith("Bearer ")) authorizationHeader.substring(7) else null
     }
 
+    private fun resolveDeviceId(servletRequest: HttpServletRequest): String? {
+        return servletRequest.getHeader("X-Device-Id")
+    }
+
     private fun exception(response: HttpServletResponse) {
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = "application/json"
         response.characterEncoding = "UTF-8"
-        response.writer.write("""{"code": "UNAUTHORIZED_01", "message": "인증이 필요합니다."}""")
+        response.writer.write("""{"code": "UNAUTHORIZED_03", "message": "서비스 이용이 제한된 상태입니다."}""")
+    }
+
+    private fun exception(response: HttpServletResponse, message: String) {
+        response.status = HttpServletResponse.SC_UNAUTHORIZED
+        response.contentType = "application/json"
+        response.characterEncoding = "UTF-8"
+        response.writer.write("""{"code": "UNAUTHORIZED_01", "message": "$message"}""")
     }
 }

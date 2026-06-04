@@ -25,5 +25,7 @@ class RedisAccessTokenBlacklistStore(
         )
     }
 
+    override fun contain(token: String): Boolean = redisTemplate.hasKey(KEY_PREFIX + token)
+
     private fun keyOf(token: String) = KEY_PREFIX + token
 }

@@ -12,6 +12,7 @@ import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceContext
 import org.springframework.data.jpa.repository.query.EscapeCharacter
 import org.springframework.stereotype.Repository
 import java.time.Instant
@@ -19,9 +20,11 @@ import java.time.Instant
 @Repository
 class MemberCustomRepositoryImpl(
 
-    private val entityManager: EntityManager,
     private val jpqlRenderContext: JpqlRenderContext,
 ) : MemberCustomRepository {
+
+    @PersistenceContext
+    private lateinit var entityManager: EntityManager
 
     private val jpqlRenderer = JpqlRenderer()
 

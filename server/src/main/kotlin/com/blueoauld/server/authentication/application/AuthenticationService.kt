@@ -18,8 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-const val AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY = "authentication:access_token:blacklist:"
-
 @Service
 class AuthenticationService(
 

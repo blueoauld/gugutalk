@@ -1,8 +1,7 @@
 package com.blueoauld.server.common.authentication.infrastructure
 
-import com.blueoauld.server.authentication.application.AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY
+import com.blueoauld.server.authentication.application.port.AccessTokenBlacklistStore
 import com.blueoauld.server.common.authentication.application.TokenProvider
-import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.http.HttpHeaders
 import org.springframework.messaging.Message
 import org.springframework.messaging.MessageChannel
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Component
 class StompChannelInterceptor(
 
     private val tokenProvider: TokenProvider,
-    private val stringRedisTemplate: StringRedisTemplate
+    private val accessTokenBlacklistStore: AccessTokenBlacklistStore
 ) : ChannelInterceptor {
 
     override fun preSend(
@@ -33,9 +32,7 @@ class StompChannelInterceptor(
             if (accessToken == null || memberId == null) {
                 throw MessageDeliveryException(message, "유효하지 않은 토큰입니다.")
             }
-
-            val accessTokenBlacklistKey = AUTHENTICATION_ACCESS_TOKEN_BLACKLIST_KEY + accessToken
-            if (stringRedisTemplate.hasKey(accessTokenBlacklistKey)) {
+            if (accessTokenBlacklistStore.contain(accessToken)) {
                 throw MessageDeliveryException(message, "이미 로그아웃된 토큰입니다.")
             }
 
