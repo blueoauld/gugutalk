@@ -13,7 +13,7 @@ class Ban(
     val id: Long = 0L,
 
     @Column(name = "uuid", unique = true, nullable = false)
-    val uuid: UUID = UUID.randomUUID(),
+    val uuid: String = UUID.randomUUID().toString(),
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)

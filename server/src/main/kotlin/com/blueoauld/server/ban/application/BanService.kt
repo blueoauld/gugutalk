@@ -6,6 +6,7 @@ import com.blueoauld.server.ban.entity.Ban
 import com.blueoauld.server.ban.repository.BanRepository
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.BAN_01
+import com.blueoauld.server.common.exception.type.ErrorCode.BAN_02
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
@@ -40,5 +41,12 @@ class BanService(
             createdAt = ban.createdAt,
             expiredAt = ban.expiredAt
         )
+    }
+
+    @Transactional
+    fun delete(uuid: String) {
+        val ban = banRepository.findByUuid(uuid) ?: throw CustomException(BAN_02)
+
+        banRepository.delete(ban)
     }
 }
