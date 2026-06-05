@@ -1,18 +1,19 @@
 import SwiftUI
 
 struct ChatRoomView: View {
-
+    
     @Environment(AppRouter.self) private var router
     @Environment(ChatRoomViewModel.self) private var vm
-
+    @Environment(\.scenePhase) private var scenePhase
+    
     @State private var toggleChatTrigger = false
-
+    
     var body: some View {
         @Bindable var vm = vm
-
+        
         VStack {
             ChatStatusPicker(selectedStatus: $vm.status)
-
+            
             content
         }
         .navigationTitle("채팅")
@@ -29,13 +30,20 @@ struct ChatRoomView: View {
                 await vm.switchView()
             }
         }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task {
+                    await vm.switchView()
+                }
+            }
+        }
         .overlay {
             if vm.isLoading {
                 LoadingOverlay()
             }
         }
     }
-
+    
     @ViewBuilder
     private var content: some View {
         switch vm.state {
@@ -75,7 +83,7 @@ struct ChatRoomView: View {
             ErrorRetryView(message: message, retry: vm.switchView)
         }
     }
-
+    
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
@@ -87,11 +95,11 @@ struct ChatRoomView: View {
                     .foregroundStyle(.primary)
             }
         }
-
+        
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 toggleChatTrigger.toggle()
-
+                
                 Task {
                     if case .failure(let error) = await vm.toggleChat() {
                         ToastManager.shared.show(error.userMessage, style: .error)
