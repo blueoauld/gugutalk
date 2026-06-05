@@ -117,7 +117,7 @@ final class PrivateNetworkManager {
         case .success(let value):
             return value
         case .failure(let afError):
-            throw error(
+            throw resolveError(
                 afError,
                 data: response.data,
                 statusCode: response.response?.statusCode
@@ -127,7 +127,7 @@ final class PrivateNetworkManager {
 
     private func handleVoid(response: DataResponse<Data, AFError>) throws {
         if case .failure(let afError) = response.result {
-            throw error(
+            throw resolveError(
                 afError,
                 data: response.data,
                 statusCode: response.response?.statusCode
@@ -135,11 +135,21 @@ final class PrivateNetworkManager {
         }
     }
 
+    private func resolveError(_ afError: AFError, data: Data?, statusCode: Int?) -> APIError {
+        let apiError = error(afError, data: data, statusCode: statusCode)
+
+        if let ban = apiError.banInfo {
+            Task { @MainActor in
+                SessionStore.shared.handleBan(ban)
+            }
+        }
+        return apiError
+    }
+
     private func error(_ error: AFError, data: Data?, statusCode: Int?) -> APIError {
         if let urlError = error.underlyingError as? URLError {
             switch urlError.code {
-            case .notConnectedToInternet, .timedOut, .networkConnectionLost,
-                    .cannotConnectToHost, .cannotFindHost, .dataNotAllowed:
+            case .notConnectedToInternet, .timedOut, .networkConnectionLost, .cannotConnectToHost, .cannotFindHost, .dataNotAllowed:
                 return .network
             default:
                 break
@@ -148,7 +158,18 @@ final class PrivateNetworkManager {
 
         if let statusCode {
             switch statusCode {
-            case 401: return .unauthorized
+            case 401:
+                if let data, let errorResponse = try? JSONDecoder().decode(APIBanResponse.self, from: data) {
+                    if errorResponse.code == "UNAUTHORIZED_03" {
+                        return .ban(
+                            code: errorResponse.code,
+                            uuid: errorResponse.uuid,
+                            reason: errorResponse.reason,
+                            expiredAt: errorResponse.expiredAt
+                        )
+                    }
+                }
+                return .unauthorized
             case 400...599:
                 if let data, let errorResponse = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
                     return .server(

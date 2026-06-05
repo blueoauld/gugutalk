@@ -3,8 +3,6 @@ import SwiftUI
 @main
 struct MainApp: App {
 
-    @State private var session = SessionStore()
-
     init() {
         if TokenStorage.shared.deviceId == nil {
             TokenStorage.shared.deviceId = UUID().uuidString
@@ -14,7 +12,7 @@ struct MainApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
-                .environment(session)
+                .environment(SessionStore.shared)
                 .toastHost()
         }
     }

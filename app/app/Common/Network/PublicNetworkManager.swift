@@ -12,7 +12,10 @@ final class PublicNetworkManager {
         configuration.timeoutIntervalForRequest = 30
         configuration.timeoutIntervalForResource = 60
 
-        self.session = Session(configuration: configuration)
+        self.session = Session(
+            configuration: configuration,
+            interceptor: CommonInterceptor()
+        )
     }
 
     func request<T: Decodable>(
@@ -32,15 +35,15 @@ final class PublicNetworkManager {
             encoding: encoding,
             headers: headers
         )
-        .validate(statusCode: 200..<300)
-        .serializingDecodable(T.self)
-        .response
+            .validate(statusCode: 200..<300)
+            .serializingDecodable(T.self)
+            .response
 
         switch response.result {
         case .success(let value):
             return value
         case .failure(let afError):
-            throw error(
+            throw resolveError(
                 afError,
                 data: response.data,
                 statusCode: response.response?.statusCode
@@ -64,17 +67,28 @@ final class PublicNetworkManager {
             encoding: encoding,
             headers: headers
         )
-        .validate(statusCode: 200..<300)
-        .serializingData(emptyResponseCodes: [200, 204, 205])
-        .response
+            .validate(statusCode: 200..<300)
+            .serializingData(emptyResponseCodes: [200, 204, 205])
+            .response
 
         if case .failure(let afError) = response.result {
-            throw error(
+            throw resolveError(
                 afError,
                 data: response.data,
                 statusCode: response.response?.statusCode
             )
         }
+    }
+
+    private func resolveError(_ afError: AFError, data: Data?, statusCode: Int?) -> APIError {
+        let apiError = error(afError, data: data, statusCode: statusCode)
+
+        if let ban = apiError.banInfo {
+            Task { @MainActor in
+                SessionStore.shared.handleBan(ban)
+            }
+        }
+        return apiError
     }
 
     private func error(_ error: AFError, data: Data?, statusCode: Int?) -> APIError {
@@ -89,7 +103,18 @@ final class PublicNetworkManager {
 
         if let statusCode {
             switch statusCode {
-            case 401: return .unauthorized
+            case 401:
+                if let data, let errorResponse = try? JSONDecoder().decode(APIBanResponse.self, from: data) {
+                    if errorResponse.code == "UNAUTHORIZED_03" {
+                        return .ban(
+                            code: errorResponse.code,
+                            uuid: errorResponse.uuid,
+                            reason: errorResponse.reason,
+                            expiredAt: errorResponse.expiredAt
+                        )
+                    }
+                }
+                return .unauthorized
             case 400...599:
                 if let data, let errorResponse = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
                     return .server(
@@ -98,7 +123,6 @@ final class PublicNetworkManager {
                         statusCode: statusCode
                     )
                 }
-
                 return .server(
                     code: "INTERNAL_SERVER_ERROR",
                     message: "서버 오류가 발생했습니다.",

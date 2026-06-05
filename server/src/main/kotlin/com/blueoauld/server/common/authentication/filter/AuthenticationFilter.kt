@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
+import java.time.Instant
 
 @Component
 class AuthenticationFilter(
@@ -44,9 +45,8 @@ class AuthenticationFilter(
             exception(response, "존재하지 않는 디바이스 ID입니다.")
             return
         }
-        if (banRepository.existsByTypeAndTarget(DEVICE, deviceId)) {
-            exception(response)
-            return
+        banRepository.findByTypeAndTarget(DEVICE, deviceId)?.let {
+            return exception(response, it.uuid, it.reason, it.expiredAt)
         }
 
         if (matches(whitelist, request)) {
@@ -68,10 +68,10 @@ class AuthenticationFilter(
 
         val member = memberRepository.findByIdOrNull(memberId) ?: return exception(response, "존재하지 않는 회원입니다.")
 
-        if (banRepository.existsAccountOrPhone(ACCOUNT, memberId.toString(), PHONE, member.phone)) {
-            exception(response)
-            return
-        }
+        banRepository.findByAccountOrPhone(ACCOUNT, memberId.toString(), PHONE, member.phone)
+            .firstOrNull()?.let {
+                return exception(response, it.uuid, it.reason, it.expiredAt)
+            }
 
         request.setAttribute("memberId", memberId)
         filterChain.doFilter(request, response)
@@ -99,11 +99,24 @@ class AuthenticationFilter(
         return servletRequest.getHeader("X-Device-Id")
     }
 
-    private fun exception(response: HttpServletResponse) {
+    private fun exception(
+        response: HttpServletResponse,
+        uuid: String,
+        reason: String,
+        expiredAt: Instant
+    ) {
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = "application/json"
         response.characterEncoding = "UTF-8"
-        response.writer.write("""{"code": "UNAUTHORIZED_03", "message": "서비스 이용이 제한된 상태입니다."}""")
+        response.writer.write(
+            """
+            {
+            "code": "UNAUTHORIZED_03", 
+            "uuid": "$uuid",
+            "reason": "$reason",
+            "expiredAt": "$expiredAt"
+            }""".trimIndent()
+        )
     }
 
     private fun exception(response: HttpServletResponse, message: String) {

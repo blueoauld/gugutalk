@@ -10,20 +10,23 @@ interface BanRepository : JpaRepository<Ban, Long> {
 
     fun existsByTypeAndTarget(type: BanType, target: String): Boolean
 
+    fun findByTypeAndTarget(type: BanType, target: String): Ban?
+
     fun findByUuid(uuid: String): Ban?
 
     @Query(
         value = """
-            SELECT CASE WHEN COUNT(b) > 0 THEN TRUE ELSE FALSE END
+            SELECT b
             FROM Ban b
             WHERE (b.type = :accountType AND b.target = :memberId)
                OR (b.type = :phoneType  AND b.target = :phone)
+            ORDER BY b.expiredAt DESC
         """
     )
-    fun existsAccountOrPhone(
+    fun findByAccountOrPhone(
         @Param("accountType") accountType: BanType,
         @Param("memberId") memberId: String,
         @Param("phoneType") phoneType: BanType,
         @Param("phone") phone: String,
-    ): Boolean
+    ): List<Ban>
 }
