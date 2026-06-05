@@ -65,6 +65,9 @@ dependencies {
         exclude(module = "opus-java")
         exclude(module = "tink")
     }
+
+    // pushy
+    implementation("com.eatthepath:pushy:0.15.6")
 }
 
 kotlin {

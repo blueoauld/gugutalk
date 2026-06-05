@@ -24,10 +24,5 @@ struct RootView: View {
                 StompManager.shared.disconnect()
             }
         }
-        .onChange(of: session.banInfo) { _, info in
-            if info != nil {
-                StompManager.shared.disconnect()
-            }
-        }
     }
 }

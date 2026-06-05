@@ -13,25 +13,28 @@ final class SessionStore {
     }
 
     func login(_ response: LoginResponse) {
+        banInfo = nil
+        isLoggedIn = true
+        
         TokenStorage.shared.memberId = response.memberId
         TokenStorage.shared.accessToken = response.accessToken
         TokenStorage.shared.refreshToken = response.refreshToken
-
-        banInfo = nil
-        isLoggedIn = true
+        PushManager.shared.didLogin()
     }
 
     func logout() {
+        PushManager.shared.didLogout()
         TokenStorage.shared.clearAll()
-        StompManager.shared.disconnect()
+
         isLoggedIn = false
     }
 
     func handleBan(_ ban: BanInfo) {
         guard banInfo == nil else { return }
 
+        PushManager.shared.didLogout()
         TokenStorage.shared.clearAll()
-        
+
         banInfo = ban
         isLoggedIn = false
     }

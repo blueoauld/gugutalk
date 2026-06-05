@@ -33,6 +33,7 @@ class AuthenticationFilter(
     )
     private val exclude = listOf(
         HttpMethod.GET to "/ws/**",
+        HttpMethod.DELETE to "/api/push",
     )
 
     override fun doFilterInternal(

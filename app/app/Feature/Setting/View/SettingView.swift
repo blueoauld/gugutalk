@@ -2,16 +2,16 @@ import SwiftUI
 import MessageUI
 
 struct SettingView: View {
-    
+
     @Environment(SessionStore.self) private var session
-    
+
     @State private var vm = SettingViewModel()
     @State private var showMenu = false
     @State private var showQuestion = false
     @State private var showBug = false
     @State private var showService = false
     @State private var showPrivate = false
-    
+
     var body: some View {
         VStack {
             Form {
@@ -24,44 +24,44 @@ struct SettingView: View {
                         .navigationLinkIndicatorVisibility(.hidden)
                     }
                 }
-                
+
                 Section("활동") {
                     NavigationLink(value: AppRoute.likeList) {
                         Label("좋아요 목록", systemImage: "heart.fill")
                             .labelStyle(.settings(color: .red))
                     }
                     .navigationLinkIndicatorVisibility(.hidden)
-                    
+
                     NavigationLink(value: AppRoute.unlikeList) {
                         Label("싫어요 목록", systemImage: "heart.slash.fill")
                             .labelStyle(.settings(color: .blue))
                     }
                     .navigationLinkIndicatorVisibility(.hidden)
-                    
+
                     NavigationLink(value: AppRoute.privateImageGrantList) {
                         Label("비밀 사진 목록", systemImage: "lock.fill")
                             .labelStyle(.settings(color: .green))
                     }
                     .navigationLinkIndicatorVisibility(.hidden)
-                    
+
                     NavigationLink(value: AppRoute.blockList) {
                         Label("차단 목록", systemImage: "nosign")
                             .labelStyle(.settings(color: .gray))
                     }
                     .navigationLinkIndicatorVisibility(.hidden)
                 }
-                
+
                 Section("포인트") {
                     NavigationLink(value: AppRoute.point) {
                         Label("포인트 내역", systemImage: "gift.fill")
                             .labelStyle(.settings(color: .cyan))
                     }
                     .navigationLinkIndicatorVisibility(.hidden)
-                    
+
                     Button {
                         Task {
                             guard let result = await vm.rewardAttendance() else { return }
-                            
+
                             switch result {
                             case .success():
                                 ToastManager.shared.show("출석 체크가 완료되었습니다.", style: .info)
@@ -74,11 +74,11 @@ struct SettingView: View {
                             .labelStyle(.settings(color: .indigo))
                     }
                     .tint(.primary)
-                    
+
                     Button {
                         Task {
                             guard let result = await vm.rewardAdvertisement() else { return }
-                            
+
                             switch result {
                             case .success():
                                 ToastManager.shared.show("광고 보상이 지급되었습니다.", style: .info)
@@ -92,7 +92,7 @@ struct SettingView: View {
                     }
                     .tint(.primary)
                 }
-                
+
                 Section("기타") {
                     Button {
                         if MFMailComposeViewController.canSendMail() {
@@ -105,7 +105,7 @@ struct SettingView: View {
                             .labelStyle(.settings(color: .green))
                     }
                     .tint(.primary)
-                    
+
                     Button {
                         if MFMailComposeViewController.canSendMail() {
                             showBug = true
@@ -117,7 +117,7 @@ struct SettingView: View {
                             .labelStyle(.settings(color: .mint))
                     }
                     .tint(.primary)
-                    
+
                     Button {
                         showService = true
                     } label: {
@@ -128,7 +128,7 @@ struct SettingView: View {
                         SafariView(url: URL(string: "https://pidulgi.com/service.html")!)
                     }
                     .tint(.primary)
-                    
+
                     Button {
                         showPrivate = true
                     } label: {
@@ -157,20 +157,20 @@ struct SettingView: View {
                     Button("로그아웃") {
                         Task {
                             guard let result = await vm.logout() else { return }
-                            
+
                             switch result {
                             case .success():
                                 ToastManager.shared.show("로그아웃이 완료되었습니다.", style: .info)
                             case .failure(let error):
                                 ToastManager.shared.show(error.userMessage, style: .error)
                             }
-                            
+
                             session.logout()
                         }
                     }
-                    
+
                     Button("탈퇴", role: .destructive) {
-                        
+
                     }
                 }
             }
@@ -179,7 +179,7 @@ struct SettingView: View {
             let deviceId = TokenStorage.shared.deviceId ?? "알 수 없음"
             let deviceModel = machineIdentifier()
             let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "알 수 없음"
-            
+
             MailView(
                 recipients: ["gugutalk@proton.me"],
                 subject: "문의사항",
@@ -200,7 +200,7 @@ struct SettingView: View {
             let deviceId = TokenStorage.shared.deviceId ?? "알 수 없음"
             let deviceModel = machineIdentifier()
             let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "알 수 없음"
-            
+
             MailView(
                 recipients: ["gugutalk@proton.me"],
                 subject: "버그제보",
@@ -223,11 +223,11 @@ struct SettingView: View {
             }
         }
     }
-    
+
     private func machineIdentifier() -> String {
         var systemInfo = utsname()
         uname(&systemInfo)
-        
+
         return withUnsafePointer(to: &systemInfo.machine) {
             $0.withMemoryRebound(to: CChar.self, capacity: 1) {
                 String(validatingUTF8: $0) ?? "Unknown"
