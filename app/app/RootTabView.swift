@@ -16,6 +16,7 @@ struct RootTabView: View {
 
     @State private var chatVM = ChatRoomViewModel()
     @State private var chatBadgeManager = ChatBadgeManager.shared
+    @State private var pushRouter = PushRouter.shared
 
     @State private var selectedTab: TabType = .main
     @State private var hideTabBar = false
@@ -24,7 +25,12 @@ struct RootTabView: View {
         tabContent
             .task {
                 await chatVM.load()
+
                 chatVM.subscribe()
+                handlePendingDeepLink()
+            }
+            .onChange(of: pushRouter.pending) { _, _ in
+                handlePendingDeepLink()
             }
             .onChange(of: mainRouter.path) { _, path in
                 hideTabBar = path.last?.hideTabBar ?? false
@@ -66,5 +72,35 @@ struct RootTabView: View {
         }
         .tabViewStyle(.automatic)
         .sensoryFeedback(.selection, trigger: selectedTab)
+    }
+
+    private func handlePendingDeepLink() {
+        guard let route = pushRouter.pending else { return }
+
+        selectedTab = tab(for: route)
+        router(for: route).push(route)
+        pushRouter.pending = nil
+    }
+
+    private func tab(for route: AppRoute) -> TabType {
+        switch route {
+        case .chat, .chatMessage, .chatRoomSearch, .chatMessageVideo:
+            return .chat
+        case .rank:
+            return .rank
+        case .setting, .point:
+            return .setting
+        default:
+            return .main
+        }
+    }
+
+    private func router(for route: AppRoute) -> AppRouter {
+        switch tab(for: route) {
+        case .main: return mainRouter
+        case .chat: return chatRouter
+        case .rank: return rankRouter
+        case .setting: return settingRouter
+        }
     }
 }

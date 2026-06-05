@@ -1,5 +1,6 @@
 package com.blueoauld.server.chat.application
 
+import com.blueoauld.server.chat.application.event.ChatMessagePushEvent
 import com.blueoauld.server.chat.application.event.ChatMessageSendEvent
 import com.blueoauld.server.chat.application.event.ChatMessageUploadMediaEvent
 import com.blueoauld.server.chat.application.event.ChatRoomUpsertEvent
@@ -136,6 +137,18 @@ class ChatMessageService(
                 lastMessageAt = chatMessage.createdAt,
             )
         )
+
+        // 알림
+        applicationEventPublisher.publishEvent(
+            ChatMessagePushEvent(
+                chatRoomId = chatRoomId,
+                targetId = targetId,
+                senderId = memberId,
+                nickname = member.nickname,
+                profileUrl = member.profileUrl,
+                lastMessagePreview = request.content.take(100),
+            )
+        )
     }
 
     @Transactional
@@ -236,6 +249,18 @@ class ChatMessageService(
                 profileUrl = target.profileUrl,
                 lastMessagePreview = preview,
                 lastMessageAt = lastMessage.createdAt,
+            )
+        )
+
+        // 알림
+        applicationEventPublisher.publishEvent(
+            ChatMessagePushEvent(
+                chatRoomId = chatRoomId,
+                targetId = targetId,
+                senderId = memberId,
+                nickname = member.nickname,
+                profileUrl = member.profileUrl,
+                lastMessagePreview = preview,
             )
         )
     }

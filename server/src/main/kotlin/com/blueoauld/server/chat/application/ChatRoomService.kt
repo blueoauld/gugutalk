@@ -1,9 +1,6 @@
 package com.blueoauld.server.chat.application
 
-import com.blueoauld.server.chat.application.event.ChatMessageSendEvent
-import com.blueoauld.server.chat.application.event.ChatRoomDeleteEvent
-import com.blueoauld.server.chat.application.event.ChatRoomReadEvent
-import com.blueoauld.server.chat.application.event.ChatRoomUpsertEvent
+import com.blueoauld.server.chat.application.event.*
 import com.blueoauld.server.chat.application.request.ChatRoomCreateRequest
 import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
 import com.blueoauld.server.chat.application.response.ChatRoomSearchRowResponse
@@ -106,6 +103,18 @@ class ChatRoomService(
                 profileUrl = target.profileUrl,
                 lastMessagePreview = request.content.take(100),
                 lastMessageAt = chatMessage.createdAt,
+            )
+        )
+
+        // 알림
+        applicationEventPublisher.publishEvent(
+            ChatMessagePushEvent(
+                chatRoomId = chatRoom.id,
+                targetId = targetId,
+                senderId = memberId,
+                nickname = member.nickname,
+                profileUrl = member.profileUrl,
+                lastMessagePreview = request.content.take(100),
             )
         )
     }
