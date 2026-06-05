@@ -4,8 +4,6 @@ struct BanView: View {
 
     let banInfo: BanInfo
 
-    @State private var didCopy = false
-
     var body: some View {
         ContentUnavailableView {
             Label("서비스 이용 제한", systemImage: "nosign")
@@ -21,7 +19,6 @@ struct BanView: View {
 
                 Text("문의: gugutalk@proton.me")
                     .foregroundStyle(.secondary)
-                    .padding(.top, 8)
             }
         } actions: {
             Button {
