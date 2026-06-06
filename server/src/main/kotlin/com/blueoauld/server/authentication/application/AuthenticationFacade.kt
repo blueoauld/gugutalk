@@ -6,6 +6,7 @@ import com.blueoauld.server.authentication.application.port.VerificationCodeStor
 import com.blueoauld.server.authentication.application.port.VerificationSendLimiter
 import com.blueoauld.server.authentication.application.request.*
 import com.blueoauld.server.authentication.application.response.LoginResponse
+import com.blueoauld.server.authentication.application.response.RotateTokenResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
 import com.blueoauld.server.common.authentication.application.TokenProvider
 import com.blueoauld.server.common.exception.CustomException
@@ -90,5 +91,31 @@ class AuthenticationFacade(
 
         accessTokenBlacklistStore.save(memberId, request.accessToken)
         refreshTokenStore.delete(request.refreshToken)
+    }
+
+    fun rotateToken(request: RotateTokenRequest): RotateTokenResponse {
+        // DB
+        val member = authenticationService.getMember(request.memberId)
+
+        // Redis
+        val foundMemberId = refreshTokenStore.getMemberId(request.refreshToken)
+
+        if (foundMemberId == null || request.memberId != foundMemberId) {
+            throw CustomException(ErrorCode.UNAUTHORIZED_02)
+        }
+
+        accessTokenBlacklistStore.save(request.memberId, request.accessToken)
+        refreshTokenStore.delete(request.refreshToken)
+
+        val accessToken = tokenProvider.createAccessToken(member.id, member.nickname)
+        val refreshToken = tokenProvider.createRefreshToken(member.id)
+
+        refreshTokenStore.save(member.id, refreshToken)
+
+        return RotateTokenResponse(
+            memberId = member.id,
+            accessToken = accessToken,
+            refreshToken = refreshToken
+        )
     }
 }

@@ -96,4 +96,9 @@ class AuthenticationService(
         member.updateDeviceId(request.deviceId)
         return member
     }
+
+    @Transactional(readOnly = true)
+    fun getMember(memberId: Long): Member {
+        return memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_05)
+    }
 }

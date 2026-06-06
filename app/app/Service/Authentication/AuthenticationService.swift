@@ -88,4 +88,22 @@ final class AuthenticationService {
             encoding: JSONEncoding.default
         )
     }
+
+    func rotateToken(
+        memberId: Int64,
+        accessToken: String,
+        refreshToken: String,
+    ) async throws -> RotateTokenResponse {
+        return try await PublicNetworkManager.shared.request(
+            "/authentication/token/rotate",
+            method: .post,
+            parameters: [
+                "memberId": memberId,
+                "accessToken": accessToken,
+                "refreshToken": refreshToken,
+            ],
+            encoding: JSONEncoding.default,
+            as: RotateTokenResponse.self
+        )
+    }
 }

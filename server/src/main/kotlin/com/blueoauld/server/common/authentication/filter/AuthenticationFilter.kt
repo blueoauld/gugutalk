@@ -30,6 +30,7 @@ class AuthenticationFilter(
         HttpMethod.POST to "/api/authentication/verify",
         HttpMethod.POST to "/api/authentication/signup",
         HttpMethod.POST to "/api/authentication/login",
+        HttpMethod.POST to "/api/authentication/token/rotate",
     )
     private val exclude = listOf(
         HttpMethod.GET to "/ws/**",

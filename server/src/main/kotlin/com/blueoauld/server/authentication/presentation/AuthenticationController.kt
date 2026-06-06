@@ -3,6 +3,7 @@ package com.blueoauld.server.authentication.presentation
 import com.blueoauld.server.authentication.application.AuthenticationFacade
 import com.blueoauld.server.authentication.application.request.*
 import com.blueoauld.server.authentication.application.response.LoginResponse
+import com.blueoauld.server.authentication.application.response.RotateTokenResponse
 import com.blueoauld.server.authentication.application.response.SignupResponse
 import com.blueoauld.server.common.authentication.annotation.Login
 import jakarta.servlet.http.HttpServletRequest
@@ -58,5 +59,13 @@ class AuthenticationController(
     ): ResponseEntity<Unit> {
         authenticationFacade.logout(memberId, request)
         return ResponseEntity.ok().build()
+    }
+
+    @PostMapping("/authentication/token/rotate", version = "1")
+    fun rotateToken(
+        @Valid @RequestBody request: RotateTokenRequest,
+    ): ResponseEntity<RotateTokenResponse> {
+        val response = authenticationFacade.rotateToken(request)
+        return ResponseEntity.ok(response)
     }
 }
