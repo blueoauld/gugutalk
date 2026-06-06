@@ -3,6 +3,9 @@ import Alamofire
 
 final class AuthorizationInterceptor: RequestInterceptor {
 
+    private let maxRetryCount = 1
+    private let refresher = TokenRefresher()
+
     func adapt(
         _ urlRequest: URLRequest,
         for session: Session,
@@ -17,5 +20,22 @@ final class AuthorizationInterceptor: RequestInterceptor {
             request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         }
         completion(.success(request))
+    }
+    
+    func retry(
+        _ request: Request,
+        for session: Session,
+        dueTo error: any Error,
+        completion: @escaping @Sendable (RetryResult) -> Void
+    ) {
+        guard let statusCode = request.response?.statusCode, statusCode == 401, request.retryCount < maxRetryCount else {
+            completion(.doNotRetryWithError(error))
+            return
+        }
+
+        Task {
+            let success = await refresher.refreshIfNeeded()
+            completion(success ? .retry : .doNotRetryWithError(error))
+        }
     }
 }

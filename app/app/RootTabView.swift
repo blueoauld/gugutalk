@@ -77,9 +77,13 @@ struct RootTabView: View {
     private func handlePendingDeepLink() {
         guard let route = pushRouter.pending else { return }
 
-        selectedTab = tab(for: route)
-        router(for: route).push(route)
         pushRouter.pending = nil
+        selectedTab = tab(for: route)
+
+        let targetRouter = router(for: route)
+
+        guard targetRouter.path.last != route else { return }
+        targetRouter.push(route)
     }
 
     private func tab(for route: AppRoute) -> TabType {

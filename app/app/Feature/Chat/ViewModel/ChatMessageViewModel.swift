@@ -83,8 +83,6 @@ final class ChatMessageViewModel {
                 chatRoomId: chatRoomId,
                 content: message,
             )
-
-            message = ""
             return .success(())
         } catch {
             return .failure(error)

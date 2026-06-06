@@ -9,9 +9,11 @@ struct ChatMessageView: View {
     let profileUrl: String?
 
     @Environment(AppRouter.self) private var router
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var vm = ChatMessageViewModel()
     @State private var scrollToBottomTrigger = 0
+    @State private var message = ""
 
     private let imageSize: CGFloat = 35
 
@@ -24,8 +26,11 @@ struct ChatMessageView: View {
         }
         .safeAreaBar(edge: .bottom) {
             ChatMessageInputBar(
-                message: $vm.message,
+                message: $message,
                 onSend: {
+                    vm.message = message
+                    message = ""
+
                     if case .failure(let error) = await vm.send(chatRoomId: chatRoomId) {
                         if let apiError = error as? APIError, case .server(let code, _, _) = apiError, code == "CHAT_03" {
                             router.pop()
@@ -62,6 +67,13 @@ struct ChatMessageView: View {
         }
         .onDisappear {
             vm.unsubscribe(chatRoomId: chatRoomId)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task {
+                    await vm.load(chatRoomId: chatRoomId)
+                }
+            }
         }
     }
 
