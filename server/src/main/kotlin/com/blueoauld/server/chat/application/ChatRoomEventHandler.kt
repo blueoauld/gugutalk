@@ -33,6 +33,12 @@ class ChatRoomEventHandler(
             "/queue/chat-rooms/delete",
             ChatRoomDeleteResponse(event.chatRoomId)
         )
+
+        simpMessagingTemplate.convertAndSendToUser(
+            event.memberId.toString(),
+            "/queue/chat-rooms/delete",
+            ChatRoomDeleteResponse(event.chatRoomId)
+        )
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

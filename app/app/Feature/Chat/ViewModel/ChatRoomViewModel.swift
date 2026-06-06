@@ -93,12 +93,6 @@ final class ChatRoomViewModel {
         
         do {
             try await chatRoomService.delete(chatRoomId: chatRoomId)
-            
-            withAnimation {
-                chatRooms.removeAll { $0.chatRoomId == chatRoomId }
-            }
-            
-            state = chatRooms.isEmpty ? .empty : .data
             return .success(())
         } catch {
             return .failure(error)

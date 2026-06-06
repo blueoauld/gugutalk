@@ -4,4 +4,5 @@ data class ChatRoomDeleteEvent(
 
     val chatRoomId: Long,
     val targetId: Long,
+    val memberId: Long
 )

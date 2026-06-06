@@ -133,7 +133,8 @@ class ChatRoomService(
         applicationEventPublisher.publishEvent(
             ChatRoomDeleteEvent(
                 chatRoomId = chatRoomId,
-                targetId = chatRoom.getOtherMemberId(memberId)
+                targetId = chatRoom.getOtherMemberId(memberId),
+                memberId = memberId
             )
         )
     }
