@@ -14,6 +14,7 @@ class PointHistory(
     @Column(name = "point_id", nullable = false)
     val pointId: Long,
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "source", nullable = false)
     var source: PointSource,
 

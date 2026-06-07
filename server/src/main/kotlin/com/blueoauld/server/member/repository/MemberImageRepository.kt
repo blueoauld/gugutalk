@@ -3,7 +3,6 @@ package com.blueoauld.server.member.repository
 import com.blueoauld.server.member.entity.MemberImage
 import com.blueoauld.server.member.entity.type.MemberImageType
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
@@ -35,7 +34,5 @@ interface MemberImageRepository : JpaRepository<MemberImage, Long> {
     @Query("SELECT mi.key FROM MemberImage mi WHERE mi.memberId IN :ids")
     fun findKeysByMemberIds(@Param("ids") ids: List<Long>): List<String>
 
-    @Modifying
-    @Query("DELETE FROM MemberImage mi WHERE mi.memberId IN :ids")
-    fun deleteByMemberIds(@Param("ids") ids: List<Long>): Int
+    fun deleteByMemberIdIn(memberIds: List<Long>): Int
 }

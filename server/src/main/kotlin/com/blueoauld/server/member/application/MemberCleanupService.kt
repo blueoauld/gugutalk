@@ -31,7 +31,7 @@ class MemberCleanupService(
         privateImageGrantRepository.deleteByMemberIds(ids)
         blockRepository.deleteByMemberIds(ids)
         reviewRepository.deleteByMemberIds(ids)
-        memberImageRepository.deleteByMemberIds(ids)
+        memberImageRepository.deleteByMemberIdIn(ids)
         memberRepository.hardDeleteByIds(ids)
 
         return imageKeys
