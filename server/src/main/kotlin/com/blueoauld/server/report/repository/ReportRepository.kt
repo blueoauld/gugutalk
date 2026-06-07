@@ -18,7 +18,7 @@ interface ReportRepository : JpaRepository<Report, Long> {
         """,
         nativeQuery = true,
     )
-    fun findExpiredReportIds(
+    fun findAllByExpiredIds(
         @Param("threshold") threshold: Instant,
         @Param("limit") limit: Int,
     ): List<Long>

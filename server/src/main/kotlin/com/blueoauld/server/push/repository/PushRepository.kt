@@ -10,4 +10,6 @@ interface PushRepository : JpaRepository<Push, Long> {
     fun findAllByMemberId(memberId: Long): List<Push>
 
     fun deleteByToken(token: String)
+
+    fun deleteAllByMemberId(memberId: Long): Int
 }

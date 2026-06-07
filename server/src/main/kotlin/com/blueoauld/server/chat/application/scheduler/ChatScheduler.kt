@@ -1,8 +1,8 @@
-package com.blueoauld.server.report.application.scheduler
+package com.blueoauld.server.chat.application.scheduler
 
+import com.blueoauld.server.chat.application.ChatCleanupService
+import com.blueoauld.server.chat.repository.ChatRoomRepository
 import com.blueoauld.server.r2.application.R2Provider
-import com.blueoauld.server.report.application.ReportCleanupService
-import com.blueoauld.server.report.repository.ReportRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -10,11 +10,11 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @Component
-class ReportScheduler(
+class ChatScheduler(
 
-    private val reportCleanupService: ReportCleanupService,
+    private val chatCleanupService: ChatCleanupService,
     private val r2Provider: R2Provider,
-    private val reportRepository: ReportRepository
+    private val chatRoomRepository: ChatRoomRepository
 ) {
 
     private val log = KotlinLogging.logger {}
@@ -23,18 +23,18 @@ class ReportScheduler(
         private const val BATCH_SIZE = 500
     }
 
-    @Scheduled(cron = "0 0 8 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 10 * * *", zone = "Asia/Seoul")
     fun cleanup() {
-        val threshold = Instant.now().minus(365, ChronoUnit.DAYS)
+        val threshold = Instant.now().minus(90, ChronoUnit.DAYS)
         var total = 0
 
         while (true) {
-            val ids = reportRepository.findAllByExpiredIds(threshold, BATCH_SIZE)
+            val ids = chatRoomRepository.findAllByDeletedIds(threshold, BATCH_SIZE)
             if (ids.isEmpty()) {
                 break
             }
 
-            val imageKeys = reportCleanupService.deleteBatch(ids)
+            val imageKeys = chatCleanupService.deleteBatch(ids)
             r2Provider.deleteAll(imageKeys)
             total += ids.size
 
@@ -42,6 +42,6 @@ class ReportScheduler(
                 break
             }
         }
-        log.info { "기한이 만료된 신고 정보가 삭제되었습니다. ${total}개" }
+        log.info { "삭제된 채팅 정보가 삭제되었습니다. ${total}개" }
     }
 }

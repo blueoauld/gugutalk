@@ -29,7 +29,7 @@ class MemberScheduler(
         var total = 0
 
         while (true) {
-            val ids = memberRepository.findDeletedMemberIds(threshold, BATCH_SIZE)
+            val ids = memberRepository.findAllByDeletedIds(threshold, BATCH_SIZE)
             if (ids.isEmpty()) {
                 break
             }

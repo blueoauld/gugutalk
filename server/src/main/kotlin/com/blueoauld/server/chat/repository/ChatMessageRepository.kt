@@ -10,4 +10,6 @@ interface ChatMessageRepository : JpaRepository<ChatMessage, Long>, ChatMessageC
         value = "SELECT max(cm.id) FROM ChatMessage cm WHERE cm.chatRoomId = :chatRoomId"
     )
     fun findLastMessageId(chatRoomId: Long): Long?
+
+    fun deleteByChatRoomIdIn(chatRoomIds: List<Long>): Int
 }

@@ -27,7 +27,7 @@ interface MemberRepository : JpaRepository<Member, Long>, MemberCustomRepository
         """,
         nativeQuery = true,
     )
-    fun findDeletedMemberIds(
+    fun findAllByDeletedIds(
         @Param("threshold") threshold: Instant,
         @Param("limit") limit: Int,
     ): List<Long>

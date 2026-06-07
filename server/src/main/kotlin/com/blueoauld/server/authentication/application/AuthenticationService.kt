@@ -15,6 +15,7 @@ import com.blueoauld.server.member.repository.MemberRepository
 import com.blueoauld.server.point.entity.Point
 import com.blueoauld.server.point.repository.PointHistoryRepository
 import com.blueoauld.server.point.repository.PointRepository
+import com.blueoauld.server.push.repository.PushRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
@@ -30,6 +31,7 @@ class AuthenticationService(
     private val pointRepository: PointRepository,
     private val pointHistoryRepository: PointHistoryRepository,
     private val chatRoomRepository: ChatRoomRepository,
+    private val pushRepository: PushRepository,
     private val passwordEncoder: PasswordEncoder,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
@@ -128,6 +130,7 @@ class AuthenticationService(
             pointHistoryRepository.deleteAllByPointId(it.id)
             pointRepository.delete(it)
         }
+        pushRepository.deleteAllByMemberId(memberId)
         memberRepository.delete(member)
     }
 }
