@@ -13,6 +13,7 @@ import com.blueoauld.server.common.exception.type.ErrorCode.*
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.repository.MemberRepository
 import com.blueoauld.server.point.entity.Point
+import com.blueoauld.server.point.repository.PointHistoryRepository
 import com.blueoauld.server.point.repository.PointRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.dao.DataIntegrityViolationException
@@ -27,6 +28,7 @@ class AuthenticationService(
     private val verificationCodeRepository: VerificationCodeRepository,
     private val memberRepository: MemberRepository,
     private val pointRepository: PointRepository,
+    private val pointHistoryRepository: PointHistoryRepository,
     private val chatRoomRepository: ChatRoomRepository,
     private val passwordEncoder: PasswordEncoder,
     private val applicationEventPublisher: ApplicationEventPublisher,
@@ -122,7 +124,10 @@ class AuthenticationService(
                 )
             )
         }
-
+        pointRepository.findByMemberId(memberId)?.let {
+            pointHistoryRepository.deleteAllByPointId(it.id)
+            pointRepository.delete(it)
+        }
         memberRepository.delete(member)
     }
 }

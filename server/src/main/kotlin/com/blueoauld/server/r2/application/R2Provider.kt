@@ -5,10 +5,7 @@ import com.blueoauld.server.r2.application.response.UploadUrlResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.s3.S3Client
-import software.amazon.awssdk.services.s3.model.CopyObjectRequest
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
-import software.amazon.awssdk.services.s3.model.PutObjectRequest
-import software.amazon.awssdk.services.s3.model.S3Exception
+import software.amazon.awssdk.services.s3.model.*
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest
 import java.time.Duration
@@ -79,6 +76,28 @@ class R2Provider(
         } catch (e: S3Exception) {
             log.error(e) { "파일 삭제에 실패했습니다. 키 = $key" }
             throw e
+        }
+    }
+
+    fun deleteAll(keys: List<String>) {
+        keys.chunked(1000).forEach { chunk ->
+            try {
+                val objects = chunk.map { ObjectIdentifier.builder().key(it).build() }
+                val result = s3Client.deleteObjects(
+                    DeleteObjectsRequest.builder()
+                        .bucket(r2Properties.bucket)
+                        .delete(Delete.builder().objects(objects).build())
+                        .build()
+                )
+
+                if (result.hasErrors()) {
+                    result.errors().forEach { err ->
+                        log.error { "R2 객체 삭제에 실패했습니다. 키 = ${err.key()}, 코드 = ${err.code()}, 메세지 = ${err.message()}" }
+                    }
+                }
+            } catch (e: Exception) {
+                log.error(e) { "R2 배치 삭제에 오류가 발생했습니다. 키 = $chunk" }
+            }
         }
     }
 }

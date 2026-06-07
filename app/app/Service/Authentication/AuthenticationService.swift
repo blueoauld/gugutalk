@@ -1,9 +1,9 @@
 import Alamofire
 
 final class AuthenticationService {
-
+    
     static let shared = AuthenticationService()
-
+    
     func sendVerificationCode(phone: String, deviceId: String) async throws {
         try await PublicNetworkManager.shared.requestVoid(
             "/authentication/verify",
@@ -12,7 +12,7 @@ final class AuthenticationService {
             encoding: JSONEncoding.default
         )
     }
-
+    
     func signup(
         phone: String,
         deviceId: String,
@@ -36,7 +36,7 @@ final class AuthenticationService {
             as: SignupResponse.self
         )
     }
-
+    
     func setup(
         nickname: String,
         birthYear: String,
@@ -55,7 +55,7 @@ final class AuthenticationService {
             encoding: JSONEncoding.default
         )
     }
-
+    
     func login(
         phone: String,
         password: String,
@@ -73,7 +73,7 @@ final class AuthenticationService {
             as: LoginResponse.self
         )
     }
-
+    
     func logout(
         accessToken: String,
         refreshToken: String,
@@ -88,7 +88,7 @@ final class AuthenticationService {
             encoding: JSONEncoding.default
         )
     }
-
+    
     func rotateToken(
         memberId: Int64,
         accessToken: String,
@@ -107,15 +107,10 @@ final class AuthenticationService {
         )
     }
     
-    func deleteAccount(
-        refreshToken: String,
-    ) async throws {
+    func deleteAccount() async throws {
         try await PrivateNetworkManager.shared.requestVoid(
             "/authentication/account",
             method: .delete,
-            parameters: [
-                "refreshToken": refreshToken,
-            ],
             encoding: JSONEncoding.default
         )
     }

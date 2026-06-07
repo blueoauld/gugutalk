@@ -72,9 +72,8 @@ class AuthenticationController(
     @DeleteMapping("/authentication/account", version = "1")
     fun delete(
         @Login memberId: Long,
-        @Valid @RequestBody request: DeleteAccountRequest,
     ): ResponseEntity<Unit> {
-        authenticationFacade.deleteAccount(memberId, request)
+        authenticationFacade.deleteAccount(memberId)
         return ResponseEntity.ok().build()
     }
 }

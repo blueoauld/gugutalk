@@ -119,17 +119,8 @@ class AuthenticationFacade(
         )
     }
 
-    fun deleteAccount(memberId: Long, request: DeleteAccountRequest) {
+    fun deleteAccount(memberId: Long) {
         // DB
         authenticationService.deleteMember(memberId)
-
-        // Redis
-        val foundMemberId = refreshTokenStore.getMemberId(request.refreshToken)
-
-        if (foundMemberId == null || memberId != foundMemberId) {
-            throw CustomException(ErrorCode.UNAUTHORIZED_02)
-        }
-
-        refreshTokenStore.delete(request.refreshToken)
     }
 }
