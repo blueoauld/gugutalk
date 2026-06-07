@@ -6,12 +6,15 @@ import com.blueoauld.server.authentication.application.request.SetupRequest
 import com.blueoauld.server.authentication.application.request.SignupRequest
 import com.blueoauld.server.authentication.entity.VerificationCode
 import com.blueoauld.server.authentication.repository.VerificationCodeRepository
+import com.blueoauld.server.chat.application.event.ChatRoomDeleteEvent
+import com.blueoauld.server.chat.repository.ChatRoomRepository
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.*
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.repository.MemberRepository
 import com.blueoauld.server.point.entity.Point
 import com.blueoauld.server.point.repository.PointRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -24,7 +27,9 @@ class AuthenticationService(
     private val verificationCodeRepository: VerificationCodeRepository,
     private val memberRepository: MemberRepository,
     private val pointRepository: PointRepository,
+    private val chatRoomRepository: ChatRoomRepository,
     private val passwordEncoder: PasswordEncoder,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
     @Transactional
@@ -99,6 +104,25 @@ class AuthenticationService(
 
     @Transactional(readOnly = true)
     fun getMember(memberId: Long): Member {
-        return memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_05)
+        return memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+    }
+
+    @Transactional
+    fun deleteMember(memberId: Long) {
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+
+        chatRoomRepository.findAllByMember1IdOrMember2Id(memberId, memberId).forEach {
+            chatRoomRepository.delete(it)
+
+            applicationEventPublisher.publishEvent(
+                ChatRoomDeleteEvent(
+                    chatRoomId = it.id,
+                    targetId = it.getOtherMemberId(memberId),
+                    memberId = memberId
+                )
+            )
+        }
+
+        memberRepository.delete(member)
     }
 }

@@ -106,4 +106,17 @@ final class AuthenticationService {
             as: RotateTokenResponse.self
         )
     }
+    
+    func deleteAccount(
+        refreshToken: String,
+    ) async throws {
+        try await PrivateNetworkManager.shared.requestVoid(
+            "/authentication/account",
+            method: .delete,
+            parameters: [
+                "refreshToken": refreshToken,
+            ],
+            encoding: JSONEncoding.default
+        )
+    }
 }

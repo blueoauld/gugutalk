@@ -68,4 +68,13 @@ class AuthenticationController(
         val response = authenticationFacade.rotateToken(request)
         return ResponseEntity.ok(response)
     }
+
+    @DeleteMapping("/authentication/account", version = "1")
+    fun delete(
+        @Login memberId: Long,
+        @Valid @RequestBody request: DeleteAccountRequest,
+    ): ResponseEntity<Unit> {
+        authenticationFacade.deleteAccount(memberId, request)
+        return ResponseEntity.ok().build()
+    }
 }
