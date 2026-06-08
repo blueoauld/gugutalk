@@ -1,0 +1,12 @@
+.git
+.gitignore
+build/
+.gradle/
+*.log
+.env
+.env.*
+secrets/
+.idea/
+*.iml
+.DS_Store
+*.pem

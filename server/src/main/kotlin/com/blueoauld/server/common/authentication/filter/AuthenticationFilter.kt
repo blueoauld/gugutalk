@@ -34,6 +34,8 @@ class AuthenticationFilter(
     )
     private val exclude = listOf(
         HttpMethod.GET to "/ws/**",
+        HttpMethod.GET to "/actuator/health",
+        HttpMethod.GET to "/actuator/prometheus",
         HttpMethod.DELETE to "/api/push",
     )
 

@@ -28,6 +28,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     runtimeOnly("org.postgresql:postgresql")
@@ -68,6 +69,9 @@ dependencies {
 
     // pushy
     implementation("com.eatthepath:pushy:0.15.6")
+
+    // prometheus
+    implementation("io.micrometer:micrometer-registry-prometheus")
 }
 
 kotlin {

@@ -40,5 +40,11 @@ out/
 .kotlin
 
 ### Other ###
-application.yml
+application*.yml
 *.p8
+.env
+compose.yml
+fluent-bit.conf
+Dockerfile
+*.pem
+config.alloy
