@@ -10,6 +10,7 @@ import com.blueoauld.server.member.entity.type.MemberImageType.PRIVATE
 import com.blueoauld.server.member.entity.type.MemberImageType.PUBLIC
 import com.blueoauld.server.member.repository.MemberImageRepository
 import com.blueoauld.server.member.repository.MemberRepository
+import com.blueoauld.server.r2.application.R2Provider
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,6 +21,7 @@ class AdminService(
 
     private val memberRepository: MemberRepository,
     private val memberImageRepository: MemberImageRepository,
+    private val r2Provider: R2Provider,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
@@ -31,7 +33,7 @@ class AdminService(
         return AdminGetMemberResponse.from(
             member = member,
             publicImages = memberImages.filter { it.type == PUBLIC }.map { it.url },
-            privateImages = memberImages.filter { it.type == PRIVATE }.map { it.url }
+            privateImages = memberImages.filter { it.type == PRIVATE }.map { r2Provider.createDownloadUrl(it.key) }
         )
     }
 

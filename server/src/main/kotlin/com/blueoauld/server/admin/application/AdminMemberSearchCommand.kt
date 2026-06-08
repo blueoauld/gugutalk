@@ -18,6 +18,11 @@ class AdminMemberSearchCommand(
     private val adminService: AdminService,
 ) : SlashCommand {
 
+    companion object {
+        private val EMBED_COLOR = Color(0x5865F2)
+        private const val MAX_DESCRIPTION_LENGTH = 4096
+    }
+
     override val name: String = "조회"
 
     override fun data(): SlashCommandData = Commands.slash(name, "닉네임으로 회원을 조회합니다.")
@@ -39,12 +44,27 @@ class AdminMemberSearchCommand(
             return
         }
 
-        event.hook.sendMessageEmbeds(buildEmbed(response)).queue()
+        event.hook.sendMessageEmbeds(buildEmbeds(response)).queue()
     }
 
-    private fun buildEmbed(response: AdminGetMemberResponse): MessageEmbed {
-        val builder = EmbedBuilder()
-            .setColor(Color(0x5865F2))
+    private fun buildEmbeds(response: AdminGetMemberResponse): List<MessageEmbed> {
+        val embeds = mutableListOf<MessageEmbed>()
+
+        embeds += buildInfoEmbed(response)
+
+        if (response.publicImages.isNotEmpty()) {
+            embeds += buildImageEmbeds("공개 이미지", response.publicImages)
+        }
+        if (response.privateImages.isNotEmpty()) {
+            embeds += buildImageEmbeds("비공개 이미지", response.privateImages)
+        }
+
+        return embeds
+    }
+
+    private fun buildInfoEmbed(response: AdminGetMemberResponse): MessageEmbed =
+        EmbedBuilder()
+            .setColor(EMBED_COLOR)
             .setTitle(response.nickname)
             .addField("ID", "`${response.memberId}`", false)
             .addField("성별", response.gender.name, false)
@@ -56,19 +76,44 @@ class AdminMemberSearchCommand(
             .addField("자기소개", response.bio.ifBlank { "-" }, false)
             .addField("가입일", "<t:${response.createdAt.epochSecond}:f>", false)
             .addField("수정일", "<t:${response.updatedAt.epochSecond}:f>", false)
+            .build()
 
-        if (response.publicImages.isNotEmpty()) {
-            builder.addField(
-                "공개 이미지 (${response.publicImages.size})",
-                response.publicImages.joinToString("\n").take(1024), false
-            )
+    private fun buildImageEmbeds(title: String, images: List<String>): List<MessageEmbed> {
+        val chunks = chunkByLength(images, MAX_DESCRIPTION_LENGTH)
+
+        return chunks.mapIndexed { index, chunk ->
+            val header = if (chunks.size == 1) {
+                "$title (${images.size})"
+            } else {
+                "$title (${images.size}) - ${index + 1}/${chunks.size}"
+            }
+            EmbedBuilder()
+                .setColor(EMBED_COLOR)
+                .setTitle(header)
+                .setDescription(chunk.joinToString("\n"))
+                .build()
         }
-        if (response.privateImages.isNotEmpty()) {
-            builder.addField(
-                "비공개 이미지 (${response.privateImages.size})",
-                response.privateImages.joinToString("\n").take(1024), false
-            )
+    }
+
+    private fun chunkByLength(items: List<String>, maxLength: Int): List<List<String>> {
+        val chunks = mutableListOf<List<String>>()
+        var current = mutableListOf<String>()
+        var currentLength = 0
+
+        for (item in items) {
+            val extra = if (current.isEmpty()) item.length else item.length + 1
+
+            if (current.isNotEmpty() && currentLength + extra > maxLength) {
+                chunks += current
+                current = mutableListOf()
+                currentLength = 0
+            }
+            currentLength += if (current.isEmpty()) item.length else item.length + 1
+            current += item
         }
-        return builder.build()
+        if (current.isNotEmpty()) {
+            chunks += current
+        }
+        return chunks
     }
 }
