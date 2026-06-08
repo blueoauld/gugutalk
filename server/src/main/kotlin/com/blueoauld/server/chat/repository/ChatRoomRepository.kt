@@ -17,7 +17,7 @@ interface ChatRoomRepository : JpaRepository<ChatRoom, Long>, ChatRoomCustomRepo
         value = """
             SELECT id
             FROM chat_room
-            WHERE deleted_at IS NOT NULL AND deleted_at < :threshold
+            WHERE deleted_at < :threshold
             ORDER BY id
             LIMIT :limit
         """,
