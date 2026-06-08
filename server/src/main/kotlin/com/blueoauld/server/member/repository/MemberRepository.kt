@@ -17,6 +17,8 @@ interface MemberRepository : JpaRepository<Member, Long>, MemberCustomRepository
 
     fun findByNickname(nickname: String): Member?
 
+    fun findAllByDeviceId(deviceId: String): List<Member>
+
     @Query(
         value = """
             SELECT id
