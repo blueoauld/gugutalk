@@ -16,6 +16,7 @@ import com.blueoauld.server.member.entity.type.MemberImageType.PRIVATE
 import com.blueoauld.server.member.entity.type.MemberImageType.PUBLIC
 import com.blueoauld.server.member.repository.MemberImageRepository
 import com.blueoauld.server.member.repository.MemberRepository
+import com.blueoauld.server.r2.application.R2Provider
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -28,6 +29,7 @@ class MemberService(
     private val memberRepository: MemberRepository,
     private val memberImageRepository: MemberImageRepository,
     private val privateImageGrantRepository: PrivateImageGrantRepository,
+    private val r2Provider: R2Provider,
     private val applicationEventPublisher: ApplicationEventPublisher,
     private val r2Properties: R2Properties,
 ) {
@@ -166,7 +168,12 @@ class MemberService(
     @Transactional(readOnly = true)
     fun getMe(memberId: Long): MemberGetMeResponse {
         val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
-        val memberImages = memberImageRepository.findAllByMemberId(member.id).map { MemberImageResponse.from(it) }
+        val memberImages = memberImageRepository.findAllByMemberId(member.id).map {
+            when (it.type) {
+                PUBLIC -> MemberImageResponse.from(it)
+                PRIVATE -> MemberImageResponse.from(it, r2Provider.createDownloadUrl(it.key))
+            }
+        }
 
         return MemberGetMeResponse(
             memberId = member.id,
@@ -220,7 +227,8 @@ class MemberService(
 
         val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
         val memberImages = memberImageRepository.findAllByMemberIdAndType(targetId, PRIVATE).map {
-            MemberImageResponse.from(it)
+            val url = r2Provider.createDownloadUrl(it.key)
+            MemberImageResponse.from(it, url)
         }
 
         return MemberGetPrivateImagesResponse(member.phone, memberImages)

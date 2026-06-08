@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.*
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest
 import java.time.Duration
 
@@ -35,6 +36,20 @@ class R2Provider(
         ).url().toString()
 
         return UploadUrlResponse(url, key)
+    }
+
+    fun createDownloadUrl(key: String, expiry: Duration = Duration.ofMinutes(30)): String {
+        val getObjectRequest = GetObjectRequest.builder()
+            .bucket(r2Properties.bucket)
+            .key(key)
+            .build()
+
+        return s3Presigner.presignGetObject(
+            GetObjectPresignRequest.builder()
+                .signatureDuration(expiry)
+                .getObjectRequest(getObjectRequest)
+                .build()
+        ).url().toString()
     }
 
     fun moveFile(sourceKey: String, destinationKey: String) {

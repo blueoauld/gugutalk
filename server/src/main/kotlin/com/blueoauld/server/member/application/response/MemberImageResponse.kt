@@ -22,5 +22,15 @@ data class MemberImageResponse(
                 sortOrder = memberImage.sortOrder
             )
         }
+
+        fun from(memberImage: MemberImage, url: String): MemberImageResponse {
+            return MemberImageResponse(
+                imageId = memberImage.id,
+                type = memberImage.type,
+                key = memberImage.key,
+                url = url,
+                sortOrder = memberImage.sortOrder
+            )
+        }
     }
 }
