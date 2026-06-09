@@ -1,9 +1,6 @@
 package com.blueoauld.server.authentication.application
 
-import com.blueoauld.server.authentication.application.port.AccessTokenBlacklistStore
-import com.blueoauld.server.authentication.application.port.RefreshTokenStore
-import com.blueoauld.server.authentication.application.port.VerificationCodeStore
-import com.blueoauld.server.authentication.application.port.VerificationSendLimiter
+import com.blueoauld.server.authentication.application.port.*
 import com.blueoauld.server.authentication.application.request.*
 import com.blueoauld.server.authentication.application.response.LoginResponse
 import com.blueoauld.server.authentication.application.response.RotateTokenResponse
@@ -25,6 +22,7 @@ class AuthenticationFacade(
     private val verificationSendLimiter: VerificationSendLimiter,
     private val refreshTokenStore: RefreshTokenStore,
     private val accessTokenBlacklistStore: AccessTokenBlacklistStore,
+    private val messageSender: MessageSender,
 ) {
 
     fun sendVerificationCode(request: SendVerificationCodeRequest, servletRequest: HttpServletRequest) {
@@ -41,6 +39,9 @@ class AuthenticationFacade(
         // Redis
         verificationCodeStore.save(request.phone, code)
         verificationSendLimiter.record(request.deviceId)
+
+        // SMS
+        messageSender.send(request.phone, code)
     }
 
     fun signup(request: SignupRequest): SignupResponse {

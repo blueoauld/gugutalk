@@ -75,6 +75,9 @@ dependencies {
 
     // logstash-logback-encoder
     implementation("net.logstash.logback:logstash-logback-encoder:9.0")
+
+    // solapi
+    implementation("com.solapi:sdk:1.0.3")
 }
 
 kotlin {

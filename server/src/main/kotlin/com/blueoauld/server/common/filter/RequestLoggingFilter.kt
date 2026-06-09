@@ -19,6 +19,7 @@ class RequestLoggingFilter : OncePerRequestFilter() {
     private val antPathMatcher = AntPathMatcher()
     private val exclude = listOf(
         HttpMethod.GET to "/ws/**",
+        HttpMethod.GET to "/actuator/**",
         HttpMethod.DELETE to "/api/push",
     )
     private val log = KotlinLogging.logger {}

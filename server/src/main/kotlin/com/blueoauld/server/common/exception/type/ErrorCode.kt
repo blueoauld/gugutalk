@@ -12,6 +12,7 @@ enum class ErrorCode(
 
     VERIFICATION_CODE_01(HttpStatus.TOO_MANY_REQUESTS, "인증 번호 요청 횟수를 초과했습니다."),
     VERIFICATION_CODE_02(HttpStatus.BAD_REQUEST, "인증 번호를 다시 한번 확인해주시길 바랍니다."),
+    VERIFICATION_CODE_03(HttpStatus.BAD_REQUEST, "인증 번호 전송에 실패했습니다."),
 
     MEMBER_01(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
     MEMBER_02(HttpStatus.CONFLICT, "이미 사용중인 휴대폰 번호입니다."),
