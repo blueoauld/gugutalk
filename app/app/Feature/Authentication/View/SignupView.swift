@@ -7,6 +7,8 @@ struct SignupView: View {
 
     @State private var vm = SignupViewModel()
     @State private var showAlert = false
+    @State private var showService = false
+    @State private var showPrivate = false
 
     var body: some View {
         ScrollView {
@@ -53,6 +55,29 @@ struct SignupView: View {
                 }
 
                 GenderSelector(gender: $vm.gender)
+
+                Spacer()
+
+                HStack {
+                    Button {
+                        showService = true
+                    } label: {
+                        Text("서비스 이용약관")
+                    }
+                    .sheet(isPresented: $showService) {
+                        SafariView(url: URL(string: "https://pidulgi.com/service.html")!)
+                    }
+
+                    Button {
+                        showPrivate = true
+                    } label: {
+                        Text("개인정보 취급방침")
+                    }
+                    .sheet(isPresented: $showPrivate) {
+                        SafariView(url: URL(string: "https://pidulgi.com/private.html")!)
+                    }
+                }
+                .font(.footnote)
             }
             .padding()
         }
