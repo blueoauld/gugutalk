@@ -16,25 +16,49 @@ class RedisAttendanceStore(
 ) : AttendanceStore {
 
     companion object {
-        private const val KEY_PREFIX = "point:attendance:"
+        private const val MEMBER_KEY_PREFIX = "point:attendance:member:"
+        private const val DEVICE_KEY_PREFIX = "point:attendance:device:"
         private val ZONE = ZoneId.of("Asia/Seoul")
     }
 
-    override fun isAttend(memberId: Long): Boolean = redisTemplate.hasKey(keyOf(memberId))
+    override fun claim(memberId: Long, deviceId: String): Boolean {
+        val ttl = nextMidnight()
+        val memberKey = memberKeyOf(memberId)
+        val deviceKey = deviceKeyOf(deviceId)
 
-    override fun mark(memberId: Long) {
+        if (redisTemplate.opsForValue().setIfAbsent(memberKey, memberId.toString(), ttl) != true) {
+            return false
+        }
+        if (redisTemplate.opsForValue().setIfAbsent(deviceKey, memberId.toString(), ttl) != true) {
+            redisTemplate.delete(memberKey)
+            return false
+        }
+
+        registerRollbackCleanup(memberKey, deviceKey)
+        return true
+    }
+
+    override fun isAttend(memberId: Long, deviceId: String): Boolean =
+        redisTemplate.countExistingKeys(
+            listOf(memberKeyOf(memberId), deviceKeyOf(deviceId))
+        ) > 0
+
+    private fun registerRollbackCleanup(vararg keys: String) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            return
+        }
+
         TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
-            override fun afterCommit() {
-                redisTemplate.opsForValue().set(
-                    keyOf(memberId),
-                    memberId.toString(),
-                    nextMidnight()
-                )
+            override fun afterCompletion(status: Int) {
+                if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+                    redisTemplate.delete(keys.toList())
+                }
             }
         })
     }
 
-    private fun keyOf(memberId: Long) = KEY_PREFIX + memberId
+    private fun memberKeyOf(memberId: Long) = MEMBER_KEY_PREFIX + memberId
+    private fun deviceKeyOf(deviceId: String) = DEVICE_KEY_PREFIX + deviceId
 
     private fun nextMidnight(): Duration {
         val now = ZonedDateTime.now(ZONE)

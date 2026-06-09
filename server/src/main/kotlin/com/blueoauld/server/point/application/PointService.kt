@@ -34,11 +34,16 @@ class PointService(
     }
 
     @Transactional
-    fun rewardAttendance(memberId: Long) {
-        memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+    fun rewardAttendance(memberId: Long, deviceId: String) {
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+
+        if (member.deviceId != deviceId) {
+            throw CustomException(MEMBER_06)
+        }
+
         val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(POINT_01)
 
-        if (attendanceStore.isAttend(memberId)) {
+        if (!attendanceStore.claim(memberId, deviceId)) {
             throw CustomException(POINT_02)
         }
 
@@ -48,9 +53,7 @@ class PointService(
             balanceSnapshot = point.balance
         )
         pointHistoryRepository.save(pointHistory)
-
         point.earn(ATTENDANCE.point)
-        attendanceStore.mark(memberId)
     }
 
     @Transactional

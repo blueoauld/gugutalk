@@ -2,7 +2,7 @@ package com.blueoauld.server.point.application.port
 
 interface AttendanceStore {
 
-    fun isAttend(memberId: Long): Boolean
+    fun claim(memberId: Long, deviceId: String): Boolean
 
-    fun mark(memberId: Long)
+    fun isAttend(memberId: Long, deviceId: String): Boolean
 }

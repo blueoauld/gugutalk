@@ -26,9 +26,10 @@ class PointController(
 
     @PostMapping("/points/attendance", version = "1")
     fun rewardAttendance(
-        @Login memberId: Long
+        @Login memberId: Long,
+        @RequestHeader("X-Device-Id") deviceId: String
     ): ResponseEntity<Unit> {
-        pointService.rewardAttendance(memberId)
+        pointService.rewardAttendance(memberId, deviceId)
         return ResponseEntity.ok().build()
     }
 

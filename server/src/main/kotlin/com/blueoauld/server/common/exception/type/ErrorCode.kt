@@ -19,6 +19,7 @@ enum class ErrorCode(
     MEMBER_03(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
     MEMBER_04(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     MEMBER_05(HttpStatus.BAD_REQUEST, "휴대폰 또는 비밀번호가 일치하지 않습니다."),
+    MEMBER_06(HttpStatus.BAD_REQUEST, "로그인을 다시 해주시길 바랍니다."),
 
     ACTIVITY_01(HttpStatus.CONFLICT, "이미 좋아요를 누르셨습니다."),
     ACTIVITY_02(HttpStatus.BAD_REQUEST, "좋아요를 누른 적이 없습니다."),
