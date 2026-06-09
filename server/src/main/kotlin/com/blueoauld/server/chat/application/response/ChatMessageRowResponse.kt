@@ -8,6 +8,7 @@ import java.time.Instant
 data class ChatMessageRowResponse(
 
     val chatMessageId: Long,
+    val clientMessageId: String? = null,
     val senderId: Long,
     val content: String,
     val type: MessageType,
@@ -28,6 +29,7 @@ data class ChatMessageRowResponse(
         fun from(event: ChatMessageSendEvent): ChatMessageRowResponse {
             return ChatMessageRowResponse(
                 chatMessageId = event.chatMessageId,
+                clientMessageId = event.clientMessageId,
                 senderId = event.senderId,
                 content = event.content,
                 type = event.type,

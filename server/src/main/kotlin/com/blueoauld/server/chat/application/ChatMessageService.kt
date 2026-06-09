@@ -108,7 +108,8 @@ class ChatMessageService(
                 senderId = memberId,
                 content = request.content,
                 type = MessageType.TEXT,
-                createdAt = chatMessage.createdAt
+                createdAt = chatMessage.createdAt,
+                clientMessageId = request.clientMessageId,
             )
         )
 

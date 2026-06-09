@@ -33,12 +33,14 @@ final class ChatMessageService {
     func send(
         chatRoomId: Int64,
         content: String,
+        clientMessageId: String,
     ) async throws {
         try await PrivateNetworkManager.shared.requestVoid(
             "/chat-rooms/\(chatRoomId)/messages",
             method: .post,
             parameters: [
                 "content": content,
+                "clientMessageId": clientMessageId
             ],
             encoding: JSONEncoding.default
         )

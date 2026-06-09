@@ -31,7 +31,6 @@ final class ChatMessageViewModel {
     var message: String = ""
 
     private(set) var isPaging = false
-    private(set) var isLoading = false
     private(set) var isUploading = false
 
     private var hasLoad = false
@@ -90,7 +89,7 @@ final class ChatMessageViewModel {
 
             let existingIds = Set(chatMessages.map(\.chatMessageId))
             let missed = response.payload.filter { !existingIds.contains($0.chatMessageId) }
-            
+
             guard !missed.isEmpty else { return }
 
             chatMessages.append(contentsOf: missed)
@@ -103,18 +102,41 @@ final class ChatMessageViewModel {
     }
 
     func send(chatRoomId: Int64) async -> Result<Void, Error>? {
-        guard !isLoading else { return nil }
+        guard let memberId = TokenStorage.shared.memberId else {
+            return .failure(
+                APIError.server(
+                    code: "INTERNAL_CLIENT_ERROR",
+                    message: "회원 ID를 찾을 수 없습니다.",
+                    statusCode: 400
+                )
+            )
+        }
 
-        isLoading = true
-        defer { isLoading = false }
+        let content = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else { return nil }
+
+        let clientMessageId = UUID().uuidString
+
+        let optimistic = ChatMessageRowResponse.optimistic(
+            clientMessageId: clientMessageId,
+            senderId: memberId,
+            content: content
+        )
+
+        chatMessages.insert(optimistic, at: 0)
+        if case .empty = state { state = .data }
+        message = ""
 
         do {
             try await chatMessageService.send(
                 chatRoomId: chatRoomId,
-                content: message,
+                content: content,
+                clientMessageId: clientMessageId
             )
+            updateStatus(clientMessageId: clientMessageId, to: .sent)
             return .success(())
         } catch {
+            updateStatus(clientMessageId: clientMessageId, to: .failed)
             return .failure(error)
         }
     }
@@ -251,6 +273,12 @@ final class ChatMessageViewModel {
         }
     }
 
+    private func updateStatus(clientMessageId: String, to status: SendStatus) {
+        guard let idx = chatMessages.firstIndex(where: { $0.clientMessageId == clientMessageId }) else { return }
+
+        chatMessages[idx].status = status
+    }
+
     nonisolated private static func compressedJPEG(_ image: UIImage) throws -> Data {
         let resized = image.resized(toMaxDimension: 1024)
 
@@ -284,12 +312,16 @@ final class ChatMessageViewModel {
     }
 
     private func receive(_ message: ChatMessageRowResponse) {
+        if let cid = message.clientMessageId, let idx = chatMessages.firstIndex(where: { $0.clientMessageId == cid }) {
+            var updated = message
+            updated.status = .sent
+            chatMessages[idx] = updated
+            return
+        }
+
         guard !chatMessages.contains(where: { $0.chatMessageId == message.chatMessageId }) else { return }
 
         chatMessages.insert(message, at: 0)
-
-        if case .empty = state {
-            state = .data
-        }
+        if case .empty = state { state = .data }
     }
 }

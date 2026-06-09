@@ -11,4 +11,5 @@ data class ChatMessageSendEvent(
     val content: String,
     val type: MessageType,
     val createdAt: Instant,
+    val clientMessageId: String? = null,
 )

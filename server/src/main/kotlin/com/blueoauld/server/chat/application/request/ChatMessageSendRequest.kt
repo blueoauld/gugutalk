@@ -6,4 +6,6 @@ data class ChatMessageSendRequest(
 
     @field:NotBlank(message = "메세지 내용은 필수입니다.")
     val content: String,
+
+    val clientMessageId: String? = null,
 )

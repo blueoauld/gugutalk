@@ -50,7 +50,6 @@ struct ChatMessageView: View {
 
                     scrollToBottomTrigger += 1
                 },
-                isLoading: vm.isLoading,
                 isUploading: vm.isUploading
             )
         }

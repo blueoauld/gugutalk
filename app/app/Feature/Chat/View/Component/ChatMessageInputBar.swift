@@ -6,7 +6,6 @@ struct ChatMessageInputBar: View {
     @Binding var message: String
     var onSend: () async -> Void
     var onSendMedia: (_ media: [PickedMedia]) async -> Void
-    var isLoading: Bool
     var isUploading: Bool
 
     @State private var maxCount: Int = 5
@@ -14,7 +13,7 @@ struct ChatMessageInputBar: View {
     @State private var isPreparing = false
 
     private var enabled: Bool {
-        !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isLoading
+        !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var body: some View {
@@ -78,18 +77,11 @@ struct ChatMessageInputBar: View {
                             await onSend()
                         }
                     } label: {
-                        Group {
-                            if isLoading {
-                                ProgressView()
-                                    .tint(.white)
-                            } else {
-                                Image(systemName: "paperplane.fill")
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .frame(width: 36, height: 36)
-                        .background(enabled ? Color.blue : Color(.systemGray3))
-                        .clipShape(Circle())
+                        Image(systemName: "paperplane.fill")
+                            .foregroundColor(.white)
+                            .frame(width: 36, height: 36)
+                            .background(enabled ? Color.blue : Color(.systemGray3))
+                            .clipShape(Circle())
                     }
                     .padding(.trailing, 4)
                     .padding(.bottom, 4)
