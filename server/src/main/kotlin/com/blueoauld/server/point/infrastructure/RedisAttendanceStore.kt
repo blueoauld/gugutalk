@@ -20,13 +20,13 @@ class RedisAttendanceStore(
         private val ZONE = ZoneId.of("Asia/Seoul")
     }
 
-    override fun isAttend(deviceId: String): Boolean = redisTemplate.hasKey(keyOf(deviceId))
+    override fun isAttend(memberId: Long): Boolean = redisTemplate.hasKey(keyOf(memberId))
 
-    override fun mark(memberId: Long, deviceId: String) {
+    override fun mark(memberId: Long) {
         TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
             override fun afterCommit() {
                 redisTemplate.opsForValue().set(
-                    keyOf(deviceId),
+                    keyOf(memberId),
                     memberId.toString(),
                     nextMidnight()
                 )
@@ -34,7 +34,7 @@ class RedisAttendanceStore(
         })
     }
 
-    private fun keyOf(deviceId: String) = KEY_PREFIX + deviceId
+    private fun keyOf(memberId: Long) = KEY_PREFIX + memberId
 
     private fun nextMidnight(): Duration {
         val now = ZonedDateTime.now(ZONE)

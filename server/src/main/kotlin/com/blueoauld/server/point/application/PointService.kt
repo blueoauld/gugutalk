@@ -35,10 +35,10 @@ class PointService(
 
     @Transactional
     fun rewardAttendance(memberId: Long) {
-        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
+        memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
         val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(POINT_01)
 
-        if (attendanceStore.isAttend(member.deviceId)) {
+        if (attendanceStore.isAttend(memberId)) {
             throw CustomException(POINT_02)
         }
 
@@ -50,7 +50,7 @@ class PointService(
         pointHistoryRepository.save(pointHistory)
 
         point.earn(ATTENDANCE.point)
-        attendanceStore.mark(memberId, member.deviceId)
+        attendanceStore.mark(memberId)
     }
 
     @Transactional
