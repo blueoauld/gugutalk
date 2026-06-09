@@ -28,7 +28,7 @@ struct SignupView: View {
                                 switch result {
                                 case .success():
                                     ToastManager.shared.show("인증 번호가 전송되었습니다.", style: .info)
-                                case .failure(let error):
+                                case .failure:
                                     ToastManager.shared.show("인증 번호 전송에 실패했습니다.", style: .error)
                                 }
                             }

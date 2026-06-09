@@ -60,13 +60,13 @@ class AuthenticationService(
             deviceId = request.deviceId,
             gender = request.gender,
         )
-        val point = Point(memberId = member.id)
 
         return try {
-            memberRepository.save(member)
+            val savedMember = memberRepository.save(member)
+            val point = Point(memberId = savedMember.id)
             pointRepository.save(point)
 
-            member
+            savedMember
         } catch (_: DataIntegrityViolationException) {
             throw CustomException(MEMBER_02)
         }
