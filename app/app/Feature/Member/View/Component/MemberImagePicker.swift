@@ -7,6 +7,7 @@ struct MemberImagePicker: View {
     var maxCount: Int = 5
 
     @State private var pickerItems: [PhotosPickerItem] = []
+    @State private var draggedItem: ProfileImage?
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -31,6 +32,22 @@ struct MemberImagePicker: View {
                                 .padding(6)
                         }
                     }
+                    .onDrag {
+                        draggedItem = item
+                        return NSItemProvider(object: String(describing: item.id) as NSString)
+                    } preview: {
+                        thumbnail(for: item)
+                            .frame(width: 100, height: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                    }
+                    .onDrop(
+                        of: [.text],
+                        delegate: ImageReorderDropDelegate(
+                            item: item,
+                            items: $selectImages,
+                            draggedItem: $draggedItem
+                        )
+                    )
                 }
 
                 if selectImages.count < maxCount {
@@ -102,5 +119,35 @@ struct MemberImagePicker: View {
                 .resizable()
                 .scaledToFill()
         }
+    }
+}
+
+struct ImageReorderDropDelegate: DropDelegate {
+
+    let item: ProfileImage
+    @Binding var items: [ProfileImage]
+    @Binding var draggedItem: ProfileImage?
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedItem, draggedItem.id != item.id,
+              let fromIndex = items.firstIndex(where: { $0.id == draggedItem.id }),
+              let toIndex = items.firstIndex(where: { $0.id == item.id })
+        else { return }
+
+        withAnimation {
+            items.move(
+                fromOffsets: IndexSet(integer: fromIndex),
+                toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex
+            )
+        }
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggedItem = nil
+        return true
     }
 }
