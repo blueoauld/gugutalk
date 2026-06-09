@@ -15,6 +15,18 @@ struct ChatMessageBubble: View {
     private var isMine: Bool {
         message.senderId == TokenStorage.shared.memberId
     }
+    private var jumboEmojiSize: CGFloat? {
+        let content = message.content
+
+        guard content.isOnlyEmoji else { return nil }
+
+        switch content.emojiCount {
+        case 1: return 56
+        case 2: return 44
+        case 3: return 36
+        default: return nil
+        }
+    }
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 4) {
@@ -80,17 +92,19 @@ struct ChatMessageBubble: View {
                     router.push(AppRoute.chatMessageVideo(message.chatMessageId, message.content))
                 }
         } else {
-            Text(attributedContent(foreground: foreground))
-                .font(.subheadline)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(background)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .onLongPressGesture {
-                    UIPasteboard.general.string = message.content
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    ToastManager.shared.show("내용이 복사되었습니다.", style: .success)
-                }
+            if let jumboSize = jumboEmojiSize {
+                Text(message.content)
+                    .font(.system(size: jumboSize))
+                    .onLongPressGesture { copyContent() }
+            } else {
+                Text(attributedContent(foreground: foreground))
+                    .font(.subheadline)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(background)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .onLongPressGesture { copyContent() }
+            }
         }
     }
 
@@ -128,7 +142,15 @@ struct ChatMessageBubble: View {
         }
         return attributed.characterWrappable()
     }
+
+    private func copyContent() {
+        UIPasteboard.general.string = message.content
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        ToastManager.shared.show("내용이 복사되었습니다.", style: .success)
+    }
 }
+
+// MARK: - Extension
 
 private extension AttributedString {
 
@@ -141,11 +163,31 @@ private extension AttributedString {
 
             for (index, ch) in chars.enumerated() {
                 result.append(AttributedString(String(ch), attributes: attrs))
+
                 if index < chars.count - 1 {
                     result.append(AttributedString("\u{200B}", attributes: attrs))
                 }
             }
         }
         return result
+    }
+}
+
+private extension Character {
+
+    var isRealEmoji: Bool {
+        guard let scalar = unicodeScalars.first else { return false }
+
+        return scalar.properties.isEmojiPresentation || (scalar.properties.isEmoji && unicodeScalars.count > 1)
+    }
+}
+
+private extension String {
+
+    var isOnlyEmoji: Bool {
+        !isEmpty && allSatisfy { $0.isRealEmoji || $0.isWhitespace }
+    }
+    var emojiCount: Int {
+        reduce(0) { $0 + ($1.isRealEmoji ? 1 : 0) }
     }
 }
