@@ -40,11 +40,14 @@ out/
 .kotlin
 
 ### Other ###
-application*.yml
+application.yml
+application-local.yml
 *.p8
-.env
-compose.yml
-fluent-bit.conf
-Dockerfile
+*.conf
 *.pem
+*.sh
+.env
 config.alloy
+compose.yml
+Dockerfile
+Caddyfile

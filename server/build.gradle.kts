@@ -72,6 +72,9 @@ dependencies {
 
     // prometheus
     implementation("io.micrometer:micrometer-registry-prometheus")
+
+    // logstash-logback-encoder
+    implementation("net.logstash.logback:logstash-logback-encoder:9.0")
 }
 
 kotlin {

@@ -1,0 +1,58 @@
+server:
+  forward-headers-strategy: native
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: false
+    open-in-view: false
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      password:
+      port: ${SPRING_DATA_REDIS_PORT}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: never
+  metrics:
+    tags:
+      application: springboot
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expire-seconds: 3600 # 1시간
+  refresh-token-expire-seconds: 1209600 # 14일
+
+cloudflare:
+  r2:
+    account-id: ${CLOUDFLARE_R2_ACCOUNT_ID}
+    access-key: ${CLOUDFLARE_R2_ACCESS_KEY}
+    secret-key: ${CLOUDFLARE_R2_SECRET_KEY}
+    api: ${CLOUDFLARE_R2_API}
+    domain: ${CLOUDFLARE_R2_DOMAIN}
+    bucket: ${CLOUDFLARE_R2_BUCKET}
+
+discord:
+  bot-token: ${DISCORD_BOT_TOKEN}
+  guild-id: ${DISCORD_GUILD_ID}
+  report-channel-id: ${DISCORD_REPORT_CHANNEL_ID}
+  ban-channel-id: ${DISCORD_BAN_CHANNEL_ID}
+
+apns:
+  team-id: ${APNS_TEAM_ID}
+  key-id: ${APNS_KEY_ID}
+  bundle-id: ${APNS_BUNDLE_ID}
+  key-path: ${APNS_KEY_PATH}
+  production: false
