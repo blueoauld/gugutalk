@@ -23,17 +23,19 @@ class PushSender(
         memberId: Long,
         title: String,
         body: String,
+        threadId: String? = null,
         data: Map<String, String> = emptyMap(),
     ) {
         pushRepository.findAllByMemberId(memberId)
             .map { it.token }
-            .forEach { send(it, title, body, data) }
+            .forEach { send(it, title, body, threadId, data) }
     }
 
     private fun send(
         token: String,
         title: String,
         body: String,
+        threadId: String?,
         data: Map<String, String> = emptyMap(),
     ) {
         val payload = SimpleApnsPayloadBuilder()
@@ -41,6 +43,7 @@ class PushSender(
             .setAlertBody(body)
             .setSound("default")
             .setBadgeNumber(0)
+            .apply { threadId?.let { setThreadId(it) } }
             .apply { data.forEach { (k, v) -> addCustomProperty(k, v) } }
             .build()
 

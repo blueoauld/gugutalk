@@ -18,6 +18,7 @@ class ChatMessagePushHandler(
             memberId = event.targetId,
             title = event.nickname,
             body = event.lastMessagePreview,
+            threadId = "chatRoomId-${event.chatRoomId}",
             data = buildMap {
                 put("type", "MESSAGE")
                 put("chatRoomId", event.chatRoomId.toString())
