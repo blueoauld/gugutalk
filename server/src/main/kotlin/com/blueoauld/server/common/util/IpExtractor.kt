@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest
 object IpExtractor {
 
     private val IP_HEADERS = listOf(
+        "CF-Connecting-IP",
         "X-Forwarded-For",
         "Proxy-Client-IP",
         "WL-Proxy-Client-IP",

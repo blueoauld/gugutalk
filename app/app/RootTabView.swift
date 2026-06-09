@@ -2,6 +2,8 @@ import SwiftUI
 
 struct RootTabView: View {
 
+    @Environment(\.scenePhase) private var scenePhase
+
     enum TabType: Hashable {
         case main
         case chat
@@ -20,6 +22,7 @@ struct RootTabView: View {
 
     @State private var selectedTab: TabType = .main
     @State private var hideTabBar = false
+    @State private var wasBackgrounded = false
 
     var body: some View {
         tabContent
@@ -43,6 +46,19 @@ struct RootTabView: View {
             }
             .onChange(of: settingRouter.path) { _, path in
                 hideTabBar = path.last?.hideTabBar ?? false
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                switch newPhase {
+                case .background:
+                    wasBackgrounded = true
+                case .active:
+                    if wasBackgrounded {
+                        wasBackgrounded = false
+                        StompManager.shared.reconnect()
+                    }
+                default:
+                    break
+                }
             }
     }
 

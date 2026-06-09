@@ -71,7 +71,8 @@ struct ChatMessageView: View {
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 Task {
-                    await vm.load(chatRoomId: chatRoomId)
+                    await vm.syncLatest(chatRoomId: chatRoomId)
+                    await vm.read(chatRoomId: chatRoomId)
                 }
             }
         }

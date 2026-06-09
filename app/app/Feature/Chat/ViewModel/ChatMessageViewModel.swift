@@ -72,6 +72,36 @@ final class ChatMessageViewModel {
         }
     }
 
+    func syncLatest(chatRoomId: Int64) async {
+        guard hasLoad else {
+            await load(chatRoomId: chatRoomId)
+            return
+        }
+
+        let latest = CursorRequest()
+
+        do {
+            let response = try await chatMessageService.gets(
+                chatRoomId: chatRoomId,
+                cursorId: latest.cursorId,
+                cursorDateAt: latest.cursorDateAt,
+                size: 50
+            )
+
+            let existingIds = Set(chatMessages.map(\.chatMessageId))
+            let missed = response.payload.filter { !existingIds.contains($0.chatMessageId) }
+            
+            guard !missed.isEmpty else { return }
+
+            chatMessages.append(contentsOf: missed)
+            chatMessages.sort { $0.chatMessageId > $1.chatMessageId }
+
+            if case .empty = state { state = .data }
+        } catch {
+            print(error.userMessage)
+        }
+    }
+
     func send(chatRoomId: Int64) async -> Result<Void, Error>? {
         guard !isLoading else { return nil }
 
@@ -208,7 +238,7 @@ final class ChatMessageViewModel {
                 chatRoomId: chatRoomId,
                 cursorId: cursor.cursorId,
                 cursorDateAt: cursor.cursorDateAt,
-                size: 20
+                size: 50
             )
 
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
@@ -241,7 +271,7 @@ final class ChatMessageViewModel {
             as: ChatMessageRowResponse.self
         ) { [weak self] message in
             guard let self else { return }
-            
+
             self.receive(message)
             Task {
                 await self.read(chatRoomId: chatRoomId)

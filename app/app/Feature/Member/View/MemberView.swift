@@ -92,11 +92,21 @@ struct MemberView: View {
                         Button(member.isPrivateImageGrant ? "비밀 사진 닫기" : "비밀 사진 공개") {
                             Task {
                                 if member.isPrivateImageGrant {
-                                    if case .failure(let error) = await vm.deletePrivateImageGrant(memberId: memberId) {
+                                    guard let result = await vm.deletePrivateImageGrant(memberId: memberId) else { return }
+
+                                    switch result {
+                                    case .success():
+                                        ToastManager.shared.show("비밀 사진을 닫으셨습니다.", style: .info)
+                                    case .failure(let error):
                                         ToastManager.shared.show(error.userMessage, style: .error)
                                     }
                                 } else {
-                                    if case .failure(let error) = await vm.createPrivateImageGrant(memberId: memberId) {
+                                    guard let result = await vm.createPrivateImageGrant(memberId: memberId) else { return }
+
+                                    switch result {
+                                    case .success():
+                                        ToastManager.shared.show("비밀 사진을 열으셨습니다.", style: .info)
+                                    case .failure(let error):
                                         ToastManager.shared.show(error.userMessage, style: .error)
                                     }
                                 }
