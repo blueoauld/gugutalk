@@ -9,7 +9,7 @@ final class AdMobViewModel: NSObject, FullScreenContentDelegate {
 
     @ObservationIgnored private var rewardedAd: RewardedAd?
     @ObservationIgnored private let memberId: Int64
-    @ObservationIgnored private let adUnitID = "ca-app-pub-3940256099942544/1712485313"
+    @ObservationIgnored private let adUnitID = Secrets.AD_UNIT_ID
 
     init(memberId: Int64) {
         self.memberId = memberId
@@ -34,7 +34,7 @@ final class AdMobViewModel: NSObject, FullScreenContentDelegate {
 
     func showAd(onRewardEarned: @escaping () -> Void) {
         guard let rewardedAd else {
-            ToastManager.shared.show("광고가 준비되지 않았습니다.", style: .error)
+            ToastManager.shared.show("잠시후에 이용해주시길 바랍니다.", style: .error)
             return
         }
 
