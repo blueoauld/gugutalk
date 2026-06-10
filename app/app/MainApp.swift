@@ -1,4 +1,5 @@
 import SwiftUI
+import GoogleMobileAds
 
 @main
 struct MainApp: App {
@@ -11,6 +12,8 @@ struct MainApp: App {
         if TokenStorage.shared.deviceId == nil {
             TokenStorage.shared.deviceId = UUID().uuidString
         }
+
+        MobileAds.shared.start(completionHandler: nil)
     }
 
     var body: some Scene {

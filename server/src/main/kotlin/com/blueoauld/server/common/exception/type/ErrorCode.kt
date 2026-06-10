@@ -52,6 +52,8 @@ enum class ErrorCode(
     POINT_02(HttpStatus.CONFLICT, "오늘 출석 체크를 완료하셨습니다."),
     POINT_03(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
 
+    REWARD_01(HttpStatus.BAD_REQUEST, "회원 ID를 찾을 수 없습니다."),
+
     BAN_01(HttpStatus.CONFLICT, "이미 정지된 상태입니다."),
     BAN_02(HttpStatus.BAD_REQUEST, "존재하지 않는 정지 기록입니다."),
 

@@ -78,6 +78,9 @@ dependencies {
 
     // solapi
     implementation("com.solapi:sdk:1.0.3")
+
+    // tink
+    implementation("com.google.crypto.tink:apps-rewardedads:1.14.0")
 }
 
 kotlin {

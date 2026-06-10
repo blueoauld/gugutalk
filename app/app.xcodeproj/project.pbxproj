@@ -11,6 +11,7 @@
 		9D5BA2312FBEB3CE00F1A101 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9D5BA2302FBEB3CE00F1A101 /* KeychainSwift */; };
 		9D95DEE02FC6F57700D96C14 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 9D95DEDF2FC6F57700D96C14 /* Kingfisher */; };
 		9D95DEE52FC7CC4400D96C14 /* LazyPager in Frameworks */ = {isa = PBXBuildFile; productRef = 9D95DEE42FC7CC4400D96C14 /* LazyPager */; };
+		9DA62C792FD8D43700E93A6B /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 9DA62C782FD8D43700E93A6B /* GoogleMobileAds */; };
 		9DD018502FCBEC9400979327 /* SwiftStomp in Frameworks */ = {isa = PBXBuildFile; productRef = 9DD0184F2FCBEC9400979327 /* SwiftStomp */; };
 /* End PBXBuildFile section */
 
@@ -18,9 +19,22 @@
 		9D7B0CA92FAFA6DC00EB381C /* app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9DA62C7B2FD8D45A00E93A6B /* Exceptions for "app" folder in "app" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9D7B0CA82FAFA6DC00EB381C /* app */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9D7B0CAB2FAFA6DC00EB381C /* app */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9DA62C7B2FD8D45A00E93A6B /* Exceptions for "app" folder in "app" target */,
+			);
 			path = app;
 			sourceTree = "<group>";
 		};
@@ -31,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DA62C792FD8D43700E93A6B /* GoogleMobileAds in Frameworks */,
 				9D95DEE52FC7CC4400D96C14 /* LazyPager in Frameworks */,
 				9D95DEE02FC6F57700D96C14 /* Kingfisher in Frameworks */,
 				9D5BA2312FBEB3CE00F1A101 /* KeychainSwift in Frameworks */,
@@ -83,6 +98,7 @@
 				9D95DEDF2FC6F57700D96C14 /* Kingfisher */,
 				9D95DEE42FC7CC4400D96C14 /* LazyPager */,
 				9DD0184F2FCBEC9400979327 /* SwiftStomp */,
+				9DA62C782FD8D43700E93A6B /* GoogleMobileAds */,
 			);
 			productName = app;
 			productReference = 9D7B0CA92FAFA6DC00EB381C /* app.app */;
@@ -119,6 +135,7 @@
 				9D95DEDE2FC6F57700D96C14 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				9D95DEE32FC7CC4400D96C14 /* XCRemoteSwiftPackageReference "SwiftUI-LazyPager" */,
 				9DD0184E2FCBEC9400979327 /* XCRemoteSwiftPackageReference "SwiftStomp" */,
+				9DA62C772FD8D43700E93A6B /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9D7B0CAA2FAFA6DC00EB381C /* Products */;
@@ -281,6 +298,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = app/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "구구톡";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -330,6 +348,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = app/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "구구톡";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -421,6 +440,14 @@
 				minimumVersion = 1.2.1;
 			};
 		};
+		9DA62C772FD8D43700E93A6B /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.5.0;
+			};
+		};
 		9DD0184E2FCBEC9400979327 /* XCRemoteSwiftPackageReference "SwiftStomp" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Romixery/SwiftStomp.git";
@@ -451,6 +478,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9D95DEE32FC7CC4400D96C14 /* XCRemoteSwiftPackageReference "SwiftUI-LazyPager" */;
 			productName = LazyPager;
+		};
+		9DA62C782FD8D43700E93A6B /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9DA62C772FD8D43700E93A6B /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
 		};
 		9DD0184F2FCBEC9400979327 /* SwiftStomp */ = {
 			isa = XCSwiftPackageProductDependency;
