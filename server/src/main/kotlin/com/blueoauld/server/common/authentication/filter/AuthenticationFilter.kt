@@ -36,6 +36,7 @@ class AuthenticationFilter(
         HttpMethod.GET to "/ws/**",
         HttpMethod.GET to "/actuator/health",
         HttpMethod.GET to "/actuator/prometheus",
+        HttpMethod.GET to "/admob-ssv",
         HttpMethod.DELETE to "/api/push",
     )
 

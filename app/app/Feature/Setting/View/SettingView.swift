@@ -80,7 +80,7 @@ struct SettingView: View {
 
                     Button {
                         adVM.showAd {
-                            ToastManager.shared.show("광고 보상이 지급되었습니다.")
+                            ToastManager.shared.show("광고 보상이 지급되었습니다.", style: .info)
                         }
                     } label: {
                         Label("광고 보상", systemImage: "play.rectangle.fill")
