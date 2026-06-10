@@ -32,6 +32,10 @@ final class MemberViewModel {
             member = try await memberService.get(memberId: memberId)
             state = .data
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
+
             state = .error(error.userMessage)
         }
     }
@@ -51,6 +55,10 @@ final class MemberViewModel {
         } catch {
             member?.isLike = false
             member?.likes -= 1
+
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -70,6 +78,10 @@ final class MemberViewModel {
         } catch {
             member?.isLike = true
             member?.likes += 1
+
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -89,6 +101,10 @@ final class MemberViewModel {
         } catch {
             member?.isUnlike = false
             member?.unlikes -= 1
+
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -108,6 +124,10 @@ final class MemberViewModel {
         } catch {
             member?.isUnlike = true
             member?.unlikes += 1
+
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -124,6 +144,9 @@ final class MemberViewModel {
             member?.isBlock = true
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -140,6 +163,9 @@ final class MemberViewModel {
             member?.isBlock = false
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -156,6 +182,9 @@ final class MemberViewModel {
             member?.isPrivateImageGrant = true
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -172,6 +201,9 @@ final class MemberViewModel {
             member?.isPrivateImageGrant = false
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -186,6 +218,9 @@ final class MemberViewModel {
             try await chatRoomService.create(targetId: memberId, content: message)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }

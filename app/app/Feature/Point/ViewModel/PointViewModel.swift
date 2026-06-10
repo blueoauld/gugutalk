@@ -46,6 +46,9 @@ final class PointViewModel {
             pointHistories.append(contentsOf: response.payload)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -75,6 +78,9 @@ final class PointViewModel {
             pointHistories = response.payload
             state = pointHistories.isEmpty ? .empty : .data
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
             state = .error(error.userMessage)
         }
     }

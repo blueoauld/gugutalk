@@ -38,6 +38,10 @@ final class LoginViewModel {
             )
             return .success(response)
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }

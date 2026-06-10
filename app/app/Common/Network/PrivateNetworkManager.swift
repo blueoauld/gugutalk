@@ -147,6 +147,9 @@ final class PrivateNetworkManager {
     }
 
     private func error(_ error: AFError, data: Data?, statusCode: Int?) -> APIError {
+        if error.isExplicitlyCancelledError {
+            return .cancelled
+        }
         if let urlError = error.underlyingError as? URLError {
             switch urlError.code {
             case .notConnectedToInternet, .timedOut, .networkConnectionLost, .cannotConnectToHost, .cannotFindHost, .dataNotAllowed:

@@ -30,6 +30,10 @@ final class PrivateImageFullScreenViewModel {
             images = response.images
             state = .data
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
+
             state = .error(error.userMessage)
         }
     }

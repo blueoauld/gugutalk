@@ -28,6 +28,9 @@ final class SettingViewModel {
             try await authenticationService.logout(accessToken: accessToken, refreshToken: refreshToken)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -42,6 +45,9 @@ final class SettingViewModel {
             try await authenticationService.deleteAccount()
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -56,6 +62,9 @@ final class SettingViewModel {
             try await pointService.rewardAttendance()
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -70,6 +79,9 @@ final class SettingViewModel {
             try await pointService.rewardAdvertisement()
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }

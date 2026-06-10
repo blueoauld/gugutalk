@@ -56,6 +56,10 @@ final class SetupViewModel {
             try await authenticationService.setup(nickname: trimmedNickname, birthYear: birthYear, region: region, bio: bio)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+            
             return .failure(error)
         }
     }

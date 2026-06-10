@@ -67,6 +67,10 @@ final class ChatRoomViewModel {
             chatRooms.append(contentsOf: response.payload)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+            
             return .failure(error)
         }
     }
@@ -81,6 +85,10 @@ final class ChatRoomViewModel {
             try await chatRoomService.read(chatRoomId: chatRoomId)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }
@@ -95,6 +103,10 @@ final class ChatRoomViewModel {
             try await chatRoomService.delete(chatRoomId: chatRoomId)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }
@@ -118,6 +130,11 @@ final class ChatRoomViewModel {
             return .success(())
         } catch {
             isChat.toggle()
+
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }
@@ -137,10 +154,12 @@ final class ChatRoomViewModel {
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatRooms = response.payload
             state = chatRooms.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            state = .error(error.message)
         } catch {
-            state = .error(error.localizedDescription)
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
+
+            state = .error(error.userMessage)
         }
     }
     

@@ -67,6 +67,10 @@ final class MainViewModel {
             members.append(contentsOf: response.payload)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }
@@ -108,6 +112,10 @@ final class MainViewModel {
             try await memberService.updateComment(content: comment)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }
@@ -126,6 +134,10 @@ final class MainViewModel {
             try await chatRoomService.create(targetId: memberId, content: message)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }
@@ -150,6 +162,10 @@ final class MainViewModel {
             state = members.isEmpty ? .empty : .data
         } catch {
             guard token == generation else { return }
+
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
 
             state = .error(error.userMessage)
         }

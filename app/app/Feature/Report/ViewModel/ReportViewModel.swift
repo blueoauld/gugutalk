@@ -93,6 +93,9 @@ final class ReportViewModel {
             try await reportService.create(memberId: memberId, request: request)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }

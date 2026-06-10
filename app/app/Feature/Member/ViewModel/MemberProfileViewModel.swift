@@ -49,6 +49,10 @@ final class MemberProfileViewModel {
 
             state = .data
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
+
             state = .error(error.userMessage)
         }
     }
@@ -109,6 +113,10 @@ final class MemberProfileViewModel {
             ToastManager.shared.show("프로필이 편집되었습니다.", style: .info)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+            
             return .failure(error)
         }
     }

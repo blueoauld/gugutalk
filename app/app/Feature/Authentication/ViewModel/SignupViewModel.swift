@@ -44,6 +44,10 @@ final class SignupViewModel {
             isSendCode = true
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }
@@ -78,6 +82,10 @@ final class SignupViewModel {
             TokenStorage.shared.refreshToken = response.refreshToken
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+            
             return .failure(error)
         }
     }

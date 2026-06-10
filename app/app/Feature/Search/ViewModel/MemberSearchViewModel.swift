@@ -62,6 +62,9 @@ final class MemberSearchViewModel {
             members.append(contentsOf: response.payload)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -82,6 +85,9 @@ final class MemberSearchViewModel {
             members = response.payload
             state = members.isEmpty ? .empty : .data
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
             state = .error(error.userMessage)
         }
     }

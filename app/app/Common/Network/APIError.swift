@@ -7,6 +7,7 @@ enum APIError: Error {
     case ban(code: String, uuid: String, reason: String, expiredAt: String)
     case server(code: String, message: String, statusCode: Int)
     case decoding
+    case cancelled
     case unknown(Error)
 
     var message: String {
@@ -21,6 +22,8 @@ enum APIError: Error {
             return message
         case .decoding:
             return "데이터를 불러오지 못했습니다."
+        case .cancelled:
+            return ""
         case .unknown:
             return "알 수 없는 오류가 발생했습니다."
         }

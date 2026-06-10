@@ -67,6 +67,10 @@ final class ChatMessageViewModel {
             chatMessages.append(contentsOf: response.payload)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }
@@ -97,6 +101,10 @@ final class ChatMessageViewModel {
 
             if case .empty = state { state = .data }
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
+
             print(error.userMessage)
         }
     }
@@ -136,6 +144,10 @@ final class ChatMessageViewModel {
             updateStatus(clientMessageId: clientMessageId, to: .sent)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             updateStatus(clientMessageId: clientMessageId, to: .failed)
             return .failure(error)
         }
@@ -243,6 +255,10 @@ final class ChatMessageViewModel {
             try await chatMessageService.upload(chatRoomId: chatRoomId, request: request)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
             return .failure(error)
         }
     }
@@ -266,10 +282,12 @@ final class ChatMessageViewModel {
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatMessages = response.payload
             state = chatMessages.isEmpty ? .empty : .data
-        } catch let error as APIError {
-            state = .error(error.message)
         } catch {
-            state = .error(error.localizedDescription)
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
+
+            state = .error(error.userMessage)
         }
     }
 

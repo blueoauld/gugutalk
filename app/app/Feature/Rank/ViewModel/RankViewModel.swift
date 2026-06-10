@@ -60,6 +60,9 @@ final class RankViewModel {
             members.append(contentsOf: response.payload)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -79,6 +82,9 @@ final class RankViewModel {
             try await chatRoomService.create(targetId: memberId, content: message)
             return .success(())
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
             return .failure(error)
         }
     }
@@ -94,6 +100,9 @@ final class RankViewModel {
             members = response.payload
             state = members.isEmpty ? .empty : .data
         } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return
+            }
             state = .error(error.userMessage)
         }
     }
