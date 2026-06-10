@@ -29,6 +29,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     runtimeOnly("org.postgresql:postgresql")
@@ -81,6 +82,9 @@ dependencies {
 
     // tink
     implementation("com.google.crypto.tink:apps-rewardedads:1.14.0")
+
+    // flyway
+    runtimeOnly("org.flywaydb:flyway-database-postgresql:12.8.1")
 }
 
 kotlin {

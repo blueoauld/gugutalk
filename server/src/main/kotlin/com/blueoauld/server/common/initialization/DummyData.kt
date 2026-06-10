@@ -18,6 +18,7 @@ import com.blueoauld.server.point.repository.PointHistoryRepository
 import com.blueoauld.server.point.repository.PointRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.boot.CommandLineRunner
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
@@ -33,6 +34,7 @@ class DummyData(
 
     private val log = KotlinLogging.logger {}
 
+    @ConditionalOnProperty(name = ["dummy-data.enabled"], havingValue = "true")
     @Bean
     fun setup(
         memberRepository: MemberRepository,
