@@ -56,7 +56,7 @@ class AuthenticationFacade(
         val member = authenticationService.createMember(request)
 
         // Redis
-        val accessToken = tokenProvider.createAccessToken(member.id, member.nickname)
+        val accessToken = tokenProvider.createAccessToken(member.id)
         val refreshToken = tokenProvider.createRefreshToken(member.id)
 
         refreshTokenStore.save(member.id, refreshToken)
@@ -75,7 +75,7 @@ class AuthenticationFacade(
         val member = authenticationService.authenticate(request)
 
         // Redis
-        val accessToken = tokenProvider.createAccessToken(member.id, member.nickname)
+        val accessToken = tokenProvider.createAccessToken(member.id)
         val refreshToken = tokenProvider.createRefreshToken(member.id)
 
         refreshTokenStore.save(member.id, refreshToken)
@@ -108,7 +108,7 @@ class AuthenticationFacade(
         accessTokenBlacklistStore.save(request.memberId, request.accessToken)
         refreshTokenStore.delete(request.refreshToken)
 
-        val accessToken = tokenProvider.createAccessToken(member.id, member.nickname)
+        val accessToken = tokenProvider.createAccessToken(member.id)
         val refreshToken = tokenProvider.createRefreshToken(member.id)
 
         refreshTokenStore.save(member.id, refreshToken)

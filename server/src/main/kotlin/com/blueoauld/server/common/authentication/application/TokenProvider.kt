@@ -20,13 +20,12 @@ class TokenProvider(
         Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray(StandardCharsets.UTF_8))
     }
 
-    fun createAccessToken(memberId: Long, nickname: String): String {
+    fun createAccessToken(memberId: Long): String {
         val now = Date()
         val second = Duration.ofSeconds(jwtProperties.accessTokenExpireSeconds)
 
         return Jwts.builder()
             .subject(memberId.toString())
-            .claim("nickname", nickname)
             .issuedAt(now)
             .expiration(Date(now.time + second.toMillis()))
             .signWith(key)
