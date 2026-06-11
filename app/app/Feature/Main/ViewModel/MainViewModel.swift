@@ -95,7 +95,7 @@ final class MainViewModel {
                 )
             )
         }
-        guard comment.count < 50 else {
+        guard comment.count <= 50 else {
             return .failure(
                 APIError.server(
                     code: "INTERNAL_CLIENT_ERROR",

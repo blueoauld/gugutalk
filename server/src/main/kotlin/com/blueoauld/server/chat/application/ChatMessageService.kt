@@ -292,7 +292,7 @@ class ChatMessageService(
             val fileName = "${UUID.randomUUID()}.${contentType.extension}"
             val key = "chat/temporary/$chatRoomId/$fileName"
 
-            r2Provider.createUploadUrl(key, it.contentType, Duration.ofMinutes(5))
+            r2Provider.createUploadUrl(key, it.contentType, it.contentLength, Duration.ofMinutes(5))
         }
         return UploadUrlResponses(urls)
     }

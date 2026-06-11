@@ -218,7 +218,12 @@ final class ChatMessageViewModel {
 
             // 3. 업로드 URL 생성
             let requests = UploadUrlRequests(
-                urls: parts.map { UploadUrlRequest(contentType: $0.contentType) }
+                urls: parts.map { part in
+                    UploadUrlRequest(
+                        contentType: part.contentType,
+                        contentLength: Int64(part.data.count)
+                    )
+                }
             )
             let responses = try await chatMessageService.createUploadUrls(chatRoomId: chatRoomId, urls: requests)
 

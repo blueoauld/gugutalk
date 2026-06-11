@@ -27,7 +27,7 @@ final class ReportViewModel {
         }
         
         let trimmed = reason.trimmingCharacters(in: .whitespaces)
-        guard trimmed.count < 500 else {
+        guard trimmed.count <= 500 else {
             return .failure(
                 APIError.server(
                     code: "INTERNAL_CLIENT_ERROR",
@@ -63,8 +63,11 @@ final class ReportViewModel {
                 
                 // 신고 이미지 업로드 URL 생성
                 let requests = UploadUrlRequests(
-                    urls: images.map { _ in
-                        UploadUrlRequest(contentType: "image/jpeg")
+                    urls: images.map { image in
+                        UploadUrlRequest(
+                            contentType: "image/jpeg",
+                            contentLength: Int64(image.count)
+                        )
                     }
                 )
                 let responses = try await reportImageService.createUploadUrls(urls: requests)

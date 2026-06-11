@@ -38,6 +38,7 @@ enum class ErrorCode(
 
     FILE_01(HttpStatus.BAD_REQUEST, "잘못된 컨텐츠 타입입니다."),
     FILE_02(HttpStatus.BAD_REQUEST, "접근할 수 없는 파일입니다."),
+    FILE_03(HttpStatus.BAD_REQUEST, "허용 크기를 초과했습니다."),
 
     REPORT_01(HttpStatus.BAD_REQUEST, "본인을 신고할 수 없습니다."),
 

@@ -79,7 +79,7 @@ final class MemberProfileViewModel {
                 )
             )
         }
-        guard bio.count < 500 else {
+        guard bio.count <= 500 else {
             return .failure(
                 APIError.server(
                     code: "INTERNAL_CLIENT_ERROR",
@@ -132,7 +132,12 @@ final class MemberProfileViewModel {
 
         // 업로드 URL 생성
         let requests = UploadUrlRequests(
-            urls: images.map { _ in UploadUrlRequest(contentType: "image/jpeg") }
+            urls: images.map { image in
+                UploadUrlRequest(
+                    contentType: "image/jpeg",
+                    contentLength: Int64(image.count)
+                )
+            }
         )
         let responses = try await createUploadUrls(requests)
 

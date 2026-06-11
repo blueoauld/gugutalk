@@ -39,7 +39,7 @@ final class SetupViewModel {
                 )
             )
         }
-        guard bio.count < 500 else {
+        guard bio.count <= 500 else {
             return .failure(
                 APIError.server(
                     code: "INTERNAL_CLIENT_ERROR",

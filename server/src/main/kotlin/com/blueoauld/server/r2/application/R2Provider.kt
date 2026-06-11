@@ -1,5 +1,7 @@
 package com.blueoauld.server.r2.application
 
+import com.blueoauld.server.common.exception.CustomException
+import com.blueoauld.server.common.exception.type.ErrorCode.FILE_03
 import com.blueoauld.server.common.properties.R2Properties
 import com.blueoauld.server.r2.application.response.UploadUrlResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -19,13 +21,22 @@ class R2Provider(
     private val r2Properties: R2Properties
 ) {
 
+    companion object {
+        private const val MAX_UPLOAD_SIZE = 3L * 1024 * 1024 * 1024 // 3GB
+    }
+
     private val log = KotlinLogging.logger {}
 
-    fun createUploadUrl(key: String, contentType: String, expiry: Duration): UploadUrlResponse {
+    fun createUploadUrl(key: String, contentType: String, contentLength: Long, expiry: Duration): UploadUrlResponse {
+        if (contentLength !in 1..MAX_UPLOAD_SIZE) {
+            throw CustomException(FILE_03)
+        }
+
         val putObjectRequest = PutObjectRequest.builder()
             .bucket(r2Properties.bucket)
             .key(key)
             .contentType(contentType)
+            .contentLength(contentLength)
             .build()
 
         val url = s3Presigner.presignPutObject(
