@@ -14,7 +14,7 @@
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>
-                    %clr(%d{HH:mm:ss}){faint} %clr(%-5level) %clr(%logger{36}){cyan} %clr(-){faint} %msg%n
+                    %clr(%d{HH:mm:ss}){faint} %clr(%-5level) %clr(%logger{36}){cyan} %clr([%X{requestId:-}]){blue} %clr([%X{memberId:-}/%X{nickname:-}]){magenta} %clr(-){faint} %msg%n
                 </pattern>
             </encoder>
         </appender>

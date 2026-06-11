@@ -5,24 +5,27 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.MDC
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
+import java.util.*
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 class RequestLoggingFilter : OncePerRequestFilter() {
 
+    private val log = KotlinLogging.logger {}
     private val antPathMatcher = AntPathMatcher()
     private val exclude = listOf(
         HttpMethod.GET to "/ws/**",
         HttpMethod.GET to "/actuator/**",
+        HttpMethod.GET to "/admob-ssv",
         HttpMethod.DELETE to "/api/push",
     )
-    private val log = KotlinLogging.logger {}
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -30,6 +33,7 @@ class RequestLoggingFilter : OncePerRequestFilter() {
         filterChain: FilterChain
     ) {
         val startTime = System.currentTimeMillis()
+        MDC.put("requestId", UUID.randomUUID().toString().take(8))
 
         try {
             filterChain.doFilter(request, response)
@@ -40,6 +44,10 @@ class RequestLoggingFilter : OncePerRequestFilter() {
             log.info {
                 "METHOD = ${request.method}, URI = ${request.requestURI}, IP = $ip, STATUS = ${response.status}, MS = $elapsed"
             }
+
+            MDC.remove("requestId")
+            MDC.remove("memberId")
+            MDC.remove("nickname")
         }
     }
 

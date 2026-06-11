@@ -8,6 +8,7 @@ import com.blueoauld.server.member.repository.MemberRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.MDC
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -34,8 +35,7 @@ class AuthenticationFilter(
     )
     private val exclude = listOf(
         HttpMethod.GET to "/ws/**",
-        HttpMethod.GET to "/actuator/health",
-        HttpMethod.GET to "/actuator/prometheus",
+        HttpMethod.GET to "/actuator/**",
         HttpMethod.GET to "/admob-ssv",
         HttpMethod.DELETE to "/api/push",
     )
@@ -77,6 +77,9 @@ class AuthenticationFilter(
             .firstOrNull()?.let {
                 return exception(response, it.uuid, it.reason, it.expiredAt)
             }
+
+        MDC.put("memberId", memberId.toString())
+        MDC.put("nickname", member.nickname)
 
         request.setAttribute("memberId", memberId)
         filterChain.doFilter(request, response)
