@@ -12,6 +12,19 @@ interface BlockRepository : JpaRepository<Block, Long>, BlockCustomRepository {
 
     fun deleteByFromIdAndToId(fromId: Long, toId: Long): Int
 
+    @Query(
+        value = """
+        SELECT count(b) > 0 
+        FROM Block b
+        WHERE (b.fromId = :member1Id AND b.toId = :member2Id) 
+           OR (b.fromId = :member2Id AND b.toId = :member1Id)
+    """
+    )
+    fun existsBlockBetween(
+        @Param("member1Id") member1Id: Long,
+        @Param("member2Id") member2Id: Long,
+    ): Boolean
+
     @Modifying
     @Query("DELETE FROM Block b WHERE b.fromId IN :ids OR b.toId IN :ids")
     fun deleteByMemberIds(@Param("ids") ids: List<Long>): Int

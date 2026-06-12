@@ -1,5 +1,6 @@
 package com.blueoauld.server.chat.application
 
+import com.blueoauld.server.activity.repository.BlockRepository
 import com.blueoauld.server.chat.application.event.*
 import com.blueoauld.server.chat.application.request.ChatRoomCreateRequest
 import com.blueoauld.server.chat.application.response.ChatRoomRowResponse
@@ -31,21 +32,27 @@ class ChatRoomService(
     private val memberRepository: MemberRepository,
     private val pointRepository: PointRepository,
     private val pointHistoryRepository: PointHistoryRepository,
+    private val blockRepository: BlockRepository,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
     @Transactional
     fun create(memberId: Long, targetId: Long, request: ChatRoomCreateRequest) {
-        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
-        val target = memberRepository.findByIdOrNull(targetId) ?: throw CustomException(MEMBER_01)
+        if (blockRepository.existsBlockBetween(memberId, targetId)) {
+            throw CustomException(CHAT_05)
+        }
 
         val point = pointRepository.findByMemberId(memberId) ?: throw CustomException(POINT_01)
         if (point.balance < PointSource.MESSAGE_SEND.point) {
             throw CustomException(POINT_03)
         }
+
+        val target = memberRepository.findByIdOrNull(targetId) ?: throw CustomException(MEMBER_01)
         if (!target.isChat) {
             throw CustomException(CHAT_04)
         }
+
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
 
         val chatRoom = chatRoomRepository.findByMember1IdAndMember2Id(
             minOf(memberId, targetId),
