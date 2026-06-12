@@ -45,6 +45,7 @@ enum class ErrorCode(
     CHAT_01(HttpStatus.BAD_REQUEST, "자기 자신과는 채팅방을 생성할 수 없습니다."),
     CHAT_02(HttpStatus.BAD_REQUEST, "접근할 수 없는 채팅방입니다."),
     CHAT_03(HttpStatus.BAD_REQUEST, "존재하지 않는 채팅방입니다."),
+    CHAT_04(HttpStatus.BAD_REQUEST, "쪽지 수신을 거부한 상태입니다."),
 
     CHAT_MESSAGE_01(HttpStatus.BAD_REQUEST, "존재하지 않는 채팅 메세지입니다."),
     CHAT_MESSAGE_02(HttpStatus.BAD_REQUEST, "재생할 수 없는 채팅 메세지입니다."),

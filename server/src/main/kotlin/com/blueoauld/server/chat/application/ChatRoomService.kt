@@ -43,6 +43,9 @@ class ChatRoomService(
         if (point.balance < PointSource.MESSAGE_SEND.point) {
             throw CustomException(POINT_03)
         }
+        if (!target.isChat) {
+            throw CustomException(CHAT_04)
+        }
 
         val chatRoom = chatRoomRepository.findByMember1IdAndMember2Id(
             minOf(memberId, targetId),
