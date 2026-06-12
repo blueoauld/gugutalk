@@ -56,6 +56,11 @@ struct MemberProfile: View {
                     HStack {
                         Text(member.nickname)
                             .font(.title3.bold())
+                            .onLongPressGesture {
+                                UIPasteboard.general.string = member.nickname
+                                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                                ToastManager.shared.show("닉네임이 복사되었습니다.", style: .success)
+                            }
 
                         Spacer()
 

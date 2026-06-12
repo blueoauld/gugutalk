@@ -39,7 +39,7 @@ final class ToastManager {
 
     private init() {}
 
-    func show(_ message: String, style: Toast.Style = .error, duration: TimeInterval = 3.0) {
+    func show(_ message: String, style: Toast.Style = .error, duration: TimeInterval = 2.0) {
         current = Toast(message: message, style: style, duration: duration)
     }
 
