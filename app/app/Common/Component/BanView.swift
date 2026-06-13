@@ -17,7 +17,7 @@ struct BanView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Text("문의: gugutalk@proton.me")
+                Text("문의: cs@pidulgi.com")
                     .foregroundStyle(.secondary)
             }
         } actions: {

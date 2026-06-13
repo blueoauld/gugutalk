@@ -180,7 +180,7 @@ struct SettingView: View {
             let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "알 수 없음"
 
             MailView(
-                recipients: ["gugutalk@proton.me"],
+                recipients: ["cs@pidulgi.com"],
                 subject: "문의사항",
                 body: """
                     내용: 
@@ -201,7 +201,7 @@ struct SettingView: View {
             let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "알 수 없음"
 
             MailView(
-                recipients: ["gugutalk@proton.me"],
+                recipients: ["cs@pidulgi.com"],
                 subject: "버그제보",
                 body: """
                     내용: 
