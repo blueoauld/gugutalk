@@ -1,6 +1,9 @@
 package com.blueoauld.server.common.authentication.infrastructure
 
+import com.blueoauld.server.common.authentication.AuthenticationAttributes.MEMBER_ID
 import com.blueoauld.server.common.authentication.annotation.Login
+import com.blueoauld.server.common.exception.CustomException
+import com.blueoauld.server.common.exception.type.ErrorCode
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
 import org.springframework.stereotype.Component
@@ -22,7 +25,7 @@ class AuthenticationPrincipalArgumentResolver : HandlerMethodArgumentResolver {
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
     ): Any? {
-        val nativeRequest = webRequest.getNativeRequest(HttpServletRequest::class.java)
-        return nativeRequest?.getAttribute("memberId")
+        val request = webRequest.getNativeRequest(HttpServletRequest::class.java)
+        return request?.getAttribute(MEMBER_ID) as? Long ?: throw CustomException(ErrorCode.MEMBER_06)
     }
 }

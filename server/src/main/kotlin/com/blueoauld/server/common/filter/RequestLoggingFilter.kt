@@ -1,5 +1,6 @@
 package com.blueoauld.server.common.filter
 
+import com.blueoauld.server.common.authentication.AuthenticationAttributes
 import com.blueoauld.server.common.util.IpExtractor
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.FilterChain
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import java.util.*
+
+private const val REQUEST_ID = "requestId"
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
@@ -33,7 +36,7 @@ class RequestLoggingFilter : OncePerRequestFilter() {
         filterChain: FilterChain
     ) {
         val startTime = System.currentTimeMillis()
-        MDC.put("requestId", UUID.randomUUID().toString().take(8))
+        MDC.put(REQUEST_ID, UUID.randomUUID().toString().take(8))
 
         try {
             filterChain.doFilter(request, response)
@@ -45,9 +48,9 @@ class RequestLoggingFilter : OncePerRequestFilter() {
                 "METHOD = ${request.method}, URI = ${request.requestURI}, IP = $ip, STATUS = ${response.status}, MS = $elapsed"
             }
 
-            MDC.remove("requestId")
-            MDC.remove("memberId")
-            MDC.remove("nickname")
+            MDC.remove(REQUEST_ID)
+            MDC.remove(AuthenticationAttributes.MEMBER_ID)
+            MDC.remove(AuthenticationAttributes.NICKNAME)
         }
     }
 

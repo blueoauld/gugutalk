@@ -3,6 +3,7 @@ package com.blueoauld.server.common.authentication.filter
 import com.blueoauld.server.authentication.application.port.AccessTokenBlacklistStore
 import com.blueoauld.server.ban.entity.type.BanType.*
 import com.blueoauld.server.ban.repository.BanRepository
+import com.blueoauld.server.common.authentication.AuthenticationAttributes
 import com.blueoauld.server.common.authentication.application.TokenProvider
 import com.blueoauld.server.member.repository.MemberRepository
 import jakarta.servlet.FilterChain
@@ -80,10 +81,10 @@ class AuthenticationFilter(
                 return exception(response, it.uuid, it.reason, it.expiredAt)
             }
 
-        MDC.put("memberId", memberId.toString())
-        MDC.put("nickname", member.nickname)
+        MDC.put(AuthenticationAttributes.MEMBER_ID, memberId.toString())
+        MDC.put(AuthenticationAttributes.NICKNAME, member.nickname)
 
-        request.setAttribute("memberId", memberId)
+        request.setAttribute(AuthenticationAttributes.MEMBER_ID, memberId)
         filterChain.doFilter(request, response)
     }
 
