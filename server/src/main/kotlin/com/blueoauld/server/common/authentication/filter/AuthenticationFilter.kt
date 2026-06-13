@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 
 @Component
@@ -23,7 +24,8 @@ class AuthenticationFilter(
     private val memberRepository: MemberRepository,
     private val banRepository: BanRepository,
     private val tokenProvider: TokenProvider,
-    private val accessTokenBlacklistStore: AccessTokenBlacklistStore
+    private val accessTokenBlacklistStore: AccessTokenBlacklistStore,
+    private val objectMapper: ObjectMapper,
 ) : OncePerRequestFilter() {
 
     private val antPathMatcher = AntPathMatcher()
@@ -107,30 +109,25 @@ class AuthenticationFilter(
         return servletRequest.getHeader("X-Device-Id")
     }
 
-    private fun exception(
-        response: HttpServletResponse,
-        uuid: String,
-        reason: String,
-        expiredAt: Instant
-    ) {
-        response.status = HttpServletResponse.SC_UNAUTHORIZED
-        response.contentType = "application/json"
-        response.characterEncoding = "UTF-8"
-        response.writer.write(
-            """
-            {
-            "code": "UNAUTHORIZED_03", 
-            "uuid": "$uuid",
-            "reason": "$reason",
-            "expiredAt": "$expiredAt"
-            }""".trimIndent()
+    private fun exception(response: HttpServletResponse, uuid: String, reason: String, expiredAt: Instant) {
+        writeBody(
+            response, mapOf(
+                "code" to "UNAUTHORIZED_03",
+                "uuid" to uuid,
+                "reason" to reason,
+                "expiredAt" to expiredAt.toString(),
+            )
         )
     }
 
     private fun exception(response: HttpServletResponse, message: String) {
+        writeBody(response, mapOf("code" to "UNAUTHORIZED_01", "message" to message))
+    }
+
+    private fun writeBody(response: HttpServletResponse, body: Map<String, Any?>) {
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = "application/json"
         response.characterEncoding = "UTF-8"
-        response.writer.write("""{"code": "UNAUTHORIZED_01", "message": "$message"}""")
+        objectMapper.writeValue(response.writer, body)
     }
 }
