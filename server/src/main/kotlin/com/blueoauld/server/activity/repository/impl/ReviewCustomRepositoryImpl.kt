@@ -114,7 +114,7 @@ class ReviewCustomRepositoryImpl(
 
         val query = entityManager.createNativeQuery(sql, Tuple::class.java).apply {
             if (genderValue != null) {
-                setParameter("gender", genderValue)
+                setParameter("gender", genderValue.name)
             }
             if (hasCursor) {
                 setParameter("cursorScore", cursorScore)
