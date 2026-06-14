@@ -104,8 +104,6 @@ final class ChatMessageViewModel {
             if let apiError = error as? APIError, case .cancelled = apiError {
                 return
             }
-
-            print(error.userMessage)
         }
     }
 

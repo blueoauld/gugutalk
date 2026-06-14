@@ -13,6 +13,7 @@
 		9D95DEE52FC7CC4400D96C14 /* LazyPager in Frameworks */ = {isa = PBXBuildFile; productRef = 9D95DEE42FC7CC4400D96C14 /* LazyPager */; };
 		9DA62C792FD8D43700E93A6B /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 9DA62C782FD8D43700E93A6B /* GoogleMobileAds */; };
 		9DD018502FCBEC9400979327 /* SwiftStomp in Frameworks */ = {isa = PBXBuildFile; productRef = 9DD0184F2FCBEC9400979327 /* SwiftStomp */; };
+		9DDD39FC2FDEEF450035AE45 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 9DDD39FB2FDEEF450035AE45 /* FirebaseAnalytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DDD39FC2FDEEF450035AE45 /* FirebaseAnalytics in Frameworks */,
 				9DA62C792FD8D43700E93A6B /* GoogleMobileAds in Frameworks */,
 				9D95DEE52FC7CC4400D96C14 /* LazyPager in Frameworks */,
 				9D95DEE02FC6F57700D96C14 /* Kingfisher in Frameworks */,
@@ -99,6 +101,7 @@
 				9D95DEE42FC7CC4400D96C14 /* LazyPager */,
 				9DD0184F2FCBEC9400979327 /* SwiftStomp */,
 				9DA62C782FD8D43700E93A6B /* GoogleMobileAds */,
+				9DDD39FB2FDEEF450035AE45 /* FirebaseAnalytics */,
 			);
 			productName = app;
 			productReference = 9D7B0CA92FAFA6DC00EB381C /* app.app */;
@@ -136,6 +139,7 @@
 				9D95DEE32FC7CC4400D96C14 /* XCRemoteSwiftPackageReference "SwiftUI-LazyPager" */,
 				9DD0184E2FCBEC9400979327 /* XCRemoteSwiftPackageReference "SwiftStomp" */,
 				9DA62C772FD8D43700E93A6B /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				9DDD39FA2FDEEF450035AE45 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9D7B0CAA2FAFA6DC00EB381C /* Products */;
@@ -316,7 +320,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twobetta.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -366,7 +370,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twobetta.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -456,6 +460,14 @@
 				minimumVersion = 1.2.1;
 			};
 		};
+		9DDD39FA2FDEEF450035AE45 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.14.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -488,6 +500,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9DD0184E2FCBEC9400979327 /* XCRemoteSwiftPackageReference "SwiftStomp" */;
 			productName = SwiftStomp;
+		};
+		9DDD39FB2FDEEF450035AE45 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9DDD39FA2FDEEF450035AE45 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

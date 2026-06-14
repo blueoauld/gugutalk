@@ -1,5 +1,7 @@
 import SwiftUI
 import UserNotifications
+import FirebaseCore
+import FirebaseAnalytics
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
@@ -7,11 +9,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        UNUserNotificationCenter.current().delegate = self
+        FirebaseApp.configure()
 
+        UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
             guard granted else { return }
-            
+
             DispatchQueue.main.async {
                 application.registerForRemoteNotifications()
             }
@@ -51,8 +54,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         PushRouter.shared.handle(userInfo: content.userInfo)
 
         let threadId = content.threadIdentifier
-
-        print(content, threadId)
 
         guard !threadId.isEmpty else {
             completionHandler()
