@@ -6,3 +6,7 @@
   <img width="200" alt="3" src="https://github.com/user-attachments/assets/21497c40-fc57-4b86-8d3f-b952b561b7e0" />
   <img width="200" alt="4" src="https://github.com/user-attachments/assets/3e40490a-e9b1-4584-8cd7-03a464b66625" />
 </p>
+
+## 아키텍처
+
+<img width="1513" height="1039" alt="image" src="https://github.com/user-attachments/assets/c7d840f3-6c15-44c0-96d4-c5912cdc2a44" />
