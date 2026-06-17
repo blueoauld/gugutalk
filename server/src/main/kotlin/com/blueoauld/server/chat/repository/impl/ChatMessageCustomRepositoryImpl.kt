@@ -1,7 +1,10 @@
 package com.blueoauld.server.chat.repository.impl
 
 import com.blueoauld.server.chat.entity.ChatMessage
+import com.blueoauld.server.chat.entity.ChatMessageReaction
 import com.blueoauld.server.chat.repository.ChatMessageCustomRepository
+import com.blueoauld.server.chat.repository.result.ChatMessageProjection
+import com.blueoauld.server.chat.repository.result.ChatMessageReactionResult
 import com.blueoauld.server.chat.repository.result.ChatMessageResult
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
@@ -26,8 +29,9 @@ class ChatMessageCustomRepositoryImpl(
         cursorDateAt: Instant?,
         size: Int
     ): List<ChatMessageResult> {
-        val query = jpql {
-            selectNew<ChatMessageResult>(
+        // 채팅 메세지
+        val messageQuery = jpql {
+            selectNew<ChatMessageProjection>(
                 path(ChatMessage::id),
                 path(ChatMessage::senderId),
                 path(ChatMessage::content),
@@ -52,12 +56,53 @@ class ChatMessageCustomRepositoryImpl(
             )
         }
 
-        val rendered = jpqlRenderer.render(query, jpqlRenderContext)
-        val jpaQuery = entityManager.createQuery(rendered.query, ChatMessageResult::class.java).apply {
-            rendered.params.forEach { (name, value) ->
-                setParameter(name, value)
+        val renderedMessage = jpqlRenderer.render(messageQuery, jpqlRenderContext)
+        val messages = entityManager
+            .createQuery(renderedMessage.query, ChatMessageProjection::class.java)
+            .apply {
+                renderedMessage.params.forEach { (name, value) -> setParameter(name, value) }
             }
+            .setMaxResults(size)
+            .resultList
+
+        if (messages.isEmpty()) {
+            return emptyList()
         }
-        return jpaQuery.setMaxResults(size).resultList
+
+        // 채팅 메세지 반응
+        val messageIds = messages.map { it.chatMessageId }
+
+        val reactionQuery = jpql {
+            selectNew<ChatMessageReactionResult>(
+                path(ChatMessageReaction::chatMessageId),
+                path(ChatMessageReaction::memberId),
+                path(ChatMessageReaction::type),
+            ).from(
+                entity(ChatMessageReaction::class),
+            ).where(
+                path(ChatMessageReaction::chatMessageId).`in`(messageIds),
+            )
+        }
+
+        val renderedReaction = jpqlRenderer.render(reactionQuery, jpqlRenderContext)
+        val reactions = entityManager
+            .createQuery(renderedReaction.query, ChatMessageReactionResult::class.java)
+            .apply {
+                renderedReaction.params.forEach { (name, value) -> setParameter(name, value) }
+            }
+            .resultList
+
+        val reactionsByMessageId: Map<Long, List<ChatMessageReactionResult>> = reactions.groupBy { it.chatMessageId }
+
+        return messages.map { message ->
+            ChatMessageResult(
+                chatMessageId = message.chatMessageId,
+                senderId = message.senderId,
+                content = message.content,
+                type = message.type,
+                createdAt = message.createdAt,
+                reactions = reactionsByMessageId[message.chatMessageId] ?: emptyList(),
+            )
+        }
     }
 }
