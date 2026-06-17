@@ -46,7 +46,7 @@ class ChatMessageEventHandler(
                             "chat/${event.chatRoomId}/$fileName",
                         )
                     }.onFailure { e ->
-                        log.error(e) { "채팅 메시지 미디어 이동에 실패했습니다. 키 = $key" }
+                        log.error(e) { "채팅 메세지 미디어 이동에 실패했습니다. 키 = $key" }
                     }
                 }
             }.awaitAll()
