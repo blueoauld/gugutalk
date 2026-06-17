@@ -1,7 +1,9 @@
 package com.blueoauld.server.chat.application
 
+import com.blueoauld.server.chat.application.event.ChatMessageReactEvent
 import com.blueoauld.server.chat.application.event.ChatMessageSendEvent
 import com.blueoauld.server.chat.application.event.ChatMessageUploadMediaEvent
+import com.blueoauld.server.chat.application.response.ChatMessageReactResponse
 import com.blueoauld.server.chat.application.response.ChatMessageRowResponse
 import com.blueoauld.server.r2.application.R2Provider
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -29,6 +31,14 @@ class ChatMessageEventHandler(
         simpMessagingTemplate.convertAndSend(
             "/topic/chat-rooms/${event.chatRoomId}",
             ChatMessageRowResponse.from(event)
+        )
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun handle(event: ChatMessageReactEvent) {
+        simpMessagingTemplate.convertAndSend(
+            "/topic/chat-rooms/${event.chatRoomId}/reactions",
+            ChatMessageReactResponse.from(event)
         )
     }
 

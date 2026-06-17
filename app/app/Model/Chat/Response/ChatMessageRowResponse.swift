@@ -8,12 +8,13 @@ struct ChatMessageRowResponse: Decodable, Identifiable {
     let content: String
     let type: MessageType
     let createdAt: String
+    var reactions: [ChatMessageReactResponse]
 
     var id: String { clientMessageId ?? "\(chatMessageId)" }
     var status: SendStatus = .sent
 
     enum CodingKeys: String, CodingKey {
-        case chatMessageId, clientMessageId, senderId, content, type, createdAt
+        case chatMessageId, clientMessageId, senderId, content, type, createdAt, reactions
     }
 }
 
@@ -33,6 +34,7 @@ extension ChatMessageRowResponse {
             content: content,
             type: .text,
             createdAt: iso8601.string(from: Date()),
+            reactions: [],
             status: .pending
         )
     }

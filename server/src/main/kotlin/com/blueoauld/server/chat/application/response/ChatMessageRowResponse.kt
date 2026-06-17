@@ -13,7 +13,7 @@ data class ChatMessageRowResponse(
     val content: String,
     val type: MessageType,
     val createdAt: Instant,
-    val reactions: List<ChatMessageReactionResponse> = emptyList()
+    val reactions: List<ChatMessageReactResponse> = emptyList()
 ) {
 
     companion object {
@@ -24,7 +24,7 @@ data class ChatMessageRowResponse(
                 content = result.content,
                 type = result.type,
                 createdAt = result.createdAt,
-                reactions = result.reactions.map { ChatMessageReactionResponse.from(it) },
+                reactions = result.reactions.map { ChatMessageReactResponse.from(it) },
             )
         }
 

@@ -4,22 +4,37 @@ import Kingfisher
 struct ChatMessageBubble: View {
 
     let message: ChatMessageRowResponse
+    var onReact: ((String) -> Void)? = nil
 
     @Environment(AppRouter.self) private var router
 
     @State private var showImageFullScreen = false
     @State private var showVideoFullScreen = false
+    @State private var showReactions = false
 
     private let imageSize: CGFloat = 200
 
     private var isMine: Bool {
         message.senderId == TokenStorage.shared.memberId
     }
+
+    private var reactionChips: [(type: ReactionType, count: Int, isMine: Bool)] {
+        let myId = TokenStorage.shared.memberId
+        let order = ReactionType.allCases
+
+        return Dictionary(grouping: message.reactions, by: \.type)
+            .compactMap { key, value -> (type: ReactionType, count: Int, isMine: Bool)? in
+                guard let type = key else { return nil }
+
+                let mine = value.contains { $0.memberId == myId }
+                return (type: type, count: value.count, isMine: mine)
+            }
+            .sorted { order.firstIndex(of: $0.type)! < order.firstIndex(of: $1.type)! }
+    }
+
     private var jumboEmojiSize: CGFloat? {
         let content = message.content
-
         guard content.isOnlyEmoji else { return nil }
-
         switch content.emojiCount {
         case 1: return 56
         case 2: return 44
@@ -32,15 +47,11 @@ struct ChatMessageBubble: View {
         HStack(alignment: .bottom, spacing: 4) {
             if isMine {
                 Spacer()
-
                 timeText
-
-                bubbleText(background: Color.blue, foreground: .white)
+                bubble
             } else {
-                bubbleText(background: Color(.systemGray5), foreground: .primary)
-
+                bubble
                 timeText
-
                 Spacer()
             }
         }
@@ -95,7 +106,6 @@ struct ChatMessageBubble: View {
             if let jumboSize = jumboEmojiSize {
                 Text(message.content)
                     .font(.system(size: jumboSize))
-                    .onLongPressGesture { copyContent() }
             } else {
                 Text(attributedContent(foreground: foreground))
                     .font(.subheadline)
@@ -103,7 +113,6 @@ struct ChatMessageBubble: View {
                     .padding(.vertical, 10)
                     .background(background)
                     .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .onLongPressGesture { copyContent() }
             }
         }
     }
@@ -115,6 +124,66 @@ struct ChatMessageBubble: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    private var bubble: some View {
+        let background: Color = isMine ? .blue : Color(.systemGray5)
+        let foreground: Color = isMine ? .white : .primary
+
+        return bubbleText(background: background, foreground: foreground)
+            .padding(.bottom, message.reactions.isEmpty ? 0 : 12)
+            .overlay(alignment: isMine ? .bottomLeading : .bottomTrailing) {
+                if !reactionChips.isEmpty {
+                    HStack(spacing: 3) {
+                        ForEach(reactionChips, id: \.type) { chip in
+                            HStack(spacing: 2) {
+                                Text(chip.type.emoji)
+                                    .font(.caption)
+
+                                if chip.count > 1 {
+                                    Text("\(chip.count)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule()
+                                    .fill(Color(.systemBackground))
+                                    .shadow(color: .black.opacity(0.15), radius: 1, y: 1)
+                            )
+                            .overlay(
+                                Capsule()
+                                    .strokeBorder(
+                                        chip.isMine ? Color.accentColor.opacity(0.45) : Color.clear,
+                                        lineWidth: 1
+                                    )
+                            )
+                        }
+                    }
+                    .offset(x: isMine ? -4 : 4)
+                    .transition(.scale.combined(with: .opacity))
+                }
+            }
+            .onLongPressGesture {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                showReactions = true
+            }
+            .popover(isPresented: $showReactions) {
+                let isMedia = message.type == .image || message.type == .video
+
+                ChatReactionPicker(
+                    onSelect: { emoji in
+                        showReactions = false
+                        onReact?(emoji)
+                    },
+                    onCopy: isMedia ? nil : {
+                        showReactions = false
+                        copyContent()
+                    }
+                )
+            }
     }
 
     private func attributedContent(foreground: Color) -> AttributedString {

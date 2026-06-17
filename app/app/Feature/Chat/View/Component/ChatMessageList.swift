@@ -5,6 +5,7 @@ struct ChatMessageList: View {
     let chatMessage: [ChatMessageRowResponse]
     let hasNext: Bool
     var onNext: () async -> Void
+    var onReact: (ChatMessageRowResponse, String) -> Void
     var scrollToBottomTrigger: Int
 
     var body: some View {
@@ -17,9 +18,11 @@ struct ChatMessageList: View {
                                 .padding(.vertical, 12)
                         }
 
-                        ChatMessageBubble(message: message)
-                            .padding(.horizontal)
-                            .padding(.vertical, 2)
+                        ChatMessageBubble(message: message) { emoji in
+                            onReact(message, emoji)
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 4)
                     }
                     .id(message.id)
                     .rotationEffect(.degrees(180))

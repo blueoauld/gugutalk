@@ -23,6 +23,7 @@ final class ChatMessageViewModel {
     }
 
     private let chatMessageService = ChatMessageService.shared
+    private let chatMessageReactionService = ChatMessageReactionService.shared
     private let chatRoomService = ChatRoomService.shared
     private let r2Service = R2Service.shared
 
@@ -39,6 +40,9 @@ final class ChatMessageViewModel {
 
     private func topic(_ chatRoomId: Int64) -> String {
         "/topic/chat-rooms/\(chatRoomId)"
+    }
+    private func reactionTopic(_ chatRoomId: Int64) -> String {
+        "/topic/chat-rooms/\(chatRoomId)/reactions"
     }
 
     func load(chatRoomId: Int64) async {
@@ -270,6 +274,43 @@ final class ChatMessageViewModel {
         try? await chatRoomService.read(chatRoomId: chatRoomId)
     }
 
+    func react(chatRoomId: Int64, chatMessageId: Int64, type: ReactionType) async -> Result<Void, Error>? {
+        guard let memberId = TokenStorage.shared.memberId else {
+            return .failure(
+                APIError.server(
+                    code: "INTERNAL_CLIENT_ERROR",
+                    message: "회원 ID를 찾을 수 없습니다.",
+                    statusCode: 400
+                )
+            )
+        }
+
+        guard let idx = chatMessages.firstIndex(where: { $0.chatMessageId == chatMessageId }) else {
+            return nil
+        }
+
+        let previous = chatMessages[idx].reactions
+        chatMessages[idx].reactions = toggledReactions(previous, chatMessageId: chatMessageId, memberId: memberId, type: type)
+
+        do {
+            try await chatMessageReactionService.react(
+                chatRoomId: chatRoomId,
+                chatMessageId: chatMessageId,
+                type: type
+            )
+            return .success(())
+        } catch {
+            if let apiError = error as? APIError, case .cancelled = apiError {
+                return nil
+            }
+
+            if let rollbackIdx = chatMessages.firstIndex(where: { $0.chatMessageId == chatMessageId }) {
+                chatMessages[rollbackIdx].reactions = previous
+            }
+            return .failure(error)
+        }
+    }
+
     private func fetch(chatRoomId: Int64) async {
         cursor.reset()
         chatMessages = []
@@ -313,6 +354,26 @@ final class ChatMessageViewModel {
         return data
     }
 
+    private func toggledReactions(
+        _ reactions: [ChatMessageReactResponse],
+        chatMessageId: Int64,
+        memberId: Int64,
+        type: ReactionType
+    ) -> [ChatMessageReactResponse] {
+        var result = reactions
+
+        if let i = result.firstIndex(where: { $0.memberId == memberId }) {
+            if result[i].type == type {
+                result.remove(at: i)
+            } else {
+                result[i].type = type
+            }
+        } else {
+            result.append(ChatMessageReactResponse(chatMessageId: chatMessageId, memberId: memberId, type: type))
+        }
+        return result
+    }
+
     // MARK: - STOMP
     func subscribe(chatRoomId: Int64) {
         StompManager.shared.subscribe(
@@ -326,10 +387,20 @@ final class ChatMessageViewModel {
                 await self.read(chatRoomId: chatRoomId)
             }
         }
+
+        StompManager.shared.subscribe(
+            to: reactionTopic(chatRoomId),
+            as: ChatMessageReactResponse.self
+        ) { [weak self] event in
+            guard let self else { return }
+            
+            self.applyReaction(event)
+        }
     }
 
     func unsubscribe(chatRoomId: Int64) {
         StompManager.shared.unsubscribe(from: topic(chatRoomId))
+        StompManager.shared.unsubscribe(from: reactionTopic(chatRoomId))
     }
 
     private func receive(_ message: ChatMessageRowResponse) {
@@ -344,5 +415,18 @@ final class ChatMessageViewModel {
 
         chatMessages.insert(message, at: 0)
         if case .empty = state { state = .data }
+    }
+
+    private func applyReaction(_ response: ChatMessageReactResponse) {
+        guard let idx = chatMessages.firstIndex(where: { $0.chatMessageId == response.chatMessageId }) else { return }
+
+        var reactions = chatMessages[idx].reactions
+        reactions.removeAll { $0.memberId == response.memberId }
+
+        if let type = response.type {
+            reactions.append(ChatMessageReactResponse(chatMessageId: response.chatMessageId, memberId: response.memberId, type: type))
+        }
+
+        chatMessages[idx].reactions = reactions
     }
 }

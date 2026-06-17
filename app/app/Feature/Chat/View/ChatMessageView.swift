@@ -98,6 +98,19 @@ struct ChatMessageView: View {
                         ToastManager.shared.show(error.userMessage, style: .error)
                     }
                 },
+                onReact: { message, emoji in
+                    Task {
+                        guard let type = ReactionType(emoji: emoji) else { return }
+
+                        if case .failure(let error) = await vm.react(
+                            chatRoomId: chatRoomId,
+                            chatMessageId: message.chatMessageId,
+                            type: type
+                        ) {
+                            ToastManager.shared.show(error.userMessage, style: .error)
+                        }
+                    }
+                },
                 scrollToBottomTrigger: scrollToBottomTrigger
             )
         case .error(let message):
