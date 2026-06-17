@@ -162,8 +162,6 @@ struct ChatMessageBubble: View {
                             )
                         }
                     }
-                    .offset(x: isMine ? -4 : 4)
-                    .transition(.scale.combined(with: .opacity))
                 }
             }
             .onLongPressGesture {
