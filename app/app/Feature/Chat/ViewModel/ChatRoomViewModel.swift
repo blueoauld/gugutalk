@@ -232,7 +232,12 @@ final class ChatRoomViewModel {
     }
     
     private func receive(_ room: ChatRoomReadResponse) {
-        if let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) {
+        guard let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) else { return }
+
+        if status == .unread {
+            chatRooms.remove(at: index)
+            state = chatRooms.isEmpty ? .empty : .data
+        } else {
             chatRooms[index].unreadCount = 0
         }
     }
