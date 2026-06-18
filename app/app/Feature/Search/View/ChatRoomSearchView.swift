@@ -24,6 +24,7 @@ struct ChatRoomSearchView: View {
                 }
             }
         }
+        .trackScreen("chat_room_search")
     }
 
     @ViewBuilder

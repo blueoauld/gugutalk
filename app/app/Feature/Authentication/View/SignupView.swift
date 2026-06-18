@@ -114,5 +114,6 @@ struct SignupView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("signup")
     }
 }

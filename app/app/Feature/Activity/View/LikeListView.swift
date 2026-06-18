@@ -20,6 +20,7 @@ struct LikeListView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("like_list")
     }
 
     @ViewBuilder

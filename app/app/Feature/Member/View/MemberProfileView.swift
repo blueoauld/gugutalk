@@ -20,6 +20,7 @@ struct MemberProfileView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("member_profile")
     }
 
     @ViewBuilder

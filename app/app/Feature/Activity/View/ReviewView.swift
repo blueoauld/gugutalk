@@ -44,6 +44,7 @@ struct ReviewView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("review")
     }
 
     @ViewBuilder

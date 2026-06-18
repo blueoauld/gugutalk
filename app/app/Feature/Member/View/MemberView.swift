@@ -30,6 +30,7 @@ struct MemberView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("member")
     }
 
     @ViewBuilder

@@ -20,6 +20,7 @@ struct BlockListView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("block_list")
     }
 
     @ViewBuilder

@@ -20,6 +20,7 @@ struct UnlikeListView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("unlike_list")
     }
 
     @ViewBuilder

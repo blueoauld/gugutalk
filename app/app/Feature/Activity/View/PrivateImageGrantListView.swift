@@ -20,6 +20,7 @@ struct PrivateImageGrantListView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("private_image_grant_list")
     }
     
     @ViewBuilder

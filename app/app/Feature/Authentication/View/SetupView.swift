@@ -57,5 +57,6 @@ struct SetupView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("setup")
     }
 }

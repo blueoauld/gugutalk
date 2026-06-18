@@ -63,6 +63,7 @@ struct MainView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("main")
     }
 
     @ViewBuilder

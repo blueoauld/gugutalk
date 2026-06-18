@@ -54,5 +54,6 @@ struct ReportView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("report")
     }
 }

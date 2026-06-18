@@ -24,6 +24,7 @@ struct MemberSearchView: View {
                 }
             }
         }
+        .trackScreen("member_search")
     }
 
     @ViewBuilder

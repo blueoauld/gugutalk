@@ -15,9 +15,10 @@ struct PointView: View {
         .task {
             async let b: Void = vm.getBalance()
             async let l: Void = vm.load()
-            
+
             _ = await (b, l)
         }
+        .trackScreen("point")
     }
     
     @ViewBuilder

@@ -42,6 +42,7 @@ struct ChatRoomView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("chat_room")
     }
     
     @ViewBuilder

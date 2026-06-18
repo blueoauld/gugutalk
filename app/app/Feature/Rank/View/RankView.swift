@@ -43,6 +43,7 @@ struct RankView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("rank")
     }
 
     @ViewBuilder

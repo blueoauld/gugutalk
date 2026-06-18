@@ -58,5 +58,6 @@ struct LoginView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("login")
     }
 }

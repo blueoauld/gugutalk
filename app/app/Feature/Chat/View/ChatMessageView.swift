@@ -75,6 +75,7 @@ struct ChatMessageView: View {
                 }
             }
         }
+        .trackScreen("chat_message")
     }
 
     @ViewBuilder

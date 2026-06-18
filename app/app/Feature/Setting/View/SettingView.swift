@@ -240,6 +240,7 @@ struct SettingView: View {
                 LoadingOverlay()
             }
         }
+        .trackScreen("setting")
     }
 
     private func machineIdentifier() -> String {
