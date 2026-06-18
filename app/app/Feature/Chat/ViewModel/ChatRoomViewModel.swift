@@ -48,6 +48,10 @@ final class ChatRoomViewModel {
         state = .loading
         await fetch()
     }
+
+    func silentRefresh() async {
+        await fetch(silent: true)
+    }
     
     func loadNext() async -> Result<Void, Error>? {
         guard !isPaging, hasNext else { return nil }
@@ -139,10 +143,13 @@ final class ChatRoomViewModel {
         }
     }
     
-    private func fetch() async {
+    private func fetch(silent: Bool = false) async {
         cursor.reset()
-        chatRooms = []
-        
+
+        if !silent {
+            chatRooms = []
+        }
+
         do {
             let response = try await chatRoomService.gets(
                 status: status.rawValue,
@@ -150,7 +157,7 @@ final class ChatRoomViewModel {
                 cursorDateAt: cursor.cursorDateAt,
                 size: 20
             )
-            
+
             cursor.update(cursorId: response.nextId, cursorDateAt: response.nextDateAt, hasNext: response.hasNext)
             chatRooms = response.payload
             state = chatRooms.isEmpty ? .empty : .data
@@ -159,7 +166,9 @@ final class ChatRoomViewModel {
                 return
             }
 
-            state = .error(error.userMessage)
+            if !silent {
+                state = .error(error.userMessage)
+            }
         }
     }
     

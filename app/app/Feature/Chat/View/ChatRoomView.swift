@@ -33,7 +33,7 @@ struct ChatRoomView: View {
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 Task {
-                    await vm.switchView()
+                    await vm.silentRefresh()
                 }
             }
         }
