@@ -1,47 +1,43 @@
 # CLAUDE.md
 
-이 파일은 Claude Code가 이 프로젝트에서 작업할 때 따라야 할 규칙과 맥락을 담고 있습니다.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 프로젝트 개요
+## Repository scope
 
-- SwiftUI로 만든 iOS 채팅 앱입니다.
-- **이미 App Store에 배포되어 운영 중인 앱입니다.** 변경은 보수적으로, 요청한 범위 안에서만 진행하세요.
-- 현재 주 작업: 버그 수정.
+This directory is the **iOS client** (SwiftUI) for 구구톡 / pidulgi. It lives in a monorepo whose root (`../`) also contains `server/` (Kotlin / Spring Boot 4, the API this app talks to) and `web/`. The root `README.md` documents the full system and server architecture. Work here is Swift/iOS only unless told otherwise.
 
-## 기술 스택 / 제약
+## Build & run
 
-- 언어: Swift / SwiftUI
-- 최소 지원 버전: iOS 26.2
-- 의존성: 순수 SwiftUI만 사용
-- 외부 라이브러리를 새로 추가하지 마세요. 필요하면 먼저 제안하고 승인을 받으세요.
+- No CocoaPods or `.xcworkspace`. Dependencies are Swift Package Manager packages resolved by the Xcode project. Open `app.xcodeproj` directly.
+- Scheme: `app`. Bundle id `com.twobetta.app`. iOS deployment target **26.2**, Swift 5 language mode.
+- **`app/Secrets.swift` is gitignored and required to compile.** It defines `Secrets.URL`, `Secrets.WS`, and `Secrets.AD_UNIT_ID`. A fresh checkout will fail to build until it exists. In `#if DEBUG` it points at a LAN dev server (`http://192.168.0.14:8080`); release points at `https://api.pidulgi.com`.
+- Build from CLI: `xcodebuild -project app.xcodeproj -scheme app -destination 'generic/platform=iOS' build`
+- There is **no test target** — do not look for or invent `xcodebuild test` workflows.
 
-## 아키텍처 / 폴더 구조
+## Architecture
 
-```
-Sources/
-  View/         # SwiftUI 뷰
-  ViewModel/    # 상태 관리 (@Observable)
-  Model/        # 데이터 모델
-  Service/      # 네트워크 / 영속성
-```
+The app uses MVVM with observation via `@Observable` (not `ObservableObject`). Source is under `app/`, split into four layers:
 
-- 새 파일은 위 구조에 맞춰서 적절한 폴더에 배치하세요.
+- **`Feature/<Domain>/`** — UI per domain (Chat, Member, Activity, Authentication, Point, Rank, Report, Search, Setting, Main, AdMob, Image). Each feature contains `View/`, `ViewModel/`, and a `Router/` wrapper view (e.g. `ChatNavigationView`).
+- **`Service/<Domain>/`** — API clients. Each is a `.shared` singleton with `async throws` methods that build a path + parameters and delegate to `PrivateNetworkManager.shared`. This is the only place that talks HTTP.
+- **`Model/`** and feature models — Codable DTOs, suffixed `…Response` / `…Request`. Generic envelopes `CursorResponse<T>` and `CursorRequest` implement keyset/cursor pagination (page size 20; carries `cursorId` + `cursorDateAt`).
+- **`Common/`** — cross-cutting infrastructure: `Network/`, `Router/`, `Helper/`, `Component/` (reusable views), `Extension/`.
 
-## 코딩 규칙
+### Networking (`Common/Network/`)
+- Two Alamofire managers: `PrivateNetworkManager.shared` (authenticated) and `PublicNetworkManager.shared` (no auth). `APIEnvironment` wraps `Secrets` for `baseURL` / `baseWS`.
+- `AuthorizationInterceptor` adapts every request: injects `X-Device-Id` and `Authorization: Bearer <accessToken>`. On a 401 it retries once after `TokenRefresher.refreshIfNeeded()`.
+- All error handling funnels through `APIError`. HTTP failures are decoded into `.server`/`.unauthorized`/`.network`/`.decoding`/`.cancelled`. A **401 with code `UNAUTHORIZED_03` means the user is banned** → decoded into `.ban(...)` and routed to `SessionStore.handleBan`. When catching errors in ViewModels, treat `APIError.cancelled` as a no-op (don't surface it).
 
-- 상태 관리는 `<여기에 채워주세요, 예: @Observable ViewModel 패턴>`으로 통일합니다. `@State` / `@StateObject` / `@ObservedObject`를 일관성 없이 섞지 마세요.
-- 기존 코드의 네이밍, 들여쓰기, 파일 구성 스타일을 그대로 따르세요.
-- 새로운 패턴이나 추상화를 도입하기 전에 먼저 제안하세요.
+### Session & top-level routing
+- `SessionStore.shared` (`@Observable`, injected via `.environment`) holds `isLoggedIn` and `banInfo`. `RootView` switches on it: `banInfo` → `BanView`, else `isLoggedIn` → `RootTabView`, else `AuthenticationNavigationView`.
+- Tokens / `memberId` / `deviceId` persist in `TokenStorage` (Keychain via keychain-swift). `login`/`logout`/`handleBan` mutate `SessionStore` and notify `PushManager`.
+- In-feature navigation uses `AppRouter` (`@Observable`, a `[AppRoute]` path stack with `push`/`pop`/`root`) plus per-feature `…NavigationView` wrappers and `AppDestination`.
 
-## 중요한 규칙 (반드시 지킬 것)
+### Realtime (WebSocket / STOMP)
+- `StompManager.shared` wraps `SwiftStomp` over the `Secrets.WS` socket, authenticated by Bearer header. `RootView` calls `connect()` on login and `disconnect()` on logout/ban.
+- It is a subscription registry: ViewModels register a destination + handler closure (e.g. `ChatRoomViewModel` listens on `/user/queue/chat-rooms/upsert|delete|read`). Incoming messages are dispatched to handlers on `@MainActor`.
 
-- **요청받은 것만 변경하세요.** "이왕 보는 김에" 식의 광범위한 리팩터링이나 멀쩡한 코드 개선은 하지 마세요.
-- 관련 없는 파일은 건드리지 마세요.
-- 큰 변경이 필요해 보이면 먼저 계획을 설명하고 승인을 받은 뒤 진행하세요.
-- 한 번에 버그 하나씩 처리하세요.
-
-## 버그 수정 워크플로
-
-1. 바로 고치지 말고 **먼저 원인을 분석**해서 설명하세요. 증상만 덮는 임시방편(workaround)은 피하세요.
-2. SwiftUI 버그는 상태 갱신 타이밍, 뷰 재생성, 바인딩 문제인 경우가 많으니 표면이 아닌 근본 원인을 짚으세요.
-3. 원인에 동의가 되면 최소한의 변경으로 수정하세요.
+### Conventions to follow
+- ViewModels are `@MainActor @Observable final class`, depend on `.shared` services, and expose a domain `…ViewState` enum (`idle/loading/empty/data/error`). They own cursor state and `isPaging`/`isLoading` flags for pagination.
+- New API call → add a method to the relevant `Service/<Domain>` singleton, never call `PrivateNetworkManager` from a ViewModel directly.
+- Third-party libraries in use: Alamofire (HTTP), SwiftStomp (WS), Kingfisher (remote images), Firebase (analytics — see `View+Analytics.swift` / `screen_view` events), Google Mobile Ads + AdMob SSV (rewarded ads), SwiftUI-LazyPager (image gallery).
