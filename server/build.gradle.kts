@@ -30,10 +30,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test") {
+        exclude(group = "org.mockito")
+    }
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     runtimeOnly("org.postgresql:postgresql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // mockk (use instead of Mockito — Kotlin final classes / coroutines)
+    testImplementation("io.mockk:mockk:1.14.2")
+
+    // testcontainers (real Postgres + Redis for integration/persistence slices)
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter:1.20.4")
+    testImplementation("org.testcontainers:postgresql:1.20.4")
 
     // bcrypt
     implementation("org.springframework.security:spring-security-crypto")
