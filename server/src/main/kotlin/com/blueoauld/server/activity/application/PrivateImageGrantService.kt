@@ -46,7 +46,7 @@ class PrivateImageGrantService(
         cursorDateAt: Instant?,
         size: Int
     ): CursorResponse<ActivityRowResponse> {
-        val result = privateImageGrantRepository.findAllByCursor(
+        val rows = privateImageGrantRepository.findAllByCursor(
             memberId = memberId,
             cursorId = cursorId,
             cursorDateAt = cursorDateAt,
@@ -55,15 +55,6 @@ class PrivateImageGrantService(
             ActivityRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.activityId,
-            nextDateAt = last?.createdAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.activityId }, { it.createdAt })
     }
 }
