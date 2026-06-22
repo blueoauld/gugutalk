@@ -10,7 +10,6 @@ import com.blueoauld.server.member.application.request.MemberImageCreateRequest
 import com.blueoauld.server.member.application.request.MemberUpdateCommentRequest
 import com.blueoauld.server.member.application.request.MemberUpdateProfileRequest
 import com.blueoauld.server.member.application.response.*
-import com.blueoauld.server.member.entity.MemberImage
 import com.blueoauld.server.member.entity.type.MemberImageType
 import com.blueoauld.server.member.entity.type.MemberImageType.PRIVATE
 import com.blueoauld.server.member.entity.type.MemberImageType.PUBLIC
@@ -218,84 +217,27 @@ class MemberService(
         images: List<MemberImageCreateRequest>,
         type: MemberImageType,
     ): MemberImageSyncResult {
-        val pathPrefix = type.name.lowercase()
-
-        // 기존 이미지 조회
         val existingImages = memberImageRepository.findAllByMemberIdAndType(memberId, type)
-        val existingKeys = existingImages.map { it.key }.toSet()
 
-        // 검증
-        images.forEach { image ->
-            val isNew = image.key.startsWith("member/$pathPrefix/temporary/$memberId/")
-            val isExisting = image.key in existingKeys
+        val plan = MemberImageSyncPlan.of(
+            memberId = memberId,
+            type = type,
+            domain = r2Properties.domain,
+            existingImages = existingImages,
+            requestedImages = images,
+        )
 
-            if (!isNew && !isExisting) {
-                throw CustomException(FILE_02)
-            }
+        if (plan.toDelete.isNotEmpty()) {
+            memberImageRepository.deleteAll(plan.toDelete)
         }
-
-        // 요청에서 원하는 상태 구성
-        val desiredOrderByKey = images.mapIndexed { index, image ->
-            val fileName = image.key.substringAfterLast("/")
-            "member/$pathPrefix/$memberId/$fileName" to index
-        }.toMap()
-
-        val sourceByDestination = images.associate { image ->
-            val fileName = image.key.substringAfterLast("/")
-            "member/$pathPrefix/$memberId/$fileName" to image.key
+        if (plan.toInsert.isNotEmpty()) {
+            memberImageRepository.saveAll(plan.toInsert)
         }
-
-        // 삭제 대상
-        val toDelete = existingImages.filter { it.key !in desiredOrderByKey }
-
-        // 추가 대상
-        val toInsert = desiredOrderByKey
-            .filterKeys { it !in existingKeys }
-            .map { (key, sortOrder) ->
-                MemberImage(
-                    memberId = memberId,
-                    key = key,
-                    url = "${r2Properties.domain}/$key",
-                    type = type,
-                    sortOrder = sortOrder,
-                )
-            }
-
-        // 유지 대상
-        existingImages
-            .filter { it.key in desiredOrderByKey }
-            .forEach { existing ->
-                val newSortOrder = desiredOrderByKey.getValue(existing.key)
-                if (existing.sortOrder != newSortOrder) {
-                    existing.updateSortOrder(newSortOrder)
-                }
-            }
-
-        if (toDelete.isNotEmpty()) {
-            memberImageRepository.deleteAll(toDelete)
-        }
-        if (toInsert.isNotEmpty()) {
-            memberImageRepository.saveAll(toInsert)
-        }
-
-        val moveTasks = desiredOrderByKey.keys
-            .filter { it !in existingKeys }
-            .map { destinationKey ->
-                MemberImageMoveTask(
-                    sourceKey = sourceByDestination.getValue(destinationKey),
-                    destinationKey = destinationKey,
-                )
-            }
-
-        val firstImageUrl = desiredOrderByKey.entries
-            .firstOrNull { (_, sortOrder) -> sortOrder == 0 }
-            ?.key
-            ?.let { "${r2Properties.domain}/$it" }
 
         return MemberImageSyncResult(
-            moveTasks = moveTasks,
-            deleteKeys = toDelete.map { it.key },
-            firstImageUrl = firstImageUrl,
+            moveTasks = plan.moveTasks,
+            deleteKeys = plan.deleteKeys,
+            firstImageUrl = plan.firstImageUrl,
         )
     }
 }
