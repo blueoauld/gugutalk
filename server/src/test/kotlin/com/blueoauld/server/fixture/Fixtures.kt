@@ -6,6 +6,8 @@ import com.blueoauld.server.activity.repository.result.ActivityResult
 import com.blueoauld.server.activity.repository.result.ReviewResult
 import com.blueoauld.server.chat.entity.ChatRoom
 import com.blueoauld.server.member.entity.Member
+import com.blueoauld.server.member.repository.result.MemberResult
+import com.blueoauld.server.member.repository.result.MemberSearchResult
 import com.blueoauld.server.point.entity.Point
 import com.blueoauld.server.point.entity.type.PointSource
 import com.blueoauld.server.point.repository.result.PointHistoryResult
@@ -66,6 +68,50 @@ fun reviewFixture(
     nickname = nickname,
     content = content,
     createdAt = createdAt,
+)
+
+fun memberResultFixture(
+    memberId: Long = 2L,
+    nickname: String = "상대방",
+    profileUrl: String? = null,
+    gender: Gender = Gender.FEMALE,
+    birthYear: Int = 2000,
+    region: Region = Region.SEOUL,
+    comment: String = "안녕하세요.",
+    updatedAt: Instant = Instant.parse("2026-01-01T00:00:00Z"),
+    likes: Long = 0,
+    unlikes: Long = 0,
+    reviews: Long = 0,
+): MemberResult = MemberResult(
+    memberId = memberId,
+    nickname = nickname,
+    profileUrl = profileUrl,
+    gender = gender,
+    birthYear = birthYear,
+    region = region,
+    comment = comment,
+    updatedAt = updatedAt,
+    likes = likes,
+    unlikes = unlikes,
+    reviews = reviews,
+)
+
+fun memberSearchResultFixture(
+    memberId: Long = 2L,
+    nickname: String = "상대방",
+    profileUrl: String? = null,
+    gender: Gender = Gender.FEMALE,
+    birthYear: Int = 2000,
+    region: Region = Region.SEOUL,
+    updatedAt: Instant = Instant.parse("2026-01-01T00:00:00Z"),
+): MemberSearchResult = MemberSearchResult(
+    memberId = memberId,
+    nickname = nickname,
+    profileUrl = profileUrl,
+    gender = gender,
+    birthYear = birthYear,
+    region = region,
+    updatedAt = updatedAt,
 )
 
 fun pointFixture(
