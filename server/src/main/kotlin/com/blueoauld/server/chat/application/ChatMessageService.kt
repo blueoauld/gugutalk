@@ -57,7 +57,7 @@ class ChatMessageService(
             throw CustomException(CHAT_02)
         }
 
-        val result = chatMessageRepository.findAllByCursor(
+        val rows = chatMessageRepository.findAllByCursor(
             memberId = memberId,
             chatRoomId = chatRoomId,
             cursorId = cursorId,
@@ -67,16 +67,7 @@ class ChatMessageService(
             ChatMessageRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.chatMessageId,
-            nextDateAt = last?.createdAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.chatMessageId }, { it.createdAt })
     }
 
     @Transactional

@@ -173,7 +173,7 @@ class ChatRoomService(
         cursorDateAt: Instant?,
         size: Int
     ): CursorResponse<ChatRoomRowResponse> {
-        val result = chatRoomRepository.findAllByCursor(
+        val rows = chatRoomRepository.findAllByCursor(
             memberId = memberId,
             status = status,
             cursorId = cursorId,
@@ -183,16 +183,7 @@ class ChatRoomService(
             ChatRoomRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.chatRoomId,
-            nextDateAt = last?.lastMessageAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.chatRoomId }, { it.lastMessageAt })
     }
 
     @Transactional(readOnly = true)
@@ -207,7 +198,7 @@ class ChatRoomService(
             throw CustomException(SEARCH_01)
         }
 
-        val result = chatRoomRepository.findAllByNickname(
+        val rows = chatRoomRepository.findAllByNickname(
             memberId = memberId,
             nickname = nickname,
             cursorId = cursorId,
@@ -217,15 +208,6 @@ class ChatRoomService(
             ChatRoomSearchRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.chatRoomId,
-            nextDateAt = last?.lastMessageAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.chatRoomId }, { it.lastMessageAt })
     }
 }

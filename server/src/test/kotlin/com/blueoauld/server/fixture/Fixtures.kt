@@ -5,6 +5,10 @@ import com.blueoauld.server.activity.entity.Review
 import com.blueoauld.server.activity.repository.result.ActivityResult
 import com.blueoauld.server.activity.repository.result.ReviewResult
 import com.blueoauld.server.chat.entity.ChatRoom
+import com.blueoauld.server.chat.entity.type.MessageType
+import com.blueoauld.server.chat.repository.result.ChatMessageResult
+import com.blueoauld.server.chat.repository.result.ChatRoomResult
+import com.blueoauld.server.chat.repository.result.ChatRoomSearchResult
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.repository.result.MemberResult
 import com.blueoauld.server.member.repository.result.MemberSearchResult
@@ -138,6 +142,55 @@ fun reviewResultFixture(
     nickname = nickname,
     content = content,
     createdAt = createdAt,
+)
+
+fun chatRoomResultFixture(
+    chatRoomId: Long = 1L,
+    memberId: Long = 2L,
+    nickname: String = "상대방",
+    profileUrl: String? = null,
+    unreadCount: Long = 0,
+    lastMessagePreview: String = "안녕하세요",
+    lastMessageAt: Instant = Instant.parse("2026-01-01T00:00:00Z"),
+): ChatRoomResult = ChatRoomResult(
+    chatRoomId = chatRoomId,
+    memberId = memberId,
+    nickname = nickname,
+    profileUrl = profileUrl,
+    unreadCount = unreadCount,
+    lastMessagePreview = lastMessagePreview,
+    lastMessageAt = lastMessageAt,
+)
+
+fun chatRoomSearchResultFixture(
+    chatRoomId: Long = 1L,
+    memberId: Long = 2L,
+    nickname: String = "상대방",
+    profileUrl: String? = null,
+    lastMessagePreview: String = "안녕하세요",
+    lastMessageAt: Instant = Instant.parse("2026-01-01T00:00:00Z"),
+): ChatRoomSearchResult = ChatRoomSearchResult(
+    chatRoomId = chatRoomId,
+    memberId = memberId,
+    nickname = nickname,
+    profileUrl = profileUrl,
+    lastMessagePreview = lastMessagePreview,
+    lastMessageAt = lastMessageAt,
+)
+
+fun chatMessageResultFixture(
+    chatMessageId: Long = 1L,
+    senderId: Long = 1L,
+    content: String = "메세지",
+    type: MessageType = MessageType.TEXT,
+    createdAt: Instant = Instant.parse("2026-01-01T00:00:00Z"),
+): ChatMessageResult = ChatMessageResult(
+    chatMessageId = chatMessageId,
+    senderId = senderId,
+    content = content,
+    type = type,
+    createdAt = createdAt,
+    reactions = emptyList(),
 )
 
 fun pointHistoryResultFixture(
