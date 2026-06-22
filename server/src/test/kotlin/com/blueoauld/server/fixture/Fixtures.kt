@@ -7,6 +7,8 @@ import com.blueoauld.server.activity.repository.result.ReviewResult
 import com.blueoauld.server.chat.entity.ChatRoom
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.point.entity.Point
+import com.blueoauld.server.point.entity.type.PointSource
+import com.blueoauld.server.point.repository.result.PointHistoryResult
 import com.blueoauld.server.member.entity.type.Gender
 import com.blueoauld.server.member.entity.type.Region
 import java.time.Instant
@@ -89,6 +91,16 @@ fun reviewResultFixture(
     toId = toId,
     nickname = nickname,
     content = content,
+    createdAt = createdAt,
+)
+
+fun pointHistoryResultFixture(
+    pointHistoryId: Long = 1L,
+    pointSource: PointSource = PointSource.ATTENDANCE,
+    createdAt: Instant = Instant.parse("2026-01-01T00:00:00Z"),
+): PointHistoryResult = PointHistoryResult(
+    pointHistoryId = pointHistoryId,
+    pointSource = pointSource,
     createdAt = createdAt,
 )
 

@@ -77,7 +77,7 @@ class PointService(
         cursorDateAt: Instant?,
         size: Int
     ): CursorResponse<PointHistoryRowResponse> {
-        val result = pointHistoryRepository.findAllByCursor(
+        val rows = pointHistoryRepository.findAllByCursor(
             memberId = memberId,
             cursorId = cursorId,
             cursorDateAt = cursorDateAt,
@@ -86,15 +86,6 @@ class PointService(
             PointHistoryRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.pointHistoryId,
-            nextDateAt = last?.createdAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.pointHistoryId }, { it.createdAt })
     }
 }
