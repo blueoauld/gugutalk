@@ -48,7 +48,7 @@ class UnlikeService(
         cursorDateAt: Instant?,
         size: Int
     ): CursorResponse<ActivityRowResponse> {
-        val result = unlikeRepository.findAllByCursor(
+        val rows = unlikeRepository.findAllByCursor(
             memberId = memberId,
             cursorId = cursorId,
             cursorDateAt = cursorDateAt,
@@ -57,16 +57,7 @@ class UnlikeService(
             ActivityRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.activityId,
-            nextDateAt = last?.createdAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.activityId }, { it.createdAt })
     }
 
     @Transactional(readOnly = true)
@@ -76,7 +67,7 @@ class UnlikeService(
         cursorScore: Long?,
         size: Int
     ): CursorScoreResponse<RankRowResponse> {
-        val result = unlikeRepository.findAllByRank(
+        val rows = unlikeRepository.findAllByRank(
             gender = gender,
             cursorId = cursorId,
             cursorScore = cursorScore,
@@ -85,15 +76,6 @@ class UnlikeService(
             RankRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorScoreResponse(
-            payload = items,
-            nextId = last?.memberId,
-            nextScore = last?.unlikes,
-            hasNext = hasNext
-        )
+        return CursorScoreResponse.of(rows, size, { it.memberId }, { it.unlikes })
     }
 }

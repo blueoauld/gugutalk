@@ -75,7 +75,7 @@ class MemberService(
         cursorDateAt: Instant?,
         size: Int
     ): CursorResponse<MemberRowResponse> {
-        val result = memberRepository.findAllByCursor(
+        val rows = memberRepository.findAllByCursor(
             memberId = memberId,
             gender = gender,
             region = null,
@@ -86,16 +86,7 @@ class MemberService(
             MemberRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.memberId,
-            nextDateAt = last?.updatedAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.memberId }, { it.updatedAt })
     }
 
     @Transactional(readOnly = true)
@@ -108,7 +99,7 @@ class MemberService(
     ): CursorResponse<MemberRowResponse> {
         val member = memberRepository.findByIdOrNull(memberId) ?: throw CustomException(MEMBER_01)
 
-        val result = memberRepository.findAllByCursor(
+        val rows = memberRepository.findAllByCursor(
             memberId = memberId,
             gender = gender,
             region = member.region,
@@ -119,16 +110,7 @@ class MemberService(
             MemberRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.memberId,
-            nextDateAt = last?.updatedAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.memberId }, { it.updatedAt })
     }
 
     @Transactional(readOnly = true)
@@ -143,7 +125,7 @@ class MemberService(
             throw CustomException(SEARCH_01)
         }
 
-        val result = memberRepository.findAllByNickname(
+        val rows = memberRepository.findAllByNickname(
             memberId = memberId,
             nickname = nickname,
             cursorId = cursorId,
@@ -153,16 +135,7 @@ class MemberService(
             MemberSearchRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.memberId,
-            nextDateAt = last?.updatedAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.memberId }, { it.updatedAt })
     }
 
     @Transactional(readOnly = true)

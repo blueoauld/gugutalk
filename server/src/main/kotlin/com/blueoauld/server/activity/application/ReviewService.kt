@@ -96,7 +96,7 @@ class ReviewService(
         cursorDateAt: Instant?,
         size: Int
     ): CursorResponse<ReviewRowResponse> {
-        val result = reviewRepository.findAllByCursor(
+        val rows = reviewRepository.findAllByCursor(
             memberId = memberId,
             cursorId = cursorId,
             cursorDateAt = cursorDateAt,
@@ -105,16 +105,7 @@ class ReviewService(
             ReviewRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorResponse(
-            payload = items,
-            nextId = last?.reviewId,
-            nextDateAt = last?.createdAt,
-            hasNext = hasNext
-        )
+        return CursorResponse.of(rows, size, { it.reviewId }, { it.createdAt })
     }
 
     @Transactional(readOnly = true)
@@ -124,7 +115,7 @@ class ReviewService(
         cursorScore: Long?,
         size: Int
     ): CursorScoreResponse<RankRowResponse> {
-        val result = reviewRepository.findAllByRank(
+        val rows = reviewRepository.findAllByRank(
             gender = gender,
             cursorId = cursorId,
             cursorScore = cursorScore,
@@ -133,15 +124,6 @@ class ReviewService(
             RankRowResponse.from(it)
         }
 
-        val hasNext = result.size > size
-        val items = if (hasNext) result.dropLast(1) else result
-        val last = items.lastOrNull()
-
-        return CursorScoreResponse(
-            payload = items,
-            nextId = last?.memberId,
-            nextScore = last?.reviews,
-            hasNext = hasNext
-        )
+        return CursorScoreResponse.of(rows, size, { it.memberId }, { it.reviews })
     }
 }
