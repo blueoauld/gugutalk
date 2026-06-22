@@ -98,7 +98,12 @@ class LikeServiceTest {
             )
             val sizeSlot = slot<Int>()
             every {
-                likeRepository.findAllByCursor(memberId = 1L, cursorId = null, cursorDateAt = null, size = capture(sizeSlot))
+                likeRepository.findAllByCursor(
+                    memberId = 1L,
+                    cursorId = null,
+                    cursorDateAt = null,
+                    size = capture(sizeSlot)
+                )
             } returns results
 
             val response = likeService.gets(memberId = 1L, cursorId = null, cursorDateAt = null, size = 2)

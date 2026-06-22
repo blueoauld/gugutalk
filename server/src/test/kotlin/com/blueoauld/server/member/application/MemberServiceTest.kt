@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.context.ApplicationEventPublisher
 import java.time.Instant
-import java.util.Optional
+import java.util.*
 
 class MemberServiceTest {
 
@@ -120,7 +120,8 @@ class MemberServiceTest {
                 )
             } returns results
 
-            val response = memberService.gets(memberId = 1L, gender = "ALL", cursorId = null, cursorDateAt = null, size = 2)
+            val response =
+                memberService.gets(memberId = 1L, gender = "ALL", cursorId = null, cursorDateAt = null, size = 2)
 
             assertThat(response.hasNext).isTrue()
             assertThat(response.payload).hasSize(2)
@@ -143,7 +144,13 @@ class MemberServiceTest {
                 )
             } returns listOf(memberResultFixture(memberId = 2L))
 
-            val response = memberService.getsByRegion(memberId = 1L, gender = "ALL", cursorId = null, cursorDateAt = null, size = 2)
+            val response = memberService.getsByRegion(
+                memberId = 1L,
+                gender = "ALL",
+                cursorId = null,
+                cursorDateAt = null,
+                size = 2
+            )
 
             assertThat(response.hasNext).isFalse()
             assertThat(response.payload).hasSize(1)
@@ -155,7 +162,13 @@ class MemberServiceTest {
             every { memberRepository.findById(1L) } returns Optional.empty()
 
             assertThatThrownBy {
-                memberService.getsByRegion(memberId = 1L, gender = "ALL", cursorId = null, cursorDateAt = null, size = 2)
+                memberService.getsByRegion(
+                    memberId = 1L,
+                    gender = "ALL",
+                    cursorId = null,
+                    cursorDateAt = null,
+                    size = 2
+                )
             }.isInstanceOfSatisfying(CustomException::class.java) {
                 assertThat(it.errorCode).isEqualTo(ErrorCode.MEMBER_01)
             }
@@ -189,7 +202,8 @@ class MemberServiceTest {
                 )
             } returns results
 
-            val response = memberService.search(memberId = 1L, nickname = "철수", cursorId = null, cursorDateAt = null, size = 2)
+            val response =
+                memberService.search(memberId = 1L, nickname = "철수", cursorId = null, cursorDateAt = null, size = 2)
 
             assertThat(response.hasNext).isTrue()
             assertThat(response.payload).hasSize(2)
