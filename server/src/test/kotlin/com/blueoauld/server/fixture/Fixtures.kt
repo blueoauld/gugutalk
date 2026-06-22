@@ -10,6 +10,8 @@ import com.blueoauld.server.chat.repository.result.ChatMessageResult
 import com.blueoauld.server.chat.repository.result.ChatRoomResult
 import com.blueoauld.server.chat.repository.result.ChatRoomSearchResult
 import com.blueoauld.server.member.entity.Member
+import com.blueoauld.server.member.entity.MemberImage
+import com.blueoauld.server.member.entity.type.MemberImageType
 import com.blueoauld.server.member.repository.result.MemberResult
 import com.blueoauld.server.member.repository.result.MemberSearchResult
 import com.blueoauld.server.point.entity.Point
@@ -72,6 +74,22 @@ fun reviewFixture(
     nickname = nickname,
     content = content,
     createdAt = createdAt,
+)
+
+fun memberImageFixture(
+    id: Long = 1L,
+    memberId: Long = 1L,
+    type: MemberImageType = MemberImageType.PUBLIC,
+    key: String = "member/public/1/a.jpg",
+    url: String = "https://cdn.example.com/member/public/1/a.jpg",
+    sortOrder: Int = 0,
+): MemberImage = MemberImage(
+    id = id,
+    memberId = memberId,
+    type = type,
+    key = key,
+    url = url,
+    sortOrder = sortOrder,
 )
 
 fun memberResultFixture(

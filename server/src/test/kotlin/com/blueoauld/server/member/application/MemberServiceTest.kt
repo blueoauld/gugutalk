@@ -237,6 +237,7 @@ class MemberServiceTest {
             every { memberRepository.findById(1L) } returns Optional.of(member)
             // 닉네임을 동일하게 유지하므로 existsByNickname 은 호출되지 않는다
             every { memberImageRepository.findAllByMemberIdAndType(1L, any()) } returns emptyList()
+            every { r2Properties.domain } returns "https://cdn"
 
             memberService.updateProfile(memberId = 1L, request = request("테스터"))
 
