@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @ControllerSliceTest(ChatMessageReactionController::class)
@@ -43,5 +44,15 @@ class ChatMessageReactionControllerTest {
         ).andExpect(status().isOk)
 
         verify { chatMessageReactionService.react(1L, 10L, 5L, ReactionType.HEART) }
+    }
+
+    @Test
+    fun `변환 불가능한 enum 타입이면 400과 INVALID_INPUT을 반환한다`() {
+        mockMvc.perform(
+            put("/api/chat-rooms/10/messages/5/reactions")
+                .param("type", "INVALID")
+                .with(withLogin(1L))
+        ).andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("INVALID_INPUT"))
     }
 }

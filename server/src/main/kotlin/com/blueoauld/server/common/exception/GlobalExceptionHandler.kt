@@ -8,8 +8,10 @@ import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.servlet.resource.NoResourceFoundException
 
@@ -44,6 +46,24 @@ class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleHttpMessageNotReadable(
         e: HttpMessageNotReadableException,
+        servletRequest: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        print(servletRequest, e.message)
+        return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT))
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    fun handleMethodArgumentTypeMismatch(
+        e: MethodArgumentTypeMismatchException,
+        servletRequest: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        print(servletRequest, e.message)
+        return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT))
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException::class)
+    fun handleMissingServletRequestParameter(
+        e: MissingServletRequestParameterException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         print(servletRequest, e.message)
