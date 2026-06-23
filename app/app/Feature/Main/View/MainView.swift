@@ -24,7 +24,10 @@ struct MainView: View {
             toolbarContent
         }
         .task {
-            await vm.load()
+            async let b: Void = vm.bump()
+            async let l: Void = vm.load()
+
+            _ = await (b, l)
         }
         .onChange(of: vm.gender) { _, newValue in
             savedGender = newValue
