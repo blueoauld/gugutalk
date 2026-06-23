@@ -41,7 +41,7 @@ class ChatMessageControllerTest {
     @Test
     fun `메세지 목록은 200과 커서 응답을 반환한다`() {
         every { chatMessageService.gets(1L, 10L, null, null, 50) } returns
-            CursorResponse(payload = emptyList(), nextId = null, nextDateAt = null, hasNext = false)
+                CursorResponse(payload = emptyList(), nextId = null, nextDateAt = null, hasNext = false)
 
         mockMvc.perform(get("/api/chat-rooms/10/messages").with(withLogin(1L)))
             .andExpect(status().isOk)

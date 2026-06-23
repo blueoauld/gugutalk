@@ -1,12 +1,12 @@
 package com.blueoauld.server.chat.application
 
+import com.blueoauld.server.chat.application.request.ChatMessageSendRequest
 import com.blueoauld.server.chat.repository.ChatMessageMediaRepository
 import com.blueoauld.server.chat.repository.ChatMessageRepository
 import com.blueoauld.server.chat.repository.ChatRoomRepository
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode
 import com.blueoauld.server.common.properties.R2Properties
-import com.blueoauld.server.chat.application.request.ChatMessageSendRequest
 import com.blueoauld.server.fixture.chatMessageResultFixture
 import com.blueoauld.server.fixture.chatRoomFixture
 import com.blueoauld.server.fixture.memberFixture
@@ -126,7 +126,7 @@ class ChatMessageServiceTest {
         @Test
         fun `참여자면 메세지를 저장하고 전송_채팅방_알림 이벤트를 발행한다`() {
             every { chatRoomRepository.findById(10L) } returns
-                Optional.of(chatRoomFixture(id = 10L, member1Id = 1L, member2Id = 2L))
+                    Optional.of(chatRoomFixture(id = 10L, member1Id = 1L, member2Id = 2L))
             every { memberRepository.findById(1L) } returns Optional.of(memberFixture(id = 1L, nickname = "나"))
             every { memberRepository.findById(2L) } returns Optional.of(memberFixture(id = 2L, nickname = "상대"))
             every { chatMessageRepository.save(any()) } answers { firstArg() }
@@ -143,7 +143,11 @@ class ChatMessageServiceTest {
             every { chatRoomRepository.findById(10L) } returns Optional.empty()
 
             assertThatThrownBy {
-                chatMessageService.send(memberId = 1L, chatRoomId = 10L, request = ChatMessageSendRequest(content = "안녕"))
+                chatMessageService.send(
+                    memberId = 1L,
+                    chatRoomId = 10L,
+                    request = ChatMessageSendRequest(content = "안녕")
+                )
             }.isInstanceOfSatisfying(CustomException::class.java) {
                 assertThat(it.errorCode).isEqualTo(ErrorCode.CHAT_03)
             }
@@ -154,10 +158,14 @@ class ChatMessageServiceTest {
         @Test
         fun `참여자가 아니면 CHAT_02 예외가 발생한다`() {
             every { chatRoomRepository.findById(10L) } returns
-                Optional.of(chatRoomFixture(id = 10L, member1Id = 2L, member2Id = 3L))
+                    Optional.of(chatRoomFixture(id = 10L, member1Id = 2L, member2Id = 3L))
 
             assertThatThrownBy {
-                chatMessageService.send(memberId = 1L, chatRoomId = 10L, request = ChatMessageSendRequest(content = "안녕"))
+                chatMessageService.send(
+                    memberId = 1L,
+                    chatRoomId = 10L,
+                    request = ChatMessageSendRequest(content = "안녕")
+                )
             }.isInstanceOfSatisfying(CustomException::class.java) {
                 assertThat(it.errorCode).isEqualTo(ErrorCode.CHAT_02)
             }

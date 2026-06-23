@@ -3,12 +3,7 @@ package com.blueoauld.server.point.presentation
 import com.blueoauld.server.point.application.RewardService
 import com.blueoauld.server.support.ControllerSliceTest
 import com.google.crypto.tink.apps.rewardedads.RewardedAdsVerifier
-import io.mockk.Runs
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.just
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

@@ -16,9 +16,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Instant
@@ -94,7 +92,7 @@ class ReviewControllerTest {
     @Test
     fun `리뷰 목록은 200과 커서 응답을 반환한다`() {
         every { reviewService.gets(2L, null, null, 20) } returns
-            CursorResponse(payload = emptyList(), nextId = null, nextDateAt = null, hasNext = false)
+                CursorResponse(payload = emptyList(), nextId = null, nextDateAt = null, hasNext = false)
 
         mockMvc.perform(get("/api/reviews/2").with(withLogin(1L)))
             .andExpect(status().isOk)

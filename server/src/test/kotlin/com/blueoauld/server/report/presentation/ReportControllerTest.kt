@@ -1,8 +1,8 @@
 package com.blueoauld.server.report.presentation
 
+import com.blueoauld.server.r2.application.response.UploadUrlResponses
 import com.blueoauld.server.report.application.ReportImageService
 import com.blueoauld.server.report.application.ReportService
-import com.blueoauld.server.r2.application.response.UploadUrlResponses
 import com.blueoauld.server.support.ControllerSliceTest
 import com.blueoauld.server.support.WebMvcTestSupport.withLogin
 import io.mockk.every

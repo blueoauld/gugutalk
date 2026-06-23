@@ -29,7 +29,7 @@ class MemberImageServiceTest {
         fun `요청한 개수만큼 공개 temporary 경로의 업로드 URL을 발급한다`() {
             val keys = mutableListOf<String>()
             every { r2Provider.createUploadUrl(capture(keys), any(), any(), any()) } returns
-                UploadUrlResponse(url = "https://signed", key = "k")
+                    UploadUrlResponse(url = "https://signed", key = "k")
 
             val response = memberImageService.createPublicUploadUrls(
                 memberId = 1L,
@@ -47,7 +47,7 @@ class MemberImageServiceTest {
         fun `만료 시간 5분으로 업로드 URL을 발급한다`() {
             val expiry = slot<Duration>()
             every { r2Provider.createUploadUrl(any(), any(), any(), capture(expiry)) } returns
-                UploadUrlResponse(url = "https://signed", key = "k")
+                    UploadUrlResponse(url = "https://signed", key = "k")
 
             memberImageService.createPublicUploadUrls(1L, UploadUrlRequests(listOf(req("image/jpeg"))))
 
@@ -71,7 +71,7 @@ class MemberImageServiceTest {
         fun `비공개 temporary 경로의 업로드 URL을 발급한다`() {
             val keys = mutableListOf<String>()
             every { r2Provider.createUploadUrl(capture(keys), any(), any(), any()) } returns
-                UploadUrlResponse(url = "https://signed", key = "k")
+                    UploadUrlResponse(url = "https://signed", key = "k")
 
             memberImageService.createPrivateUploadUrls(1L, UploadUrlRequests(listOf(req("image/jpeg"))))
 
