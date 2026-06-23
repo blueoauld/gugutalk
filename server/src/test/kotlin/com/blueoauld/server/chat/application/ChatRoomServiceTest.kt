@@ -91,6 +91,27 @@ class ChatRoomServiceTest {
                     assertThat(it.errorCode).isEqualTo(ErrorCode.CHAT_04)
                 }
         }
+
+        @Test
+        fun `정상 생성 시 메세지 저장_포인트 차감_이벤트 발행을 수행한다`() {
+            val point = pointFixture(balance = 100L)
+            every { blockRepository.existsBlockBetween(1L, 2L) } returns false
+            every { pointRepository.findByMemberId(1L) } returns point
+            every { memberRepository.findById(2L) } returns Optional.of(memberFixture(id = 2L, nickname = "상대"))
+            every { memberRepository.findById(1L) } returns Optional.of(memberFixture(id = 1L, nickname = "나"))
+            every { chatRoomRepository.findByMember1IdAndMember2Id(1L, 2L) } returns null
+            every { chatRoomRepository.save(any()) } returns chatRoomFixture(id = 10L, member1Id = 1L, member2Id = 2L)
+            every { chatMessageRepository.save(any()) } answers { firstArg() }
+            every { pointHistoryRepository.save(any()) } answers { firstArg() }
+
+            chatRoomService.create(memberId = 1L, targetId = 2L, request = request)
+
+            verify(exactly = 1) { chatMessageRepository.save(any()) }
+            verify(exactly = 1) { pointHistoryRepository.save(any()) }
+            assertThat(point.balance).isEqualTo(100L - PointSource.MESSAGE_SEND.point)
+            // 전송 1 + 채팅방 upsert 2(양쪽) + 푸시 1 = 4건
+            verify(exactly = 4) { applicationEventPublisher.publishEvent(any<Any>()) }
+        }
     }
 
     @Nested
