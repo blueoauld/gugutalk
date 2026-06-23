@@ -5,9 +5,11 @@ import com.blueoauld.server.common.exception.type.ErrorCode
 import com.blueoauld.server.member.application.MemberService
 import com.blueoauld.server.support.ControllerSliceTest
 import com.blueoauld.server.support.WebMvcTestSupport.withLogin
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
@@ -35,6 +37,11 @@ class MemberControllerTest {
 
     @Autowired
     private lateinit var memberService: MemberService
+
+    @BeforeEach
+    fun reset() {
+        clearMocks(memberService)
+    }
 
     @Test
     fun `코멘트 수정은 유효한 본문이면 200을 반환한다`() {
