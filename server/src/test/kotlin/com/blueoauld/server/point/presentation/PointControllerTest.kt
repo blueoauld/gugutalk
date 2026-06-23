@@ -1,14 +1,10 @@
 package com.blueoauld.server.point.presentation
 
-import com.blueoauld.server.common.authentication.filter.AuthenticationFilter
-import com.blueoauld.server.common.authentication.infrastructure.AuthenticationPrincipalArgumentResolver
-import com.blueoauld.server.common.configuration.WebConfiguration
 import com.blueoauld.server.common.exception.CustomException
-import com.blueoauld.server.common.exception.GlobalExceptionHandler
 import com.blueoauld.server.common.exception.type.ErrorCode
-import com.blueoauld.server.common.filter.RequestLoggingFilter
 import com.blueoauld.server.point.application.PointService
 import com.blueoauld.server.point.application.response.PointGetBalanceResponse
+import com.blueoauld.server.support.ControllerSliceTest
 import com.blueoauld.server.support.WebMvcTestSupport.withLogin
 import io.mockk.every
 import io.mockk.mockk
@@ -16,10 +12,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.ComponentScan.Filter
-import org.springframework.context.annotation.FilterType
 import org.springframework.context.annotation.Import
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -27,21 +20,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@WebMvcTest(
-    controllers = [PointController::class],
-    excludeFilters = [
-        Filter(
-            type = FilterType.ASSIGNABLE_TYPE,
-            classes = [AuthenticationFilter::class, RequestLoggingFilter::class],
-        ),
-    ],
-)
-@Import(
-    WebConfiguration::class,
-    AuthenticationPrincipalArgumentResolver::class,
-    GlobalExceptionHandler::class,
-    PointControllerTest.Mocks::class,
-)
+@ControllerSliceTest(PointController::class)
+@Import(PointControllerTest.Mocks::class)
 class PointControllerTest {
 
     @TestConfiguration
