@@ -11,14 +11,14 @@ import com.blueoauld.server.chat.repository.result.ChatRoomResult
 import com.blueoauld.server.chat.repository.result.ChatRoomSearchResult
 import com.blueoauld.server.member.entity.Member
 import com.blueoauld.server.member.entity.MemberImage
+import com.blueoauld.server.member.entity.type.Gender
 import com.blueoauld.server.member.entity.type.MemberImageType
+import com.blueoauld.server.member.entity.type.Region
 import com.blueoauld.server.member.repository.result.MemberResult
 import com.blueoauld.server.member.repository.result.MemberSearchResult
 import com.blueoauld.server.point.entity.Point
 import com.blueoauld.server.point.entity.type.PointSource
 import com.blueoauld.server.point.repository.result.PointHistoryResult
-import com.blueoauld.server.member.entity.type.Gender
-import com.blueoauld.server.member.entity.type.Region
 import java.time.Instant
 
 /**

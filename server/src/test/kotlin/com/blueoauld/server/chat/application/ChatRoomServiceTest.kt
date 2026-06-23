@@ -8,11 +8,7 @@ import com.blueoauld.server.chat.repository.ChatMessageRepository
 import com.blueoauld.server.chat.repository.ChatRoomRepository
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode
-import com.blueoauld.server.fixture.chatRoomFixture
-import com.blueoauld.server.fixture.chatRoomResultFixture
-import com.blueoauld.server.fixture.chatRoomSearchResultFixture
-import com.blueoauld.server.fixture.memberFixture
-import com.blueoauld.server.fixture.pointFixture
+import com.blueoauld.server.fixture.*
 import com.blueoauld.server.member.repository.MemberRepository
 import com.blueoauld.server.point.entity.type.PointSource
 import com.blueoauld.server.point.repository.PointHistoryRepository
@@ -26,7 +22,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.context.ApplicationEventPublisher
 import java.time.Instant
-import java.util.Optional
+import java.util.*
 
 class ChatRoomServiceTest {
 
@@ -112,7 +108,13 @@ class ChatRoomServiceTest {
 
         @Test
         fun `채팅방 참여자가 아니면 CHAT_02 예외가 발생한다`() {
-            every { chatRoomRepository.findById(10L) } returns Optional.of(chatRoomFixture(id = 10L, member1Id = 2L, member2Id = 3L))
+            every { chatRoomRepository.findById(10L) } returns Optional.of(
+                chatRoomFixture(
+                    id = 10L,
+                    member1Id = 2L,
+                    member2Id = 3L
+                )
+            )
 
             assertThatThrownBy { chatRoomService.delete(memberId = 1L, chatRoomId = 10L) }
                 .isInstanceOfSatisfying(CustomException::class.java) {
@@ -163,7 +165,13 @@ class ChatRoomServiceTest {
 
         @Test
         fun `마지막 메세지가 있으면 읽음 처리하고 이벤트를 발행한다`() {
-            every { chatRoomRepository.findById(10L) } returns Optional.of(chatRoomFixture(id = 10L, member1Id = 1L, member2Id = 2L))
+            every { chatRoomRepository.findById(10L) } returns Optional.of(
+                chatRoomFixture(
+                    id = 10L,
+                    member1Id = 1L,
+                    member2Id = 2L
+                )
+            )
             every { chatMessageRepository.findLastMessageId(10L) } returns 5L
 
             chatRoomService.read(memberId = 1L, chatRoomId = 10L)
@@ -185,10 +193,17 @@ class ChatRoomServiceTest {
                 chatRoomResultFixture(chatRoomId = 1L, lastMessageAt = Instant.parse("2026-01-01T00:00:00Z")),
             )
             every {
-                chatRoomRepository.findAllByCursor(memberId = 1L, status = "ALL", cursorId = null, cursorDateAt = null, size = 3)
+                chatRoomRepository.findAllByCursor(
+                    memberId = 1L,
+                    status = "ALL",
+                    cursorId = null,
+                    cursorDateAt = null,
+                    size = 3
+                )
             } returns results
 
-            val response = chatRoomService.gets(memberId = 1L, status = "ALL", cursorId = null, cursorDateAt = null, size = 2)
+            val response =
+                chatRoomService.gets(memberId = 1L, status = "ALL", cursorId = null, cursorDateAt = null, size = 2)
 
             assertThat(response.hasNext).isTrue()
             assertThat(response.payload).hasSize(2)
@@ -218,10 +233,17 @@ class ChatRoomServiceTest {
                 chatRoomSearchResultFixture(chatRoomId = 1L, lastMessageAt = Instant.parse("2026-01-01T00:00:00Z")),
             )
             every {
-                chatRoomRepository.findAllByNickname(memberId = 1L, nickname = "철수", cursorId = null, cursorDateAt = null, size = 3)
+                chatRoomRepository.findAllByNickname(
+                    memberId = 1L,
+                    nickname = "철수",
+                    cursorId = null,
+                    cursorDateAt = null,
+                    size = 3
+                )
             } returns results
 
-            val response = chatRoomService.search(memberId = 1L, nickname = "철수", cursorId = null, cursorDateAt = null, size = 2)
+            val response =
+                chatRoomService.search(memberId = 1L, nickname = "철수", cursorId = null, cursorDateAt = null, size = 2)
 
             assertThat(response.hasNext).isFalse()
             assertThat(response.payload).hasSize(2)

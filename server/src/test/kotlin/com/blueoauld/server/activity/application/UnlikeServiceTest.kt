@@ -80,7 +80,12 @@ class UnlikeServiceTest {
             )
             val sizeSlot = slot<Int>()
             every {
-                unlikeRepository.findAllByCursor(memberId = 1L, cursorId = null, cursorDateAt = null, size = capture(sizeSlot))
+                unlikeRepository.findAllByCursor(
+                    memberId = 1L,
+                    cursorId = null,
+                    cursorDateAt = null,
+                    size = capture(sizeSlot)
+                )
             } returns results
 
             val response = unlikeService.gets(memberId = 1L, cursorId = null, cursorDateAt = null, size = 2)

@@ -80,7 +80,12 @@ class PrivateImageGrantServiceTest {
             )
             val sizeSlot = slot<Int>()
             every {
-                privateImageGrantRepository.findAllByCursor(memberId = 1L, cursorId = null, cursorDateAt = null, size = capture(sizeSlot))
+                privateImageGrantRepository.findAllByCursor(
+                    memberId = 1L,
+                    cursorId = null,
+                    cursorDateAt = null,
+                    size = capture(sizeSlot)
+                )
             } returns results
 
             val response = privateImageGrantService.gets(memberId = 1L, cursorId = null, cursorDateAt = null, size = 2)

@@ -2,6 +2,7 @@ package com.blueoauld.server.member.application
 
 import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode.FILE_02
+import com.blueoauld.server.member.application.MemberImageSyncPlan.Companion.of
 import com.blueoauld.server.member.application.request.MemberImageCreateRequest
 import com.blueoauld.server.member.application.response.MemberImageMoveTask
 import com.blueoauld.server.member.entity.MemberImage

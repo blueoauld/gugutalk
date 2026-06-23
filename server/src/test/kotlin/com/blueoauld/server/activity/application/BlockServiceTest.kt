@@ -128,7 +128,12 @@ class BlockServiceTest {
             )
             val sizeSlot = slot<Int>()
             every {
-                blockRepository.findAllByCursor(memberId = 1L, cursorId = null, cursorDateAt = null, size = capture(sizeSlot))
+                blockRepository.findAllByCursor(
+                    memberId = 1L,
+                    cursorId = null,
+                    cursorDateAt = null,
+                    size = capture(sizeSlot)
+                )
             } returns results
 
             val response = blockService.gets(memberId = 1L, cursorId = null, cursorDateAt = null, size = 2)

@@ -1,10 +1,9 @@
 package com.blueoauld.server
 
+import com.blueoauld.server.support.IntegrationTestSupport
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
 
-@SpringBootTest
-class ServerApplicationTests {
+class ServerApplicationTests : IntegrationTestSupport() {
 
     @Test
     fun contextLoads() {
