@@ -11,6 +11,7 @@ struct PrivateImageFullScreenView: View {
     @State private var vm = PrivateImageFullScreenViewModel()
     @State private var currentPage = 0
     @State private var backgroundOpacity: CGFloat = 1
+    @State private var showsControls = true
 
     var body: some View {
         VStack {
@@ -62,6 +63,11 @@ struct PrivateImageFullScreenView: View {
                                 .scaledToFit()
                         }
                         .zoomable(min: 1, max: 5)
+                        .onTap {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showsControls.toggle()
+                            }
+                        }
                         .onDismiss(backgroundOpacity: $backgroundOpacity) {
                             dismiss()
                         }
@@ -85,12 +91,13 @@ struct PrivateImageFullScreenView: View {
                                 .glassEffect()
                         }
                         .padding(.horizontal)
-                        .opacity(backgroundOpacity)
+                        .opacity(showsControls ? backgroundOpacity : 0)
+                        .allowsHitTesting(showsControls)
 
                         if images.count > 1 {
                             pageIndicator(count: images.count)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                                .opacity(backgroundOpacity)
+                                .opacity(showsControls ? backgroundOpacity : 0)
                                 .allowsHitTesting(false)
                         }
                     }

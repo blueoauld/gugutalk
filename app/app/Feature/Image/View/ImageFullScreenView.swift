@@ -10,6 +10,7 @@ struct ImageFullScreenView: View {
 
     @State private var backgroundOpacity: CGFloat = 1
     @State private var shareImage: Image?
+    @State private var showsControls = true
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -26,6 +27,11 @@ struct ImageFullScreenView: View {
                     .scaledToFit()
             }
             .zoomable(min: 1, max: 5)
+            .onTap {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showsControls.toggle()
+                }
+            }
             .onDismiss(backgroundOpacity: $backgroundOpacity) {
                 dismiss()
             }
@@ -68,6 +74,8 @@ struct ImageFullScreenView: View {
                     .opacity(backgroundOpacity)
                 }
             }
+            .opacity(showsControls ? 1 : 0)
+            .allowsHitTesting(showsControls)
         }
         .task {
             guard

@@ -11,7 +11,8 @@ struct ImagesFullScreenView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var backgroundOpacity: CGFloat = 1
-    
+    @State private var showsControls = true
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             LazyPager(data: images, page: $currentPage) { image in
@@ -27,6 +28,11 @@ struct ImagesFullScreenView: View {
                     .scaledToFit()
             }
             .zoomable(min: 1, max: 5)
+            .onTap {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showsControls.toggle()
+                }
+            }
             .onDismiss(backgroundOpacity: $backgroundOpacity) {
                 dismiss()
             }
@@ -49,12 +55,13 @@ struct ImagesFullScreenView: View {
                     .glassEffect(in: .circle)
             }
             .padding(.horizontal)
-            .opacity(backgroundOpacity)
-            
+            .opacity(showsControls ? backgroundOpacity : 0)
+            .allowsHitTesting(showsControls)
+
             if images.count > 1 {
                 pageIndicator
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                    .opacity(backgroundOpacity)
+                    .opacity(showsControls ? backgroundOpacity : 0)
                     .allowsHitTesting(false)
             }
         }
