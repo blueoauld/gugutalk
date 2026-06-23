@@ -37,6 +37,7 @@ fun memberFixture(
     gender: Gender = Gender.MALE,
     region: Region = Region.SEOUL,
     birthYear: Int = 2000,
+    updatedAt: Instant = Instant.parse("2026-01-01T00:00:00Z"),
 ): Member = Member(
     id = id,
     phone = phone,
@@ -46,6 +47,7 @@ fun memberFixture(
     gender = gender,
     region = region,
     birthYear = birthYear,
+    updatedAt = updatedAt,
 )
 
 fun likeFixture(
