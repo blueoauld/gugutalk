@@ -33,6 +33,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test") {
         exclude(group = "org.mockito")
     }
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test") {
+        exclude(group = "org.mockito")
+    }
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     runtimeOnly("org.postgresql:postgresql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
