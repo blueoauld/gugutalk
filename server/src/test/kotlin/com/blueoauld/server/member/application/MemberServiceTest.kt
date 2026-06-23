@@ -7,6 +7,7 @@ import com.blueoauld.server.common.properties.R2Properties
 import com.blueoauld.server.fixture.memberFixture
 import com.blueoauld.server.fixture.memberResultFixture
 import com.blueoauld.server.fixture.memberSearchResultFixture
+import com.blueoauld.server.member.application.request.MemberImageCreateRequest
 import com.blueoauld.server.member.application.request.MemberUpdateCommentRequest
 import com.blueoauld.server.member.application.request.MemberUpdateProfileRequest
 import com.blueoauld.server.member.entity.type.MemberImageType
@@ -258,6 +259,33 @@ class MemberServiceTest {
             assertThat(member.bio).isEqualTo("새 자기소개")
             assertThat(member.birthYear).isEqualTo(1995)
             verify(exactly = 0) { applicationEventPublisher.publishEvent(any()) }
+        }
+
+        @Test
+        fun `신규 이미지가 있으면 저장하고 이동_삭제 작업 이벤트를 발행한다`() {
+            val member = memberFixture(nickname = "테스터")
+            every { memberRepository.findById(1L) } returns Optional.of(member)
+            every { memberImageRepository.findAllByMemberIdAndType(1L, any()) } returns emptyList()
+            every { memberImageRepository.saveAll(any<List<com.blueoauld.server.member.entity.MemberImage>>()) } answers { firstArg() }
+            every { r2Properties.domain } returns "https://cdn"
+
+            val request = MemberUpdateProfileRequest(
+                publicImages = listOf(
+                    MemberImageCreateRequest(url = "x", key = "member/public/temporary/1/new.jpg")
+                ),
+                privateImages = emptyList(),
+                nickname = "테스터",
+                birthYear = 1995,
+                region = Region.SEOUL,
+                bio = "새 자기소개",
+            )
+
+            memberService.updateProfile(memberId = 1L, request = request)
+
+            // 신규 이미지 1건 저장 + 이동 작업이 생겼으므로 이벤트 1건 발행
+            verify(exactly = 1) { memberImageRepository.saveAll(any<List<com.blueoauld.server.member.entity.MemberImage>>()) }
+            verify(exactly = 1) { applicationEventPublisher.publishEvent(any<Any>()) }
+            assertThat(member.profileUrl).isEqualTo("https://cdn/member/public/1/new.jpg")
         }
     }
 
