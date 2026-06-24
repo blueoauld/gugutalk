@@ -1,11 +1,31 @@
 # 구구톡
 
-<p>
-  <img width="200" alt="1" src="https://github.com/user-attachments/assets/5bdb349a-989c-4c76-8d42-1b402f1e8a82" />
-  <img width="200" alt="2" src="https://github.com/user-attachments/assets/ca4f43ee-7202-4b69-b2c3-4414dc587267" />
-  <img width="200" alt="3" src="https://github.com/user-attachments/assets/21497c40-fc57-4b86-8d3f-b952b561b7e0" />
-  <img width="200" alt="4" src="https://github.com/user-attachments/assets/3e40490a-e9b1-4584-8cd7-03a464b66625" />
-</p>
+<table>
+  <tr>
+    <td align="center">
+      <img width="180" src="https://github.com/user-attachments/assets/0d2b04f9-c288-4cff-a9b9-e4af5edc1dce" />
+    </td>
+    <td align="center">
+      <img width="180" src="https://github.com/user-attachments/assets/73eccf90-7bde-47cc-85c8-a4d2fc8452d5" />
+    </td>
+    <td align="center">
+      <img width="180" src="https://github.com/user-attachments/assets/abfa1b72-e033-46e4-b639-4372f8c379b4" />
+    </td>
+    <td align="center">
+      <img width="180" src="https://github.com/user-attachments/assets/00478fdb-9fc3-4f42-99ea-cf7c91d4cce9" />
+    </td>
+    <td align="center">
+      <img width="180" src="https://github.com/user-attachments/assets/5427a2ef-a44d-40d0-99d7-219c30808ae7" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center">메인</td>
+    <td align="center">채팅방 목록</td>
+    <td align="center">채팅방 내부</td>
+    <td align="center">랭킹</td>
+    <td align="center">설정</td>
+  </tr>
+</table>
 
 ## 아키텍처
 
