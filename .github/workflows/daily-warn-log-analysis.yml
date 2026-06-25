@@ -1,4 +1,4 @@
-name: daily-warn-log-analysis
+name: Daily Warn Log Analysis
 
 on:
   schedule:
@@ -33,7 +33,7 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           if [ -n "${{ github.event.inputs.date }}" ]; then
-            python analyze.py --date "${{ github.event.inputs.date }}"
+            python analyze/analyze.py --date "${{ github.event.inputs.date }}"
           else
-            python analyze.py
+            python analyze/analyze.py
           fi
