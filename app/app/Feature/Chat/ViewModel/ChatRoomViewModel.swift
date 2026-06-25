@@ -241,7 +241,14 @@ final class ChatRoomViewModel {
     }
     
     private func receive(_ room: ChatRoomReadResponse) {
-        guard let index = chatRooms.firstIndex(where: { $0.chatRoomId == room.chatRoomId }) else { return }
+        markReadLocally(chatRoomId: room.chatRoomId)
+    }
+
+    /// 채팅방 진입 시 STOMP read 이벤트를 기다리지 않고 로컬에서 즉시 읽음 처리한다.
+    /// (콜드런치/알림 진입처럼 STOMP 구독이 아직 활성화되기 전이면 read 이벤트가 유실되어
+    ///  뱃지가 안 지워지는 문제를 막는다. STOMP 이벤트가 뒤늦게 와도 동일 결과라 안전하다.)
+    func markReadLocally(chatRoomId: Int64) {
+        guard let index = chatRooms.firstIndex(where: { $0.chatRoomId == chatRoomId }) else { return }
 
         if status == .unread {
             chatRooms.remove(at: index)

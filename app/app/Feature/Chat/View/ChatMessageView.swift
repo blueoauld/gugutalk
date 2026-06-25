@@ -9,6 +9,7 @@ struct ChatMessageView: View {
     let profileUrl: String?
 
     @Environment(AppRouter.self) private var router
+    @Environment(ChatRoomViewModel.self) private var chatRoomVM
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var vm = ChatMessageViewModel()
@@ -59,6 +60,7 @@ struct ChatMessageView: View {
             toolbarContent
         }
         .task {
+            chatRoomVM.markReadLocally(chatRoomId: chatRoomId)
             vm.subscribe(chatRoomId: chatRoomId)
 
             await vm.load(chatRoomId: chatRoomId)
