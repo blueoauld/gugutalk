@@ -30,6 +30,10 @@ from collections import Counter, defaultdict
 
 LEVELS = ("info", "warn", "error")
 
+# 로그 타임스탬프(UTC 저장)를 한국 시간으로 환산할 때 쓰는 오프셋. "어제" 계산과 동일 기준.
+TZ_OFFSET = int(os.environ.get("TZ_OFFSET_HOURS", "9"))  # 기본 9 = KST
+TZ = datetime.timezone(datetime.timedelta(hours=TZ_OFFSET))
+
 # 레벨별 임베드 색상.
 LEVEL_COLOR = {"info": 0x3498DB, "warn": 0xF1C40F, "error": 0xE74C3C}
 
@@ -57,8 +61,20 @@ def normalize_msg(msg: str) -> str:
     return msg or "(빈 메시지)"
 
 def hour_of(log: dict) -> str:
-    """로그 타임스탬프에서 '17' 같은 시(hour) 추출."""
-    return (str(log.get("date", "")) + "T")[11:13]
+    """로그 타임스탬프를 KST로 변환해 '17' 같은 시(hour) 추출. tz 정보 없으면 UTC로 간주."""
+    raw = str(log.get("date", "")).strip()
+    if not raw:
+        return ""
+    s = raw.replace(" ", "T")
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        dt = datetime.datetime.fromisoformat(s)
+    except ValueError:
+        return (raw + "T")[11:13]  # 파싱 실패 시 문자열 슬라이스 폴백
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    return f"{dt.astimezone(TZ).hour:02d}"
 
 def exception_summary(log: dict) -> str | None:
     """스택트레이스 첫 줄(예외 클래스 + 메시지)로 같은 예외끼리 묶는다."""
@@ -385,11 +401,10 @@ def main():
     if level not in LEVELS:
         sys.exit(f"LEVEL must be one of {LEVELS}, got '{level}'")
 
-    off = int(os.environ.get("TZ_OFFSET_HOURS", "9"))
     if args.date:
         date = datetime.date.fromisoformat(args.date)
     else:
-        now = datetime.datetime.utcnow() + datetime.timedelta(hours=off)
+        now = datetime.datetime.now(TZ)
         date = now.date() - datetime.timedelta(days=1)
 
     stats = analyze_r2(date, level)
