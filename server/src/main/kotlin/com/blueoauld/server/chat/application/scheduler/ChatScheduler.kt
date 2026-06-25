@@ -23,6 +23,12 @@ class ChatScheduler(
         private const val BATCH_SIZE = 500
     }
 
+    @Scheduled(cron = "0 30 9 * * *", zone = "Asia/Seoul")
+    fun reconcileOrphans() {
+        val count = chatCleanupService.reconcileOrphans(Instant.now())
+        log.info { "탈퇴 회원의 미삭제 채팅방을 정리했습니다. ${count}개" }
+    }
+
     @Scheduled(cron = "0 0 10 * * *", zone = "Asia/Seoul")
     fun cleanup() {
         val threshold = Instant.now().minus(90, ChronoUnit.DAYS)
