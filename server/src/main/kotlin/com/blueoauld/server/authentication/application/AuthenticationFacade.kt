@@ -10,6 +10,7 @@ import com.blueoauld.server.common.exception.CustomException
 import com.blueoauld.server.common.exception.type.ErrorCode
 import com.blueoauld.server.common.util.IpExtractor
 import com.blueoauld.server.common.util.RandomNumberGenerator
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Service
 
@@ -21,9 +22,12 @@ class AuthenticationFacade(
     private val verificationCodeStore: VerificationCodeStore,
     private val verificationSendLimiter: VerificationSendLimiter,
     private val refreshTokenStore: RefreshTokenStore,
+    private val rotatedTokenStore: RotatedTokenStore,
     private val accessTokenBlacklistStore: AccessTokenBlacklistStore,
     private val messageSender: MessageSender,
 ) {
+
+    private val log = KotlinLogging.logger {}
 
     fun sendVerificationCode(request: SendVerificationCodeRequest, servletRequest: HttpServletRequest) {
         if (verificationSendLimiter.isExceeded(request.deviceId)) {
@@ -95,23 +99,43 @@ class AuthenticationFacade(
     }
 
     fun rotateToken(request: RotateTokenRequest): RotateTokenResponse {
-        // DB
-        val member = authenticationService.getMember(request.memberId)
-
         // Redis
         val foundMemberId = refreshTokenStore.getMemberId(request.refreshToken)
 
-        if (foundMemberId == null || request.memberId != foundMemberId) {
+        if (foundMemberId == null) {
+            // 활성 리프레시 토큰이 없다. 직전 회전의 응답이 유실돼 같은 옛 토큰으로 재시도한 경우라면
+            // grace 기록에서 동일한 결과를 멱등하게 돌려준다.
+            val rotated = rotatedTokenStore.get(request.refreshToken)
+            if (rotated != null && rotated.memberId == request.memberId) {
+                log.warn { "리프레시 토큰 회전 재시도(grace) 처리 - memberId=${request.memberId}" }
+                return RotateTokenResponse(
+                    memberId = rotated.memberId,
+                    accessToken = rotated.accessToken,
+                    refreshToken = rotated.refreshToken,
+                )
+            }
+
+            log.info { "리프레시 토큰 없음(만료/무효) - memberId=${request.memberId}" }
             throw CustomException(ErrorCode.UNAUTHORIZED_02)
         }
 
+        if (request.memberId != foundMemberId) {
+            log.warn { "리프레시 토큰 소유자 불일치 - request=${request.memberId}, actual=$foundMemberId" }
+            throw CustomException(ErrorCode.UNAUTHORIZED_02)
+        }
+
+        // DB
+        val member = authenticationService.getMember(request.memberId)
+
         accessTokenBlacklistStore.save(request.memberId, request.accessToken)
-        refreshTokenStore.delete(request.refreshToken)
 
         val accessToken = tokenProvider.createAccessToken(member.id)
         val refreshToken = tokenProvider.createRefreshToken(member.id)
 
         refreshTokenStore.save(member.id, refreshToken)
+        // 회전 결과를 grace window 동안 기록한 뒤 옛 토큰을 폐기한다. 응답 유실로 인한 재시도를 흡수한다.
+        rotatedTokenStore.save(request.refreshToken, member.id, accessToken, refreshToken)
+        refreshTokenStore.delete(request.refreshToken)
 
         return RotateTokenResponse(
             memberId = member.id,
