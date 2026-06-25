@@ -31,6 +31,9 @@ MSG_RE = re.compile(
     re.S,
 )
 
+# APNs 푸시 전송 거절 로그. 토큰은 디바이스마다 달라 버리고 '사유'로 묶는다.
+APNS_RE = re.compile(r"APNs .*?사유 = (?P<reason>.+)", re.S)
+
 
 def normalize_uri(uri: str) -> str:
     """숫자 path segment를 {id}로 치환해 같은 엔드포인트끼리 묶는다."""
@@ -64,6 +67,13 @@ def parse_lines(text: str, stats: dict):
         raw = log.get("message", "")
         m = MSG_RE.search(raw)
         if not m:
+            # HTTP 형식이 아니면 APNs 거절 로그인지 확인
+            a = APNS_RE.search(raw)
+            if a:
+                reason = a["reason"].strip()
+                stats["by_msg"][f"[APNs 거절] {reason}"] += 1
+                stats["by_hour"][(log.get("date", "") + "T")[11:13]] += 1
+                continue
             stats["no_match"] += 1
             stats["other_msgs"][raw[:120]] += 1
             continue
@@ -198,10 +208,18 @@ def notify_discord(text: str):
     inner = text if len(text) <= 1900 else text[:1900] + "\n…(생략)"
     req = urllib.request.Request(
         hook, data=json.dumps({"content": f"```\n{inner}\n```"}).encode(),
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            # 디스코드는 Cloudflare 뒤에 있어 기본 urllib UA를 403으로 막는다. UA를 명시.
+            "User-Agent": "gugutalk-log-analyzer/1.0 (+https://github.com)",
+        },
     )
-    urllib.request.urlopen(req, timeout=10)
-    print("[discord] sent", file=sys.stderr)
+    try:
+        urllib.request.urlopen(req, timeout=10)
+        print("[discord] sent", file=sys.stderr)
+    except Exception as e:
+        # 알림 실패가 분석 잡 전체를 죽이지 않도록 경고만 남긴다.
+        print(f"[discord] FAILED: {e}", file=sys.stderr)
 
 
 def main():
