@@ -66,7 +66,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
                 .map { $0.request.identifier }
             center.removeDeliveredNotifications(withIdentifiers: ids)
 
-            completionHandler()
+            // getDeliveredNotifications 콜백은 메인 스레드가 아니므로,
+            // completionHandler는 반드시 메인 스레드에서 호출해야 한다.
+            // (UIKit 상태 복원/스냅샷 작업이 메인 스레드 어서션을 건다)
+            DispatchQueue.main.async {
+                completionHandler()
+            }
         }
     }
 }
