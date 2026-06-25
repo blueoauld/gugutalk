@@ -98,8 +98,13 @@ struct RootTabView: View {
 
         let targetRouter = router(for: route)
 
-        guard targetRouter.path.last != route else { return }
-        targetRouter.push(route)
+        // 탭 선택과 NavigationStack push를 같은 업데이트 사이클에서 동시에 하면
+        // (특히 콜드런치 시) 대상 탭의 NavigationStack이 아직 마운트되기 전이라 크래시가 난다.
+        // 탭 전환을 먼저 커밋한 뒤 다음 런루프에서 push 한다.
+        DispatchQueue.main.async {
+            guard targetRouter.path.last != route else { return }
+            targetRouter.push(route)
+        }
     }
 
     private func tab(for route: AppRoute) -> TabType {
