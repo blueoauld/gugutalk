@@ -6,6 +6,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import net.logstash.logback.argument.StructuredArguments.value
 import org.slf4j.MDC
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
@@ -16,6 +17,9 @@ import org.springframework.web.filter.OncePerRequestFilter
 import java.util.*
 
 private const val REQUEST_ID = "requestId"
+private const val METHOD = "method"
+private const val URI = "uri"
+private const val IP = "ip"
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
@@ -37,18 +41,24 @@ class RequestLoggingFilter : OncePerRequestFilter() {
     ) {
         val startTime = System.currentTimeMillis()
         MDC.put(REQUEST_ID, UUID.randomUUID().toString().take(8))
+        MDC.put(METHOD, request.method)
+        MDC.put(URI, request.requestURI)
+        MDC.put(IP, IpExtractor.extract(request))
 
         try {
             filterChain.doFilter(request, response)
         } finally {
             val elapsed = System.currentTimeMillis() - startTime
-            val ip = IpExtractor.extract(request)
 
-            log.info {
-                "METHOD = ${request.method}, URI = ${request.requestURI}, IP = $ip, STATUS = ${response.status}, MS = $elapsed"
+            log.atInfo {
+                message = "STATUS={}, MS={}"
+                arguments = arrayOf(value("status", response.status), value("ms", elapsed))
             }
 
             MDC.remove(REQUEST_ID)
+            MDC.remove(METHOD)
+            MDC.remove(URI)
+            MDC.remove(IP)
             MDC.remove(AuthenticationAttributes.MEMBER_ID)
             MDC.remove(AuthenticationAttributes.NICKNAME)
         }

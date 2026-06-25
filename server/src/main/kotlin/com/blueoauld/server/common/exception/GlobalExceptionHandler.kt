@@ -1,7 +1,6 @@
 package com.blueoauld.server.common.exception
 
 import com.blueoauld.server.common.exception.type.ErrorCode.*
-import com.blueoauld.server.common.util.IpExtractor
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
@@ -27,7 +26,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         val code = e.errorCode
 
-        print(servletRequest, e.message)
+        print(e.message)
         return ResponseEntity.status(code.status).body(ErrorResponse.of(code))
     }
 
@@ -39,7 +38,7 @@ class GlobalExceptionHandler {
         val firstError = e.bindingResult.fieldErrors.firstOrNull()
         val message = firstError?.defaultMessage ?: INVALID_INPUT.message
 
-        print(servletRequest, e.message)
+        print(e.message)
         return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT, message))
     }
 
@@ -48,7 +47,7 @@ class GlobalExceptionHandler {
         e: HttpMessageNotReadableException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        print(servletRequest, e.message)
+        print(e.message)
         return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT))
     }
 
@@ -57,7 +56,7 @@ class GlobalExceptionHandler {
         e: MethodArgumentTypeMismatchException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        print(servletRequest, e.message)
+        print(e.message)
         return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT))
     }
 
@@ -66,7 +65,7 @@ class GlobalExceptionHandler {
         e: MissingServletRequestParameterException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        print(servletRequest, e.message)
+        print(e.message)
         return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT))
     }
 
@@ -75,7 +74,7 @@ class GlobalExceptionHandler {
         e: HttpRequestMethodNotSupportedException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        print(servletRequest, e.message)
+        print(e.message)
         return ResponseEntity.status(METHOD_NOT_ALLOWED.status).body(ErrorResponse.of(METHOD_NOT_ALLOWED))
     }
 
@@ -84,7 +83,7 @@ class GlobalExceptionHandler {
         e: NoResourceFoundException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        print(servletRequest, e.message)
+        print(e.message)
         return ResponseEntity.status(RESOURCE_NOT_FOUND.status).body(ErrorResponse.of(RESOURCE_NOT_FOUND))
     }
 
@@ -93,7 +92,7 @@ class GlobalExceptionHandler {
         e: IllegalArgumentException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        print(servletRequest, e.message)
+        print(e.message)
         return ResponseEntity.status(INVALID_INPUT.status).body(ErrorResponse.of(INVALID_INPUT))
     }
 
@@ -102,7 +101,7 @@ class GlobalExceptionHandler {
         e: ResponseStatusException,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        print(servletRequest, e.message)
+        print(e.message)
         return ResponseEntity.status(e.statusCode)
             .body(ErrorResponse(code = "HTTP_ERROR", message = e.reason ?: "요청을 처리할 수 없습니다."))
     }
@@ -112,23 +111,19 @@ class GlobalExceptionHandler {
         e: Exception,
         servletRequest: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        print(e, servletRequest)
+        print(e)
         return ResponseEntity.status(INTERNAL_SERVER_ERROR.status).body(ErrorResponse.of(INTERNAL_SERVER_ERROR))
     }
 
-    private fun print(servletRequest: HttpServletRequest, message: String?) {
-        val ip = IpExtractor.extract(servletRequest)
-
+    private fun print(message: String?) {
         log.warn {
-            "METHOD = ${servletRequest.method}, URI = ${servletRequest.requestURI}, IP = $ip, 메세지 = $message"
+            "메세지 = $message"
         }
     }
 
-    private fun print(e: Exception, servletRequest: HttpServletRequest) {
-        val ip = IpExtractor.extract(servletRequest)
-
+    private fun print(e: Exception) {
         log.error(e) {
-            "METHOD = ${servletRequest.method}, URI = ${servletRequest.requestURI}, IP = $ip"
+            "예외 발생"
         }
     }
 }

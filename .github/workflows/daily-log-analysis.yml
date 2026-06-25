@@ -1,4 +1,4 @@
-name: Daily Warn Log Analysis
+name: Daily Log Analysis
 
 on:
   schedule:
@@ -13,6 +13,16 @@ on:
 jobs:
   analyze:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # 한 레벨이 실패해도 나머지 레벨 보고는 계속
+      matrix:
+        include:
+          - level: info
+            webhook_key: DISCORD_WEBHOOK_INFO
+          - level: warn
+            webhook_key: DISCORD_WEBHOOK_WARN
+          - level: error
+            webhook_key: DISCORD_WEBHOOK_ERROR
     steps:
       - uses: actions/checkout@v4
 
@@ -22,15 +32,14 @@ jobs:
 
       - run: pip install boto3
 
-      - name: Run analyzer
+      - name: Run analyzer (${{ matrix.level }})
         env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET: gugutalk
-          LOG_PREFIX: logs/warn
-          REPORT_PREFIX: reports/warn
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          LEVEL: ${{ matrix.level }}
+          DISCORD_WEBHOOK: ${{ secrets[matrix.webhook_key] }}
         run: |
           if [ -n "${{ github.event.inputs.date }}" ]; then
             python analyze/analyze.py --date "${{ github.event.inputs.date }}"
